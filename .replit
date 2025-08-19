@@ -6,3 +6,15 @@ channel = "stable-25_05"
 
 [deployment]
 run = ["sh", "-c", ".ts"]
+
+[workflows]
+runButton = "Start Sports API"
+
+[[workflows.workflow]]
+name = "Start Sports API"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx ts-node Sports-api.ts"
