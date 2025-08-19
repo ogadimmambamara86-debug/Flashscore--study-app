@@ -344,38 +344,4 @@ footballDataApiKey: process.env.FOOTBALL_DATA_API_KEY
 }
 
 
-import express from 'express';
 
-const app = express();
-const port = 5000;
-
-app.use(express.json());
-
-// Sample sports data
-const sports = [
-  { id: 1, name: 'Football', players: 11, category: 'Team Sport' },
-  { id: 2, name: 'Basketball', players: 5, category: 'Team Sport' },
-  { id: 3, name: 'Tennis', players: 1, category: 'Individual Sport' },
-  { id: 4, name: 'Swimming', players: 1, category: 'Individual Sport' }
-];
-
-// Routes
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Sports API' });
-});
-
-app.get('/sports', (req, res) => {
-  res.json(sports);
-});
-
-app.get('/sports/:id', (req, res) => {
-  const sport = sports.find(s => s.id === parseInt(req.params.id));
-  if (!sport) {
-    return res.status(404).json({ error: 'Sport not found' });
-  }
-  res.json(sport);
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Sports API running on http://0.0.0.0:${port}`);
-});
