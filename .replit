@@ -17,4 +17,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx ts-node Sports-api.ts"
+args = "npx ts-node --transpile-only Sports-api.ts"
