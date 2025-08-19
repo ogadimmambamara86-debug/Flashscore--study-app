@@ -1,5 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
+import { createSportsAPIService } from '../../../Sports-api';
 
 interface Match {
   id: number;
@@ -8,8 +9,10 @@ interface Match {
   prediction: string;
 }
 
-// Sample match data with predictions
-const matches: Match[] = [
+const sportsAPI = createSportsAPIService();
+
+// Sample match data with predictions (fallback)
+const fallbackMatches: Match[] = [
   {
     id: 1,
     home: "Manchester United",
@@ -36,9 +39,27 @@ const matches: Match[] = [
   }
 ];
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    res.status(200).json(matches);
+    try {
+      // Try to fetch live matches from Sports API
+      const liveMatches = await sportsAPI.fetchAllLiveMatches();
+      
+      // Convert live matches to dashboard format with sample predictions
+      const matches: Match[] = liveMatches.map((match, index) => ({
+        id: parseInt(match.id) || index + 1,
+        home: match.homeTeam,
+        away: match.awayTeam,
+        prediction: `Prediction for ${match.homeTeam} vs ${match.awayTeam}`
+      }));
+
+      // If no live matches, use fallback data
+      res.status(200).json(matches.length > 0 ? matches : fallbackMatches);
+    } catch (error) {
+      console.error('Error fetching live matches:', error);
+      // Return fallback data if API fails
+      res.status(200).json(fallbackMatches);
+    }
   } else {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
