@@ -5,7 +5,7 @@ run = ".ts"
 channel = "stable-25_05"
 
 [deployment]
-run = ["sh", "-c", ".ts"]
+run = ["sh", "-c", "npm run build && npm start"]
 
 [workflows]
 runButton = "Full Stack Next.js"
