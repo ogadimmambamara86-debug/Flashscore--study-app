@@ -8,7 +8,7 @@ channel = "stable-25_05"
 run = ["sh", "-c", ".ts"]
 
 [workflows]
-runButton = "Start Sports API"
+runButton = "Full Stack Next.js"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -18,6 +18,19 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx ts-node --transpile-only Sports-api.ts"
+
+[[workflows.workflow]]
+name = "Full Stack Next.js"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx ts-node --transpile-only Sports-api.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
 
 [[ports]]
 localPort = 5000
