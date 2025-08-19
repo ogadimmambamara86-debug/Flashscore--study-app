@@ -2,6 +2,13 @@ import express from 'express';
 import { createSportsAPIService } from './Sports-api';
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+const sportsAPI = createSportsAPIService();
+
+// Middleware
+app.use(express.json());
+
+const app = express();
 const port = 5000;
 
 app.use(express.json());
@@ -55,6 +62,22 @@ app.get('/odds/:sport', async (req, res) => {
     console.error('Error fetching odds:', error);
     res.status(500).json({ error: 'Failed to fetch odds data' });
   }
+});
+
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    const health = await sportsAPI.checkAPIHealth();
+    res.json(health);
+  } catch (error) {
+    console.error('Error checking health:', error);
+    res.status(500).json({ error: 'Health check failed' });
+  }
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Sports API server running on port ${PORT}`);
 });
 
 // Health check endpoint
