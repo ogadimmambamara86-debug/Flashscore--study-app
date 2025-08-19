@@ -280,12 +280,77 @@ return {
 
 }
 
-// Consolidated method to fetch all live data
+// ESPN API Integration (Free)
+async fetchESPNNFL(): Promise<LiveMatch[]> {
+try {
+  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+  
+  if (!response.ok) {
+    throw new Error(`ESPN NFL API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return this.formatESPNData(data, 'NFL');
+} catch (error) {
+  console.error('ESPN NFL API fetch error:', error);
+  throw error;
+}
+}
+
+async fetchESPNNBA(): Promise<LiveMatch[]> {
+try {
+  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard');
+  
+  if (!response.ok) {
+    throw new Error(`ESPN NBA API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return this.formatESPNData(data, 'NBA');
+} catch (error) {
+  console.error('ESPN NBA API fetch error:', error);
+  throw error;
+}
+}
+
+async fetchESPNMLB(): Promise<LiveMatch[]> {
+try {
+  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard');
+  
+  if (!response.ok) {
+    throw new Error(`ESPN MLB API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return this.formatESPNData(data, 'MLB');
+} catch (error) {
+  console.error('ESPN MLB API fetch error:', error);
+  throw error;
+}
+}
+
+private formatESPNData(apiData: any, sport: string): LiveMatch[] {
+if (!apiData.events) return [];
+
+return apiData.events.map((event: any) => ({
+  id: event.id,
+  sport: sport,
+  homeTeam: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'home')?.team?.displayName || 'Unknown',
+  awayTeam: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'away')?.team?.displayName || 'Unknown',
+  gameTime: event.date,
+  status: event.status?.type?.description || 'Unknown',
+  homeScore: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'home')?.score || 0,
+  awayScore: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'away')?.score || 0
+}));
+}
+
+// Updated method to include ESPN APIs as fallback
 async fetchAllLiveMatches(): Promise<LiveMatch[]> {
 const results = await Promise.allSettled([
-this.fetchNFLMatches(),
-this.fetchNBAMatches(),
-this.fetchMLBMatches(),
+// Try paid APIs first
+this.fetchNFLMatches().catch(() => this.fetchESPNNFL()),
+this.fetchNBAMatches().catch(() => this.fetchESPNNBA()),
+this.fetchMLBMatches().catch(() => this.fetchESPNMLB()),
 this.fetchSoccerMatches()
 ]);
 
@@ -311,6 +376,9 @@ const checks = [
 { name: 'RapidAPI NBA', test: () => this.fetchNBAMatches() },
 { name: 'RapidAPI MLB', test: () => this.fetchMLBMatches() },
 { name: 'Soccer API', test: () => this.fetchSoccerMatches() },
+{ name: 'ESPN NFL (Free)', test: () => this.fetchESPNNFL() },
+{ name: 'ESPN NBA (Free)', test: () => this.fetchESPNNBA() },
+{ name: 'ESPN MLB (Free)', test: () => this.fetchESPNMLB() },
 { name: 'Odds API NFL', test: () => this.fetchOddsData('NFL') }
 ];
 
