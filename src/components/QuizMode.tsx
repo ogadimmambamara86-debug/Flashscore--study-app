@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import PiCoinManager from '../utils/piCoinManager';
 
 interface Question {
   id: number;
@@ -24,6 +25,8 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [timeLeft, setTimeLeft] = useState(30);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [piCoinsEarned, setPiCoinsEarned] = useState(0);
+  const [currentBalance, setCurrentBalance] = useState(0);
 
   // Offline questions cache
   const offlineQuestions: Question[] = [
@@ -76,6 +79,11 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
       // Load questions from API or use offline as fallback
       loadQuestions();
     }
+    
+    // Award daily login bonus and load balance
+    const dailyBonus = PiCoinManager.awardDailyLogin();
+    const balance = PiCoinManager.getBalance();
+    setCurrentBalance(balance.balance);
   }, [isOffline, category]);
 
   useEffect(() => {
@@ -133,6 +141,14 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         setSelectedAnswer(null);
         setTimeLeft(30);
       } else {
+        // Award Pi coins for quiz completion
+        const coinsEarned = PiCoinManager.awardQuizCompletion('default', score, questions.length);
+        setPiCoinsEarned(coinsEarned);
+        
+        // Update balance
+        const newBalance = PiCoinManager.getBalance();
+        setCurrentBalance(newBalance.balance);
+        
         setQuizComplete(true);
       }
     }, 2000);
@@ -146,6 +162,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
     setShowResult(false);
     setQuizComplete(false);
     setTimeLeft(30);
+    setPiCoinsEarned(0);
   };
 
   const getScoreMessage = () => {
@@ -167,16 +184,31 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         border: '1px solid rgba(255, 255, 255, 0.2)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
       }}>
-        <h2 style={{
-          color: '#fff',
-          fontSize: '2rem',
-          marginBottom: '20px',
-          background: 'linear-gradient(135deg, #22c55e, #06b6d4)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          Quiz Mode - You're Still in the Game! 🎯
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <h2 style={{
+            color: '#fff',
+            fontSize: '2rem',
+            margin: '0',
+            background: 'linear-gradient(135deg, #22c55e, #06b6d4)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            Quiz Mode - You're Still in the Game! 🎯
+          </h2>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, #ffd700, #ff8c00)',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '25px',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            boxShadow: '0 4px 16px rgba(255, 215, 0, 0.3)',
+            border: '2px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            π {currentBalance.toLocaleString()} Pi Coins
+          </div>
+        </div>
         
         {isOffline && (
           <div style={{
@@ -278,8 +310,25 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
           <div style={{ color: 'white', fontSize: '1.5rem', marginBottom: '8px' }}>
             Score {score}/{questions.length}
           </div>
-          <div style={{ color: '#e8f5e8', fontSize: '1.2rem' }}>
+          <div style={{ color: '#e8f5e8', fontSize: '1.2rem', marginBottom: '8px' }}>
             +{score * 10} points
+          </div>
+          
+          {/* Pi Coin Reward */}
+          <div style={{
+            background: 'rgba(255, 215, 0, 0.2)',
+            borderRadius: '12px',
+            padding: '16px',
+            border: '2px solid rgba(255, 215, 0, 0.4)',
+            marginTop: '16px'
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>π</div>
+            <div style={{ color: '#ffd700', fontSize: '1.3rem', fontWeight: '700' }}>
+              +{piCoinsEarned} Pi Coins Earned!
+            </div>
+            <div style={{ color: '#fff', fontSize: '1rem', marginTop: '4px' }}>
+              Total: π {currentBalance.toLocaleString()}
+            </div>
           </div>
         </div>
 

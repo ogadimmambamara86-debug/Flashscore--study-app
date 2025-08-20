@@ -5,11 +5,15 @@ import OfflineManager from '../components/OfflineManager';
 import PredictionsTable from '../components/PredictionsTable';
 import LatestNews from '../components/LatestNews';
 import InteractiveTools from '../components/InteractiveTools';
+import PiCoinWallet from '../components/PiCoinWallet';
+import PiCoinManager from '../utils/piCoinManager';
 
 export default function Home() {
   const [predictions] = useState([]);
   const [activeTab, setActiveTab] = useState('predictions');
   const [isOffline, setIsOffline] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [piBalance, setPiBalance] = useState(0);
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -19,6 +23,11 @@ export default function Home() {
     window.addEventListener('online', handleOnline);
 
     setIsOffline(!navigator.onLine);
+
+    // Load Pi coin balance and award daily login
+    const dailyBonus = PiCoinManager.awardDailyLogin();
+    const balance = PiCoinManager.getBalance();
+    setPiBalance(balance.balance);
 
     return () => {
       window.removeEventListener('offline', handleOffline);
@@ -63,18 +72,50 @@ export default function Home() {
         ))}
       </div>
 
-      <h1 style={{ 
-        fontSize: '3.5rem', 
-        marginBottom: '24px', 
-        background: 'linear-gradient(135deg, #22c55e, #06b6d4, #3b82f6)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        fontWeight: '800',
-        textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
-      }}>
-        Welcome to Sports Central
-      </h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <h1 style={{ 
+          fontSize: '3.5rem', 
+          margin: '0',
+          background: 'linear-gradient(135deg, #22c55e, #06b6d4, #3b82f6)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          fontWeight: '800',
+          textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+        }}>
+          Welcome to Sports Central
+        </h1>
+        
+        <button
+          onClick={() => setIsWalletOpen(true)}
+          style={{
+            background: 'linear-gradient(135deg, #ffd700, #ff8c00)',
+            color: 'white',
+            border: 'none',
+            padding: '16px 24px',
+            borderRadius: '25px',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(255, 215, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 16px rgba(255, 215, 0, 0.3)';
+          }}
+        >
+          <span style={{ fontSize: '1.3rem' }}>π</span>
+          {piBalance.toLocaleString()} Pi Coins
+        </button>
+      </div>
 
       <p style={{ 
         fontSize: '1.2rem', 
@@ -307,6 +348,11 @@ export default function Home() {
           }}>Soccer</span>
         </div>
       </div>
+
+      <PiCoinWallet 
+        isOpen={isWalletOpen} 
+        onClose={() => setIsWalletOpen(false)} 
+      />
     </div>
   );
 }
