@@ -93,11 +93,11 @@ class PiCoinManager {
     amount: number,
     type: PiCoinTransaction['type'],
     description: string
-  ): void {
-    // Security validations
-    if (!userId || typeof userId !== 'string') {
-      SecurityUtils.logSecurityEvent('invalid_transaction_user', { userId, amount, type });
-      throw new Error('Invalid user ID');
+  ): boolean {
+    if (!userId || userId === 'undefined' || userId.trim() === '') {
+      console.error('Invalid user ID provided to addTransaction:', userId);
+      SecurityUtils.logSecurityEvent('invalid_transaction_user', { amount, type });
+      return false; // Return false instead of throwing
     }
 
     if (typeof amount !== 'number' || !isFinite(amount)) {
@@ -160,6 +160,7 @@ class PiCoinManager {
 
     // Update balance
     this.updateBalance(userId, amount);
+    return true;
   }
 
   static getTransactions(userId: string = 'default'): PiCoinTransaction[] {

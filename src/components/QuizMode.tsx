@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import PiCoinManager from '../utils/piCoinManager';
+import UserManager from '../utils/userManager'; // Assuming UserManager is available
 
 interface Question {
   id: number;
@@ -79,9 +79,29 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
       // Load questions from API or use offline as fallback
       loadQuestions();
     }
-    
+
     // Award daily login bonus and load balance
-    const dailyBonus = PiCoinManager.awardDailyLogin();
+    const handleDailyLogin = async () => {
+      try {
+        // Ensure user is properly initialized before awarding daily login
+        let userId = UserManager.getCurrentUserId();
+        if (!userId) {
+          // Create a temporary user if none exists
+          const tempUser = await UserManager.createUser('Guest', 'guest@example.com');
+          userId = tempUser.id;
+        }
+
+        if (userId && userId !== 'undefined' && userId.length > 0) {
+          await PiCoinManager.awardDailyLogin(userId);
+        }
+      } catch (error) {
+        console.error('Daily login error:', error);
+        // Don't throw the error, just log it to prevent component crash
+      }
+    };
+
+    handleDailyLogin();
+    
     const balance = PiCoinManager.getBalance();
     setCurrentBalance(balance.balance);
   }, [isOffline, category]);
@@ -132,7 +152,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
     if (selectedAnswer === questions[currentQuestion].correctAnswer) {
       setScore(score + 1);
     }
-    
+
     setShowResult(true);
     setTimeout(() => {
       setShowResult(false);
@@ -144,11 +164,11 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         // Award Pi coins for quiz completion
         const coinsEarned = PiCoinManager.awardQuizCompletion('default', score, questions.length);
         setPiCoinsEarned(coinsEarned);
-        
+
         // Update balance
         const newBalance = PiCoinManager.getBalance();
         setCurrentBalance(newBalance.balance);
-        
+
         setQuizComplete(true);
       }
     }, 2000);
@@ -195,7 +215,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
           }}>
             Quiz Mode - You're Still in the Game! 🎯
           </h2>
-          
+
           <div style={{
             background: 'linear-gradient(135deg, #ffd700, #ff8c00)',
             color: 'white',
@@ -209,7 +229,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
             π {currentBalance.toLocaleString()} Pi Coins
           </div>
         </div>
-        
+
         {isOffline && (
           <div style={{
             backgroundColor: 'rgba(255, 193, 7, 0.2)',
@@ -241,7 +261,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
           >
             🚀 Quick Start
           </button>
-          
+
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -257,7 +277,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
             <option value="sports">🏆 Choose Category - Sports</option>
             <option value="general">🧠 General Knowledge</option>
           </select>
-          
+
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
             padding: '16px 20px',
@@ -299,7 +319,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         <h2 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>
           Quiz Complete! 🎉
         </h2>
-        
+
         <div style={{
           background: 'linear-gradient(135deg, #22c55e, #16a34a)',
           borderRadius: '16px',
@@ -313,7 +333,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
           <div style={{ color: '#e8f5e8', fontSize: '1.2rem', marginBottom: '8px' }}>
             +{score * 10} points
           </div>
-          
+
           {/* Pi Coin Reward */}
           <div style={{
             background: 'rgba(255, 215, 0, 0.2)',
@@ -405,11 +425,11 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
             onClick={() => handleAnswerSelect(index)}
             disabled={showResult}
             style={{
-              background: selectedAnswer === index 
+              background: selectedAnswer === index
                 ? 'linear-gradient(135deg, #22c55e, #16a34a)'
                 : 'rgba(255, 255, 255, 0.05)',
               color: selectedAnswer === index ? 'white' : '#d1fae5',
-              border: selectedAnswer === index 
+              border: selectedAnswer === index
                 ? '2px solid #22c55e'
                 : '1px solid rgba(255, 255, 255, 0.2)',
               padding: '16px 20px',
@@ -450,7 +470,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
       {/* Result Display */}
       {showResult && (
         <div style={{
-          background: selectedAnswer === currentQ?.correctAnswer 
+          background: selectedAnswer === currentQ?.correctAnswer
             ? 'rgba(34, 197, 94, 0.2)'
             : 'rgba(239, 68, 68, 0.2)',
           border: selectedAnswer === currentQ?.correctAnswer

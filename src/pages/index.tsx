@@ -85,33 +85,35 @@ export default function Home() {
       fontFamily: 'system-ui, -apple-system, sans-serif',
       position: 'relative'
     }}>
-      {/* Animated background particles */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none',
-        zIndex: -1
-      }}>
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              width: '4px',
-              height: '4px',
-              background: 'radial-gradient(circle, #22c55e, transparent)',
-              borderRadius: '50%',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 6}s`
-            }}
-          />
-        ))}
-      </div>
+      {/* Animated background particles - client-only to avoid SSR mismatch */}
+      {typeof window !== 'undefined' && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none',
+          zIndex: -1
+        }}>
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: '4px',
+                height: '4px',
+                background: 'radial-gradient(circle, #22c55e, transparent)',
+                borderRadius: '50%',
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 6}s`
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap' }}>
         <div>

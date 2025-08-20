@@ -1,4 +1,3 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -24,14 +23,26 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-    
-    // Call optional error handler
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
 
-    // Report to monitoring service (if available)
-    this.reportError(error, errorInfo);
+    // Log error for debugging
+    if (typeof window !== 'undefined') {
+      try {
+        const SecurityUtils = require('../utils/securityUtils').default;
+        SecurityUtils.logSecurityEvent('app_error', {
+          message: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack
+        });
+
+        // Also create an error report for debugging
+        console.log('Error Report:', {
+          message: error.message,
+          stack: error.stack
+        });
+      } catch (logError) {
+        console.error('Failed to log error:', logError);
+      }
+    }
   }
 
   private reportError = (error: Error, errorInfo: ErrorInfo) => {
@@ -46,7 +57,7 @@ class ErrorBoundary extends Component<Props, State> {
     };
 
     console.error('Error Report:', errorReport);
-    
+
     // In production, you might send this to an error tracking service
     // Example: Sentry.captureException(error, { extra: errorReport });
   };
@@ -78,7 +89,7 @@ class ErrorBoundary extends Component<Props, State> {
           <p style={{ color: '#666', marginBottom: '20px', maxWidth: '500px', margin: '0 auto 20px' }}>
             We encountered an unexpected error. Our team has been notified and is working on a fix.
           </p>
-          
+
           <details style={{ 
             textAlign: 'left', 
             maxWidth: '600px', 
