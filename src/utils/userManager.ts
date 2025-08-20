@@ -15,7 +15,7 @@ interface User {
 class UserManager {
   private static readonly STORAGE_KEY = 'sports_central_users';
   private static readonly CURRENT_USER_KEY = 'current_user';
-  private static readonly ENCRYPTION_KEY = 'your_super_secret_key'; // Replace with a strong, securely managed key
+  private static readonly ENCRYPTION_KEY = process.env.USER_ENCRYPTION_KEY || 'development_key_only';
 
   static createUser(username: string, email?: string): User {
     const users = this.getAllUsers();

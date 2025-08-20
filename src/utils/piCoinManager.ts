@@ -19,7 +19,7 @@ interface PiCoinBalance {
 class PiCoinManager {
   private static readonly STORAGE_KEY = 'pi_coin_data';
   private static readonly TRANSACTION_KEY = 'pi_coin_transactions';
-  private static readonly ENCRYPTION_KEY = 'pi_coin_secure_key_2024';
+  private static readonly ENCRYPTION_KEY = process.env.PICOIN_ENCRYPTION_KEY || 'development_key_only';
 
   // Earning rates
   static readonly REWARDS = {
