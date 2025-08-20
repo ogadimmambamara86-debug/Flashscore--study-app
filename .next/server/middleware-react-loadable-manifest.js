@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"utils/userManager.ts -> ./piCoinManager\":{\"id\":\"utils/userManager.ts -> ./piCoinManager\",\"files\":[]}}"
+self.__REACT_LOADABLE_MANIFEST="{\"utils/piCoinManager.ts -> ./monetizationManager\":{\"id\":\"utils/piCoinManager.ts -> ./monetizationManager\",\"files\":[\"static/chunks/src_utils_monetizationManager_ts.js\"]},\"utils/userManager.ts -> ./piCoinManager\":{\"id\":\"utils/userManager.ts -> ./piCoinManager\",\"files\":[]}}"
