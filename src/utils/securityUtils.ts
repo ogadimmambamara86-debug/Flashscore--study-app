@@ -103,12 +103,148 @@ class SecurityUtils {
     }
   }
 
+  // Token validation with expiration
+  static isTokenValid(token: string): boolean {
+    if (!this.validateSession(token)) return false;
+    
+    // Check token age (demo implementation)
+    const tokenData = this.getTokenData(token);
+    if (!tokenData) return false;
+    
+    const tokenAge = Date.now() - tokenData.created;
+    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+    
+    return tokenAge < maxAge;
+  }
+
+  static getTokenData(token: string): { created: number; userId?: string } | null {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const tokenStore = JSON.parse(localStorage.getItem('token_store') || '{}');
+        return tokenStore[token] || null;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  static storeTokenData(token: string, data: { created: number; userId?: string }): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const tokenStore = JSON.parse(localStorage.getItem('token_store') || '{}');
+        tokenStore[token] = data;
+        localStorage.setItem('token_store', JSON.stringify(tokenStore));
+      }
+    } catch (error) {
+      console.error('Failed to store token data:', error);
+    }
+  }
+
+  // Ethical hacking protection
+  static detectSuspiciousActivity(identifier: string, action: string): boolean {
+    const key = `suspicious_${identifier}_${action}`;
+    const now = Date.now();
+    
+    // Check for rapid successive requests
+    if (!this.checkRateLimit(key, 5, 10000)) { // 5 actions per 10 seconds
+      this.logSecurityEvent('suspicious_activity_detected', {
+        identifier,
+        action,
+        reason: 'rate_limit_exceeded'
+      });
+      return true;
+    }
+
+    // Check for unusual patterns
+    const patterns = this.getActivityPatterns(identifier);
+    if (patterns.distinctActions > 10 && patterns.timeSpan < 60000) {
+      this.logSecurityEvent('suspicious_activity_detected', {
+        identifier,
+        action,
+        reason: 'unusual_pattern',
+        patterns
+      });
+      return true;
+    }
+
+    return false;
+  }
+
+  private static getActivityPatterns(identifier: string): {
+    distinctActions: number;
+    timeSpan: number;
+    frequency: number;
+  } {
+    // Simplified pattern detection
+    const logs = this.getSecurityLogs();
+    const userLogs = logs.filter(log => 
+      log.details?.identifier === identifier || 
+      log.details?.ip === identifier
+    ).slice(0, 50); // Last 50 activities
+
+    if (userLogs.length === 0) {
+      return { distinctActions: 0, timeSpan: 0, frequency: 0 };
+    }
+
+    const actions = new Set(userLogs.map(log => log.event));
+    const oldest = new Date(userLogs[userLogs.length - 1].timestamp).getTime();
+    const newest = new Date(userLogs[0].timestamp).getTime();
+
+    return {
+      distinctActions: actions.size,
+      timeSpan: newest - oldest,
+      frequency: userLogs.length / Math.max(1, (newest - oldest) / 60000) // per minute
+    };
+  }
+
+  static getSecurityLogs(): any[] {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        return JSON.parse(localStorage.getItem('security_logs') || '[]');
+      }
+    } catch {
+      return [];
+    }
+    return [];
+  }
+
+  // User data protection
+  static maskSensitiveData(data: any): any {
+    if (typeof data === 'string') {
+      // Mask emails
+      if (data.includes('@')) {
+        const [local, domain] = data.split('@');
+        return `${local.substring(0, 2)}***@${domain}`;
+      }
+      // Mask long strings (potential tokens/passwords)
+      if (data.length > 20) {
+        return `${data.substring(0, 4)}***${data.substring(data.length - 4)}`;
+      }
+    }
+    
+    if (typeof data === 'object' && data !== null) {
+      const masked: any = {};
+      for (const key in data) {
+        if (['password', 'token', 'secret', 'key'].some(sensitive => 
+          key.toLowerCase().includes(sensitive))) {
+          masked[key] = '***MASKED***';
+        } else {
+          masked[key] = this.maskSensitiveData(data[key]);
+        }
+      }
+      return masked;
+    }
+    
+    return data;
+  }
+
   // Security audit logging
   static logSecurityEvent(event: string, details: any): void {
     const logEntry = {
       timestamp: new Date().toISOString(),
       event,
-      details,
+      details: this.maskSensitiveData(details),
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'server',
       ip: 'masked' // In production, get real IP from headers
     };

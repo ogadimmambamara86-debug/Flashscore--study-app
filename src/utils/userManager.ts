@@ -23,6 +23,16 @@ class UserManager {
     const sanitizedUsername = SecurityUtils.sanitizeInput(username);
     const sanitizedEmail = email ? SecurityUtils.sanitizeInput(email) : undefined;
 
+    // Security checks
+    const userIP = 'current_user'; // In production, get real IP
+    if (SecurityUtils.detectSuspiciousActivity(userIP, 'user_creation')) {
+      SecurityUtils.logSecurityEvent('blocked_suspicious_user_creation', {
+        username: sanitizedUsername,
+        email: sanitizedEmail
+      });
+      throw new Error('Too many account creation attempts. Please try again later.');
+    }
+
     // Check if username already exists
     if (users.find(u => u.username === sanitizedUsername)) {
       throw new Error('Username already exists');
@@ -42,6 +52,12 @@ class UserManager {
       emailVerified: false, // Email not verified by default
     };
 
+    // Store token data for validation
+    SecurityUtils.storeTokenData(sessionToken, {
+      created: Date.now(),
+      userId: newUser.id
+    });
+
     users.push(newUser);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
 
@@ -51,22 +67,41 @@ class UserManager {
     // Create wallet for new user
     this.initializeUserWallet(newUser.id);
 
+    // Log security event
+    SecurityUtils.logSecurityEvent('user_created', {
+      userId: newUser.id,
+      username: sanitizedUsername
+    });
+
     // TODO: Implement email verification process here
 
     return newUser;
   }
 
   static getCurrentUser(): User | null {
+    // Try cache first
+    const CacheManager = require('./cacheManager').default;
+    const cached = CacheManager.get('current_user');
+    if (cached) return cached;
+
     const userData = localStorage.getItem(this.CURRENT_USER_KEY);
     if (!userData) {
       return null;
     }
     const user: User = JSON.parse(userData);
+    
     // Check if session token is still valid (e.g., not expired)
     if (user.sessionToken && !SecurityUtils.isTokenValid(user.sessionToken)) {
       this.logoutUser();
       return null;
     }
+
+    // Cache user data securely
+    CacheManager.set('current_user', user, 5, {
+      userId: user.id,
+      sensitiveData: true
+    });
+
     return user;
   }
 
