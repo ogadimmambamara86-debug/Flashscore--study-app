@@ -157,6 +157,80 @@ const PiCoinWallet: React.FC<PiCoinWalletProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
+            {/* Withdrawal Section */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ color: '#fff', marginBottom: '16px', fontSize: '1.2rem' }}>Withdraw to Pi Network</h3>
+              <div style={{ marginBottom: '12px', color: '#d1fae5', fontSize: '0.9rem' }}>
+                Exchange Rate: 200 Pi Coins = 1 Real Pi • Minimum: 1,000 Pi Coins
+              </div>
+              {balance.balance >= 1000 ? (
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Enter your Pi wallet address"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                      marginBottom: '12px'
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
+                    <input
+                      type="number"
+                      placeholder="Pi Coins to exchange"
+                      min="1000"
+                      max={balance.balance}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        color: '#fff'
+                      }}
+                    />
+                    <div style={{ color: '#22c55e', fontWeight: '600' }}>
+                      = {(1000 / 200).toFixed(2)} Pi
+                    </div>
+                  </div>
+                  <button
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Withdraw to Pi Network
+                  </button>
+                </div>
+              ) : (
+                <div style={{ 
+                  padding: '16px', 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  borderRadius: '8px', 
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#fca5a5',
+                  textAlign: 'center'
+                }}>
+                  Need {(1000 - balance.balance).toLocaleString()} more Pi Coins to withdraw
+                </div>
+              )}
+            </div>
+
             {/* Earning Opportunities */}
             <div style={{
               background: 'rgba(255, 255, 255, 0.05)',

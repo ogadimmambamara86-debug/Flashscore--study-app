@@ -151,7 +151,7 @@ class PiCoinManager {
   }
 
   // Exchange Pi coins for real Pi (for users)
-  static exchangeToRealPi(userId: string, piCoins: number, piWalletAddress: string): { success: boolean; realPi?: number; error?: string } {
+  static exchangeToRealPi(userId: string, piCoins: number, piWalletAddress: string): { success: boolean; realPi?: number; error?: string; txId?: string } {
     const balance = this.getBalance(userId);
     const exchangeRate = 200; // 200 Pi coins = 1 real Pi (different from creator rate)
     const minExchange = 1000; // Minimum 1000 Pi coins
@@ -163,16 +163,41 @@ class PiCoinManager {
     if (balance.balance < piCoins) {
       return { success: false, error: 'Insufficient Pi coin balance' };
     }
+
+    if (!piWalletAddress || piWalletAddress.trim().length === 0) {
+      return { success: false, error: 'Pi wallet address is required' };
+    }
     
     const realPiAmount = piCoins / exchangeRate;
+    const txId = `pi_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Deduct Pi coins
-    this.addTransaction(userId, -piCoins, 'bonus', `Exchanged ${piCoins} Pi coins for ${realPiAmount} Pi`);
+    this.addTransaction(userId, -piCoins, 'bonus', `Withdrew ${piCoins} Pi coins → ${realPiAmount.toFixed(2)} Pi to ${piWalletAddress.substring(0, 8)}...`);
     
-    // In production, send real Pi to user's wallet
-    // For now, just record the exchange
+    // Store withdrawal record
+    const withdrawalRecord = {
+      id: txId,
+      userId,
+      piCoinsExchanged: piCoins,
+      realPiAmount: realPiAmount.toFixed(4),
+      walletAddress: piWalletAddress,
+      timestamp: new Date(),
+      status: 'pending' // In production: 'pending' → 'completed' → 'confirmed'
+    };
     
-    return { success: true, realPi: realPiAmount };
+    const withdrawals = JSON.parse(localStorage.getItem('pi_withdrawals') || '[]');
+    withdrawals.unshift(withdrawalRecord);
+    localStorage.setItem('pi_withdrawals', JSON.stringify(withdrawals));
+    
+    // In production, integrate with Pi Network SDK
+    // await PiNetwork.sendPayment(piWalletAddress, realPiAmount);
+    
+    return { success: true, realPi: realPiAmount, txId };
+  }
+
+  static getWithdrawalHistory(userId: string = 'default'): any[] {
+    const withdrawals = JSON.parse(localStorage.getItem('pi_withdrawals') || '[]');
+    return withdrawals.filter((w: any) => w.userId === userId);
   }
 }
 
