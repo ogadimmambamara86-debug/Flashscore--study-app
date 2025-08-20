@@ -32,16 +32,20 @@ class PiCoinManager {
   };
 
   static getBalance(userId: string = 'default'): PiCoinBalance {
+    if (typeof window === 'undefined') {
+      return { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };
+    }
+    
     const data = localStorage.getItem(this.STORAGE_KEY);
     if (!data) {
       return { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };
     }
     try {
-      const decryptedData = SecurityUtils.decrypt(data, this.ENCRYPTION_KEY);
+      const SecurityUtils = require('./securityUtils').default;
+      const decryptedData = SecurityUtils.decryptData(data, this.ENCRYPTION_KEY);
       const balances = JSON.parse(decryptedData);
       return balances[userId] || { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };
     } catch (error) {
-      SecurityUtils.logSecurityEvent('balance_decryption_error', { userId });
       console.error('Failed to decrypt balance data:', error);
       return { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };
     }
