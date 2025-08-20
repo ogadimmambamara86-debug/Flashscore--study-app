@@ -127,6 +127,53 @@ class PiCoinManager {
   static formatPiCoins(amount: number): string {
     return `π ${amount.toLocaleString()}`;
   }
+
+  // Purchase Pi Coins with real money/Pi
+  static purchasePiCoins(userId: string, amount: number, paymentMethod: 'pi_network' | 'credit_card', creatorId?: string): boolean {
+    try {
+      // In production, integrate with payment processor
+      // For now, simulate successful purchase
+      
+      this.addTransaction(userId, amount, 'bonus', `Purchased ${amount} Pi coins`);
+      
+      // If this was from a creator's content, record commission
+      if (creatorId) {
+        import('./monetizationManager').then(({ default: MonetizationManager }) => {
+          MonetizationManager.recordUserPurchase(creatorId, amount);
+        });
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      return false;
+    }
+  }
+
+  // Exchange Pi coins for real Pi (for users)
+  static exchangeToRealPi(userId: string, piCoins: number, piWalletAddress: string): { success: boolean; realPi?: number; error?: string } {
+    const balance = this.getBalance(userId);
+    const exchangeRate = 200; // 200 Pi coins = 1 real Pi (different from creator rate)
+    const minExchange = 1000; // Minimum 1000 Pi coins
+    
+    if (piCoins < minExchange) {
+      return { success: false, error: `Minimum exchange is ${minExchange} Pi coins` };
+    }
+    
+    if (balance.balance < piCoins) {
+      return { success: false, error: 'Insufficient Pi coin balance' };
+    }
+    
+    const realPiAmount = piCoins / exchangeRate;
+    
+    // Deduct Pi coins
+    this.addTransaction(userId, -piCoins, 'bonus', `Exchanged ${piCoins} Pi coins for ${realPiAmount} Pi`);
+    
+    // In production, send real Pi to user's wallet
+    // For now, just record the exchange
+    
+    return { success: true, realPi: realPiAmount };
+  }
 }
 
 export default PiCoinManager;
