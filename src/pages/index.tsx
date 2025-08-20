@@ -1,8 +1,28 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import QuizMode from '../components/QuizMode';
+import OfflineManager from '../components/OfflineManager';
 
 export default function Home() {
+  const [predictions] = useState([]);
+  const [activeTab, setActiveTab] = useState('predictions');
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => setIsOffline(false);
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    setIsOffline(!navigator.onLine);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
   return (
     <div style={{ 
       padding: '40px', 
@@ -52,7 +72,7 @@ export default function Home() {
       }}>
         Welcome to Sports Central
       </h1>
-      
+
       <p style={{ 
         fontSize: '1.2rem', 
         color: '#666', 
@@ -61,7 +81,9 @@ export default function Home() {
       }}>
         Your ultimate destination for live sports data, predictions, and real-time updates across NFL, NBA, MLB, and Soccer.
       </p>
-      
+
+      {isOffline && <OfflineManager />}
+
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
@@ -98,7 +120,7 @@ export default function Home() {
           }}>Live Matches</h3>
           <p style={{ color: '#d1fae5', margin: '0', lineHeight: '1.5' }}>Real-time scores and updates</p>
         </div>
-        
+
         <div style={{ 
           padding: '24px', 
           background: 'rgba(255, 255, 255, 0.1)',
@@ -109,7 +131,7 @@ export default function Home() {
           <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Predictions</h3>
           <p style={{ color: '#666', margin: '0' }}>AI-powered match predictions</p>
         </div>
-        
+
         <div style={{ 
           padding: '20px', 
           background: 'white', 
@@ -120,7 +142,114 @@ export default function Home() {
           <p style={{ color: '#666', margin: '0' }}>Comprehensive betting insights</p>
         </div>
       </div>
-      
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+        <button
+          key="predictions"
+          onClick={() => setActiveTab('predictions')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'predictions' ? '#22c55e' : 'transparent',
+            color: activeTab === 'predictions' ? 'white' : '#d1fae5',
+            border: activeTab === 'predictions' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          📊 Predictions
+        </button>
+        <button
+          key="news"
+          onClick={() => setActiveTab('news')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'news' ? '#22c55e' : 'transparent',
+            color: activeTab === 'news' ? 'white' : '#d1fae5',
+            border: activeTab === 'news' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          📰 News
+        </button>
+        <button
+          key="stories"
+          onClick={() => setActiveTab('stories')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'stories' ? '#22c55e' : 'transparent',
+            color: activeTab === 'stories' ? 'white' : '#d1fae5',
+            border: activeTab === 'stories' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          📖 Stories
+        </button>
+        <button
+          key="quiz"
+          onClick={() => setActiveTab('quiz')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'quiz' ? '#22c55e' : 'transparent',
+            color: activeTab === 'quiz' ? 'white' : '#d1fae5',
+            border: activeTab === 'quiz' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🎯 Quiz
+        </button>
+        <button
+          key="tools"
+          onClick={() => setActiveTab('tools')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: activeTab === 'tools' ? '#22c55e' : 'transparent',
+            color: activeTab === 'tools' ? 'white' : '#d1fae5',
+            border: activeTab === 'tools' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🛠️ Tools
+        </button>
+      </div>
+
+      <div style={{ 
+        marginTop: '40px', 
+        padding: '30px', 
+        background: 'rgba(255, 255, 255, 0.05)', 
+        borderRadius: '10px',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        {activeTab === 'predictions' && <PredictionsTable predictions={predictions} />}
+        {activeTab === 'news' && <LatestNews />}
+        {activeTab === 'stories' && <LatestNews />}
+        {activeTab === 'quiz' && <QuizMode isOffline={isOffline} />}
+        {activeTab === 'tools' && <InteractiveTools />}
+      </div>
+
       <Link href="/dashboard" style={{
         display: 'inline-block',
         padding: '15px 30px',
@@ -130,16 +259,18 @@ export default function Home() {
         textDecoration: 'none',
         fontSize: '1.1rem',
         fontWeight: 'bold',
-        transition: 'background-color 0.3s ease'
+        transition: 'background-color 0.3s ease',
+        marginTop: '50px'
       }}>
         Enter Dashboard
       </Link>
-      
+
       <div style={{ 
-        marginTop: '40px', 
+        marginTop: '50px', 
         padding: '20px', 
         background: '#f8f9fa', 
-        borderRadius: '8px' 
+        borderRadius: '8px',
+        borderLeft: '4px solid #007bff'
       }}>
         <h4 style={{ color: '#333', marginBottom: '15px' }}>Available APIs</h4>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
