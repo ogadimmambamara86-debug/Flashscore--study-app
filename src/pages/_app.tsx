@@ -3,34 +3,31 @@ import Head from 'next/head';
 import '../styles/globals.css';
 import FloatingAlert from '../components/FloatingAlert';
 import { useEffect, useState } from 'react';
-import { checkForAlerts } from '../utils/alertUtils';
 import ErrorBoundary from '../components/ErrorBoundary';
 import OfflineManager from '../components/OfflineManager';
 
+import { useLocalStorage } from '../utils/clientStorage';
+
 export default function App({ Component, pageProps }: AppProps) {
-  const [floatingAlertsEnabled, setFloatingAlertsEnabled] = useState(false);
+  const [floatingAlertsEnabled, setFloatingAlertsEnabled] = useLocalStorage('floatingAlertsEnabled', false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Load floating alerts preference from localStorage
-    const saved = localStorage.getItem('floatingAlertsEnabled');
-    if (saved) {
-      setFloatingAlertsEnabled(JSON.parse(saved));
-    }
+    // Set client-side flag
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
-    // Save floating alerts preference to localStorage
-    localStorage.setItem('floatingAlertsEnabled', JSON.stringify(floatingAlertsEnabled));
-  }, [floatingAlertsEnabled]);
-
-  useEffect(() => {
-    // Trigger welcome alert when enabled
-    if (floatingAlertsEnabled) {
+    // Trigger welcome alert when enabled (only on client)
+    if (isClient && floatingAlertsEnabled) {
       setTimeout(() => {
-        triggerFloatingAlert('Floating alerts are now enabled! 🎉', 'success');
+        // Dynamic import to avoid SSR issues
+        import('../components/FloatingAlert').then(({ triggerFloatingAlert }) => {
+          triggerFloatingAlert('Floating alerts are now enabled! 🎉', 'success');
+        });
       }, 500);
     }
-  }, [floatingAlertsEnabled]);
+  }, [floatingAlertsEnabled, isClient]);
 
   return (
     <ErrorBoundary
@@ -114,8 +111,8 @@ export default function App({ Component, pageProps }: AppProps) {
         onToggle={setFloatingAlertsEnabled}
       />
 
-      {/* Floating Alert Toggle Button */}
-      {!floatingAlertsEnabled && (
+      {/* Floating Alert Toggle Button - Only render on client */}
+      {isClient && !floatingAlertsEnabled && (
         <button
           onClick={() => setFloatingAlertsEnabled(true)}
           style={{

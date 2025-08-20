@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import CacheManager from '../utils/cacheManager';
+import { ClientStorage } from '../utils/clientStorage';
 
 interface ToolsProps {
   predictions: any[];

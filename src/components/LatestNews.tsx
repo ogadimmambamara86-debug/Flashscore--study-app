@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ClientStorage } from '../utils/clientStorage';
 
 // Define the structure for a news item
 interface NewsItem {
@@ -26,12 +27,7 @@ const LatestNews: React.FC = () => {
   }, []);
 
   // Initialize news items from local storage or default
-  const [newsItems, setNewsItems] = useState<NewsItem[]>(() => {
-    const storedNews = localStorage.getItem('newsItems');
-    if (storedNews) {
-      return JSON.parse(storedNews);
-    } else {
-      return [
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([
         {
           id: 1,
           title: "Village Tragedy Shakes Community",
@@ -50,9 +46,34 @@ const LatestNews: React.FC = () => {
           preview: "Local businesses and neighbors have rallied together to help...",
           fullContent: "Local businesses and neighbors have rallied together to help Ella and her family during this transition period. A support fund has been established, meals are being provided daily, and volunteers have stepped up to assist with various tasks. This outpouring of community spirit has shown the true character of the village and provided hope for the future."
         }
-      ];
-    }
-  });
+      ]);
+
+  useEffect(() => {
+    // Load news items from localStorage on client side
+    const defaultNews = [
+      {
+        id: 1,
+        title: "Village Tragedy Shakes Community",
+        preview: "The news of Ella's father passing shook the entire village...",
+        fullContent: "The news of Ella's father passing shook the entire village. He was a respected member of the community, known for his kindness and wisdom. The funeral was attended by hundreds of people who came to pay their respects. Ella found herself overwhelmed by the support from neighbors and friends during this difficult time."
+      },
+      {
+        id: 2,
+        title: "New Responsibilities Emerge",
+        preview: "In the days that followed, Ella found herself burdened with new responsibilities...",
+        fullContent: "In the days that followed, Ella found herself burdened with new responsibilities that she had never imagined. Managing her father's affairs, taking care of the family business, and supporting her younger siblings became her daily reality. Despite the challenges, she discovered inner strength she didn't know she possessed and began to see a path forward through the difficulties."
+      },
+      {
+        id: 3,
+        title: "Community Support Grows",
+        preview: "The community rallied around Ella and her family...",
+        fullContent: "The community rallied around Ella and her family during their time of need. Local businesses offered support, neighbors brought meals, and friends provided emotional comfort. This outpouring of kindness reminded everyone of the strength that comes from unity and shared compassion."
+      }
+    ];
+    
+    const storedNews = ClientStorage.getItem('newsItems', defaultNews);
+    setNewsItems(storedNews);
+  }, []);
 
   // Save news items to local storage whenever they change
   useEffect(() => {

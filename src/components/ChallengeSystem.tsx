@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { ClientStorage } from '../utils/clientStorage';
 import UserManager, { User } from '../utils/userManager';
 
 interface Challenge {
@@ -37,14 +38,12 @@ const ChallengeSystem: React.FC<ChallengeSystemProps> = ({ currentUser }) => {
   }, []);
 
   const loadChallenges = () => {
-    const stored = localStorage.getItem('sports_central_challenges');
-    if (stored) {
-      setChallenges(JSON.parse(stored));
-    }
+    const stored = ClientStorage.getItem('sports_central_challenges', []);
+    setChallenges(stored);
   };
 
   const saveChallenges = (challengeList: Challenge[]) => {
-    localStorage.setItem('sports_central_challenges', JSON.stringify(challengeList));
+    ClientStorage.setItem('sports_central_challenges', challengeList);
     setChallenges(challengeList);
   };
 
