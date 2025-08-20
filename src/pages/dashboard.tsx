@@ -88,36 +88,74 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Tesla-style header with autopilot indicator */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '30px',
+        marginBottom: '40px',
         flexWrap: 'wrap',
-        gap: '15px'
+        gap: '20px',
+        position: 'relative'
       }}>
-        <h1 className="text-gradient" style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
+        <h1 style={{
+          fontSize: '3rem',
+          fontWeight: '900',
           margin: 0,
-          textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+          background: 'linear-gradient(135deg, #00ff88, #00a2ff, #0066ff)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          textShadow: '0 0 30px rgba(0, 255, 136, 0.3)',
+          letterSpacing: '-1px'
         }}>
-          ⚽ Sports Predictions Dashboard
+          🚗 AUTOPILOT SPORTS DASHBOARD
         </h1>
 
-        {/* Enhanced device indicator */}
-        <div className="glass-card" style={{
-          padding: '8px 16px',
-          background: isMobile
-            ? 'linear-gradient(135deg, #22c55e, #16a34a)'
-            : 'linear-gradient(135deg, #06b6d4, #0891b2)',
-          borderRadius: '20px',
-          fontSize: '0.85rem',
-          fontWeight: '600',
-          color: 'white',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+        {/* Tesla-style status indicators */}
+        <div style={{
+          display: 'flex',
+          gap: '15px',
+          alignItems: 'center'
         }}>
-          {isMobile ? '📱 Mobile' : '💻 Desktop'} Optimized
+          <div style={{
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 162, 255, 0.1))',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '25px',
+            border: '1px solid rgba(0, 255, 136, 0.3)',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: '#00ff88',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 20px rgba(0, 255, 136, 0.1)'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#00ff88',
+              animation: 'pulse 2s ease-in-out infinite'
+            }} />
+            {isMobile ? 'MOBILE MODE' : 'DESKTOP MODE'}
+          </div>
+          <div style={{
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg, rgba(0, 162, 255, 0.1), rgba(0, 102, 255, 0.1))',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '25px',
+            border: '1px solid rgba(0, 162, 255, 0.3)',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: '#00a2ff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            ⚡ NEURAL NET ACTIVE
+          </div>
         </div>
       </div>
 
@@ -126,49 +164,88 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
           <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            marginBottom: '20px',
-            color: '#e8f5e8',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+            fontSize: '1.6rem',
+            fontWeight: '800',
+            marginBottom: '25px',
+            color: '#00ff88',
+            textShadow: '0 0 20px rgba(0, 255, 136, 0.3)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            🎯 Our Predictions
+            🎯 NEURAL PREDICTIONS
           </h2>
           <div className="grid gap-6">
             {matches.map((match, index) => (
               <div
                 key={match.id}
-                className="glass-card"
                 style={{
-                  padding: '20px',
-                  transition: 'all 0.3s ease',
-                  borderLeft: `4px solid ${['#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6'][index % 4]}`,
-                  cursor: 'pointer'
+                  background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 162, 255, 0.05) 100%)',
+                  backdropFilter: 'blur(25px)',
+                  padding: '25px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(0, 255, 136, 0.2)',
+                  borderLeft: `4px solid ${['#00ff88', '#00a2ff', '#0066ff', '#ff6b6b'][index % 4]}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(34, 197, 94, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 255, 136, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.4)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 255, 136, 0.2)';
                 }}
               >
-                <p style={{
-                  fontWeight: '600',
-                  fontSize: '1.1rem',
-                  color: '#e8f5e8',
-                  marginBottom: '8px'
+                <div style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  right: '0',
+                  height: '2px',
+                  background: 'linear-gradient(90deg, transparent, #00ff88, transparent)',
+                  animation: 'scan 3s ease-in-out infinite'
+                }} />
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  marginBottom: '12px'
                 }}>
-                  {match.home} vs {match.away}
-                </p>
+                  <div style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    background: '#00ff88',
+                    boxShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
+                    animation: 'pulse 2s ease-in-out infinite'
+                  }} />
+                  <p style={{
+                    fontWeight: '700',
+                    fontSize: '1.2rem',
+                    color: '#ffffff',
+                    margin: 0,
+                    textShadow: '0 2px 10px rgba(0, 255, 136, 0.2)'
+                  }}>
+                    {match.home} vs {match.away}
+                  </p>
+                </div>
                 <p style={{
-                  background: 'linear-gradient(135deg, #22c55e, #06b6d4)',
+                  background: 'linear-gradient(135deg, #00ff88, #00a2ff)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   fontWeight: '500',
-                  lineHeight: '1.5'
+                  lineHeight: '1.6',
+                  fontSize: '1rem',
+                  margin: 0
                 }}>
                   {match.prediction}
                 </p>
@@ -179,48 +256,98 @@ export default function Dashboard() {
 
         <div>
           <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            marginBottom: '20px',
-            color: '#e8f5e8',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+            fontSize: '1.6rem',
+            fontWeight: '800',
+            marginBottom: '25px',
+            color: '#00a2ff',
+            textShadow: '0 0 20px rgba(0, 162, 255, 0.3)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            🌐 External Predictions
+            🌐 EXTERNAL DATA FEED
           </h2>
           <div className="grid gap-6">
             {predictions.length > 0 ? (
               predictions.map((prediction, index) => (
                 <div
                   key={index}
-                  className="glass-card"
                   style={{
-                    padding: '20px',
-                    transition: 'all 0.3s ease',
-                    borderLeft: `4px solid ${['#06b6d4', '#8b5cf6', '#22c55e', '#f59e0b'][index % 4]}`,
-                    cursor: 'pointer'
+                    background: 'linear-gradient(135deg, rgba(0, 162, 255, 0.05) 0%, rgba(0, 102, 255, 0.05) 100%)',
+                    backdropFilter: 'blur(25px)',
+                    padding: '25px',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(0, 162, 255, 0.2)',
+                    borderLeft: `4px solid ${['#00a2ff', '#0066ff', '#00ff88', '#ff9f00'][index % 4]}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.2)';
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 162, 255, 0.15)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 162, 255, 0.4)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.4)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 162, 255, 0.2)';
                   }}
                 >
+                  <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    right: '0',
+                    width: '60px',
+                    height: '60px',
+                    background: 'radial-gradient(circle, rgba(0, 162, 255, 0.1) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    opacity: 0.5
+                  }} />
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '8px'
+                  }}>
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#00a2ff',
+                      boxShadow: '0 0 8px rgba(0, 162, 255, 0.5)'
+                    }} />
+                  </div>
                   <p style={{
-                    color: '#d1fae5',
+                    color: '#ffffff',
                     fontWeight: '500',
-                    lineHeight: '1.6'
+                    lineHeight: '1.7',
+                    margin: 0,
+                    fontSize: '1rem'
                   }}>
                     {prediction.title}
                   </p>
                 </div>
               ))
             ) : (
-              <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-                <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>
-                  No external predictions available
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.4) 100%)',
+                backdropFilter: 'blur(20px)',
+                padding: '30px',
+                borderRadius: '20px',
+                textAlign: 'center',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <p style={{ 
+                  color: '#666666', 
+                  fontStyle: 'italic',
+                  fontSize: '1.1rem',
+                  margin: 0
+                }}>
+                  🔄 Scanning for external data feeds...
                 </p>
               </div>
             )}
