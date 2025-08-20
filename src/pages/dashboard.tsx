@@ -17,17 +17,43 @@ interface Prediction {
 
 export default function Dashboard() {
   const [matches, setMatches] = useState<Match[]>([]);
-  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [predictions, setPredictions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Load predictions data
+  useEffect(() => {
+    async function loadPredictions() {
+      try {
+        const response = await fetch('/api/predictions');
+        const data = await response.json();
+        setPredictions(data);
+      } catch (error) {
+        console.error('Failed to load predictions:', error);
+      }
+    }
+
+    loadPredictions();
+  }, []);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/sports").then((res) => res.json()),
-      fetch("/api/predictions").then((res) => res.json())
+      // Already fetched predictions in a separate effect
     ])
-    .then(([matchesData, predictionsData]) => {
+    .then(([matchesData]) => {
       setMatches(matchesData);
-      setPredictions(predictionsData);
       setLoading(false);
     })
     .catch((error) => {
@@ -45,10 +71,31 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">
-        ⚽ Sports Predictions Dashboard
-      </h1>
+    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px',
+        flexWrap: 'wrap',
+        gap: '10px'
+      }}>
+        <h1 className="text-2xl font-bold mb-4">
+          ⚽ Sports Predictions Dashboard
+        </h1>
+
+        {/* Device indicator */}
+        <div style={{
+          padding: '6px 12px',
+          backgroundColor: isMobile ? '#28a745' : '#007bff',
+          color: 'white',
+          borderRadius: '15px',
+          fontSize: '0.8rem',
+          fontWeight: 'bold'
+        }}>
+          {isMobile ? '📱 Mobile' : '💻 Desktop'} Optimized
+        </div>
+      </div>
 
       <LatestNews />
 
@@ -83,7 +130,7 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-        
+
         <div>
           <h2 className="text-xl font-semibold mb-4">Tomorrow's Predictions</h2>
           <PredictionsTable />
