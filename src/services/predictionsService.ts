@@ -64,9 +64,18 @@ export async function fetchPredictions(): Promise<Prediction[]> {
   } catch (error) {
     console.error('Failed to fetch predictions:', error);
     
+    // Log detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Detailed error:', { message: errorMessage, stack: error instanceof Error ? error.stack : 'No stack' });
+    
     // Return fallback data if available in cache or generate mock data
     const fallback = CacheManager.get('fallback_predictions') || generateFallbackPredictions();
     CacheManager.set('fallback_predictions', fallback, 60); // Cache fallback for 1 hour
+    
+    // Throw a more descriptive error for UI handling
+    if (!fallback.length) {
+      throw new Error(`Unable to fetch predictions: ${errorMessage}. Please check your internet connection and try again.`);
+    }
     
     return fallback;
   }

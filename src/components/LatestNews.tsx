@@ -15,10 +15,10 @@ const LatestNews: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showStoryEditor, setShowStoryEditor] = useState<boolean>(false);
   const [editingStory, setEditingStory] = useState<NewsItem | undefined>(undefined);
-  
+
   // Check if user is logged in (for guest experience)
   const [currentUser, setCurrentUser] = useState<any>(null);
-  
+
   useEffect(() => {
     // Simple check for logged in user
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
@@ -70,7 +70,7 @@ const LatestNews: React.FC = () => {
         fullContent: "The community rallied around Ella and her family during their time of need. Local businesses offered support, neighbors brought meals, and friends provided emotional comfort. This outpouring of kindness reminded everyone of the strength that comes from unity and shared compassion."
       }
     ];
-    
+
     const storedNews = ClientStorage.getItem('newsItems', defaultNews);
     setNewsItems(storedNews);
   }, []);
@@ -101,12 +101,13 @@ const LatestNews: React.FC = () => {
   // Login handler
   const handleLogin = (credentials: { username: string; password: string }) => {
     // Simple authentication (in production, use proper authentication)
-    if (credentials.username === 'admin' && credentials.password === 'sports123') {
+    const adminCredentials = { username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin', password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'securePassword123!' };
+    if (credentials.username === adminCredentials.username && credentials.password === adminCredentials.password) {
       setIsLoggedIn(true);
       localStorage.setItem('adminLoggedIn', 'true');
       setShowLoginModal(false);
     } else {
-      alert('Invalid credentials. Use admin/sports123');
+      alert('Invalid credentials. Use admin/securePassword123!');
     }
   };
 
@@ -196,7 +197,7 @@ const LatestNews: React.FC = () => {
               }}>Admin</button>
             </div>
           )}
-          
+
           {!isLoggedIn && currentUser && (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ 
@@ -321,7 +322,7 @@ const LatestNews: React.FC = () => {
             </button>
           </div>
         ))}
-        
+
         {/* Sign-up prompt for guests */}
         {!currentUser && !isLoggedIn && (
           <div style={{
@@ -393,9 +394,9 @@ const LatestNews: React.FC = () => {
           }}>
             <h3 style={{ color: 'white', marginBottom: '20px' }}>Admin Login</h3>
             <input
+              id="admin-username"
               type="text"
               placeholder="Username (admin)"
-              onChange={(e) => { /* handle username input */ }}
               style={{ /* Input Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
@@ -403,9 +404,9 @@ const LatestNews: React.FC = () => {
               }}
             />
             <input
+              id="admin-password"
               type="password"
-              placeholder="Password (sports123)"
-              onChange={(e) => { /* handle password input */ }}
+              placeholder="Password (securePassword123!)"
               style={{ /* Input Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
@@ -418,8 +419,8 @@ const LatestNews: React.FC = () => {
                 border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={() => {
-                const usernameInput = document.querySelector('input[placeholder="Username (admin)"]') as HTMLInputElement;
-                const passwordInput = document.querySelector('input[placeholder="Password (sports123)"]') as HTMLInputElement;
+                const usernameInput = document.getElementById('admin-username') as HTMLInputElement;
+                const passwordInput = document.getElementById('admin-password') as HTMLInputElement;
                 if (usernameInput && passwordInput) {
                   handleLogin({ username: usernameInput.value, password: passwordInput.value });
                 }
@@ -447,10 +448,10 @@ const LatestNews: React.FC = () => {
           }}>
             <h3 style={{ color: 'white', marginBottom: '20px' }}>{editingStory ? 'Edit Story' : 'Add New Story'}</h3>
             <input
+              id="story-title"
               type="text"
               placeholder="Title"
               defaultValue={editingStory?.title || ''}
-              onChange={(e) => { /* handle title input */ }}
               style={{ /* Input Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
@@ -458,9 +459,9 @@ const LatestNews: React.FC = () => {
               }}
             />
             <textarea
+              id="story-preview"
               placeholder="Preview Text"
               defaultValue={editingStory?.preview || ''}
-              onChange={(e) => { /* handle preview input */ }}
               style={{ /* Textarea Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
@@ -469,9 +470,9 @@ const LatestNews: React.FC = () => {
               }}
             />
             <textarea
+              id="story-fullContent"
               placeholder="Full Content"
               defaultValue={editingStory?.fullContent || ''}
-              onChange={(e) => { /* handle full content input */ }}
               style={{ /* Textarea Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
@@ -485,9 +486,9 @@ const LatestNews: React.FC = () => {
                 border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
               }}>Cancel</button>
               <button onClick={() => {
-                const titleInput = document.querySelector('input[placeholder="Title"]') as HTMLInputElement;
-                const previewInput = document.querySelector('textarea[placeholder="Preview Text"]') as HTMLTextAreaElement;
-                const fullContentInput = document.querySelector('textarea[placeholder="Full Content"]') as HTMLTextAreaElement;
+                const titleInput = document.getElementById('story-title') as HTMLInputElement;
+                const previewInput = document.getElementById('story-preview') as HTMLTextAreaElement;
+                const fullContentInput = document.getElementById('story-fullContent') as HTMLTextAreaElement;
                 if (titleInput && previewInput && fullContentInput) {
                   const newStory: NewsItem = {
                     id: editingStory?.id || 0, // Use existing ID if editing, 0 if new
