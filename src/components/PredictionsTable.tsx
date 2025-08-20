@@ -1,12 +1,14 @@
 
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 interface Prediction {
   title: string;
   content?: string;
-  percentage?: string;
-  time?: string;
+  sport?: string;
+  confidence?: string;
+  source?: string;
 }
 
 function PredictionsTable() {
@@ -40,6 +42,9 @@ function PredictionsTable() {
                 <thead>
                     <tr style={{ backgroundColor: '#f8f9fa' }}>
                         <th style={{ padding: '12px', border: '1px solid #ddd' }}>Title</th>
+                        <th style={{ padding: '12px', border: '1px solid #ddd' }}>Sport</th>
+                        <th style={{ padding: '12px', border: '1px solid #ddd' }}>Confidence</th>
+                        <th style={{ padding: '12px', border: '1px solid #ddd' }}>Source</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd' }}>Content</th>
                     </tr>
                 </thead>
@@ -51,13 +56,41 @@ function PredictionsTable() {
                                     {prediction.title}
                                 </td>
                                 <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                                    <span style={{ 
+                                        padding: '4px 8px', 
+                                        backgroundColor: '#e3f2fd', 
+                                        borderRadius: '4px',
+                                        fontSize: '0.9em'
+                                    }}>
+                                        {prediction.sport || 'N/A'}
+                                    </span>
+                                </td>
+                                <td style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                                    <span style={{ 
+                                        fontWeight: 'bold',
+                                        color: prediction.confidence !== 'N/A' ? '#4caf50' : '#666'
+                                    }}>
+                                        {prediction.confidence || 'N/A'}
+                                    </span>
+                                </td>
+                                <td style={{ padding: '12px', border: '1px solid #ddd' }}>
+                                    <span style={{ 
+                                        padding: '2px 6px', 
+                                        backgroundColor: prediction.source === 'internal' ? '#c8e6c9' : '#ffecb3', 
+                                        borderRadius: '3px',
+                                        fontSize: '0.8em'
+                                    }}>
+                                        {prediction.source || 'external'}
+                                    </span>
+                                </td>
+                                <td style={{ padding: '12px', border: '1px solid #ddd' }}>
                                     {prediction.content || 'No additional content'}
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={2} style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
+                            <td colSpan={5} style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>
                                 No predictions available
                             </td>
                         </tr>

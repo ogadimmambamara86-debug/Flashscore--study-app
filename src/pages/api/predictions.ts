@@ -2,17 +2,53 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { fetchPredictions } from '../../services/predictionsService';
 
+// Import the controller (will be converted to TypeScript later)
+const PredictionController = require('../../controllers/predictionController');
+
+const predictionController = new PredictionController();
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
-      const predictions = await fetchPredictions();
-      res.status(200).json(predictions);
+      // Get external predictions from scraping
+      const externalPredictions = await fetchPredictions();
+      
+      // Get internal predictions from controller
+      const internalPredictions = predictionController.getAllPredictions();
+      
+      // Combine both sources
+      const allPredictions = [
+        ...internalPredictions.map(p => ({ 
+          title: p.title, 
+          content: p.content,
+          source: 'internal',
+          sport: p.sport,
+          confidence: `${p.confidence}%`
+        })),
+        ...externalPredictions.map(p => ({ 
+          title: p.title, 
+          content: p.content || 'External prediction',
+          source: 'external',
+          sport: 'Football',
+          confidence: 'N/A'
+        }))
+      ];
+      
+      res.status(200).json(allPredictions);
     } catch (error) {
       console.error('Error fetching predictions:', error);
       res.status(500).json({ error: 'Failed to fetch predictions' });
     }
+  } else if (req.method === 'POST') {
+    try {
+      const newPrediction = predictionController.createPrediction(req.body);
+      res.status(201).json(newPrediction);
+    } catch (error) {
+      console.error('Error creating prediction:', error);
+      res.status(400).json({ error: error.message });
+    }
   } else {
-    res.setHeader('Allow', ['GET']);
+    res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
