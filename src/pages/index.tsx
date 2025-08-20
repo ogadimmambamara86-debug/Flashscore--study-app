@@ -15,6 +15,7 @@ import BackupSettings from '../components/BackupSettings';
 import BackupManager from '../utils/backupManager';
 import CommunityVoting from '../components/CommunityVoting'; // Import CommunityVoting component
 import BettingAgreement from '../components/BettingAgreement';
+import AccountRecovery from '../components/AccountRecovery'; // Import AccountRecovery component
 
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
   const [isOffline, setIsOffline] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false); // State for account recovery modal
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [piBalance, setPiBalance] = useState(0);
   const [isBackupOpen, setIsBackupOpen] = useState(false);
@@ -85,6 +87,23 @@ export default function Home() {
     setCurrentUser(null);
     setPiBalance(0);
     setIsRegistrationOpen(true);
+  };
+
+  const handleRegistrationComplete = (user: any) => {
+    setCurrentUser(user);
+    setIsRegistrationOpen(false);
+    // Award welcome bonus
+    const balance = PiCoinManager.getBalance(user.id);
+    setPiBalance(balance.balance);
+  };
+
+  const handleRecoverySuccess = (user: any) => {
+    setCurrentUser(user);
+    const balance = PiCoinManager.getBalance(user.id);
+    setPiBalance(balance.balance);
+
+    // Create automatic backup after recovery
+    UserManager.backupUserData(user.id);
   };
 
   return (
@@ -249,6 +268,60 @@ export default function Home() {
               </button>
             </>
           )}
+          {!currentUser && (
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setIsRegistrationOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '16px 32px',
+                  borderRadius: '25px',
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.3)';
+                }}
+              >
+                🚀 Join SpaceX Mission Control
+              </button>
+
+              <button
+                onClick={() => setIsRecoveryOpen(true)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e8f5e8',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  padding: '14px 24px',
+                  borderRadius: '25px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                🔑 Recover Account
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -282,7 +355,7 @@ export default function Home() {
           color: '#00d4ff',
           fontWeight: '700'
         }}>
-          🛰️ TELEMETRY ACTIVE • 🚀 ENGINES NOMINAL • ⚡ NEURAL LINKS ESTABLISHED
+          🛰️ TELEMETRY ACTIVE • 🚀 ENGINES NOMINAL • ⚡ NEURAL OekraINE ESTABLISHED
         </div>
       </div>
 
@@ -849,6 +922,12 @@ export default function Home() {
       <BackupSettings
         isOpen={isBackupOpen}
         onClose={() => setIsBackupOpen(false)}
+      />
+
+      <AccountRecovery
+        isOpen={isRecoveryOpen}
+        onClose={() => setIsRecoveryOpen(false)}
+        onRecoverySuccess={handleRecoverySuccess}
       />
 
       {/* Betting Agreement - Always visible when logged in */}

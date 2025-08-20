@@ -136,6 +136,194 @@ class UserManager {
     return user;
   }
 
+  // Account Recovery System
+  static initiateAccountRecovery(username: string, email?: string): { success: boolean; message: string; recoveryCode?: string } {
+    const users = this.getAllUsers();
+    const sanitizedUsername = SecurityUtils.sanitizeInput(username);
+    const user = users.find(u => u.username === sanitizedUsername);
+
+    if (!user) {
+      return { success: false, message: 'User not found. Please check your username.' };
+    }
+
+    if (email && user.email !== email) {
+      return { success: false, message: 'Email does not match our records.' };
+    }
+
+    // Generate recovery code
+    const recoveryCode = SecurityUtils.generateSecureToken().substring(0, 8).toUpperCase();
+    
+    // Store recovery data
+    const recoveryData = {
+      userId: user.id,
+      code: recoveryCode,
+      expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+      used: false
+    };
+
+    const recoveryStorage = localStorage.getItem('account_recovery') || '[]';
+    const recoveries = JSON.parse(recoveryStorage);
+    recoveries.push(recoveryData);
+    localStorage.setItem('account_recovery', JSON.stringify(recoveries));
+
+    SecurityUtils.logSecurityEvent('account_recovery_initiated', {
+      userId: user.id,
+      username: sanitizedUsername
+    });
+
+    return { 
+      success: true, 
+      message: `Recovery code generated: ${recoveryCode}. This code expires in 24 hours.`,
+      recoveryCode 
+    };
+  }
+
+  static recoverAccount(username: string, recoveryCode: string): { success: boolean; message: string; user?: User } {
+    const recoveryStorage = localStorage.getItem('account_recovery') || '[]';
+    const recoveries = JSON.parse(recoveryStorage);
+    
+    const recovery = recoveries.find((r: any) => 
+      r.code === recoveryCode.toUpperCase() && 
+      !r.used && 
+      r.expires > Date.now()
+    );
+
+    if (!recovery) {
+      return { success: false, message: 'Invalid or expired recovery code.' };
+    }
+
+    const users = this.getAllUsers();
+    const user = users.find(u => u.id === recovery.userId && u.username === SecurityUtils.sanitizeInput(username));
+
+    if (!user) {
+      return { success: false, message: 'User not found or recovery code mismatch.' };
+    }
+
+    // Mark recovery as used
+    recovery.used = true;
+    localStorage.setItem('account_recovery', JSON.stringify(recoveries));
+
+    // Reset user account
+    user.loginAttempts = 0;
+    user.lockedUntil = undefined;
+    user.sessionToken = SecurityUtils.generateSecureToken();
+    user.lastLogin = new Date();
+
+    this.updateUser(user);
+    this.setCurrentUser(user);
+
+    SecurityUtils.logSecurityEvent('account_recovered', {
+      userId: user.id,
+      username: user.username
+    });
+
+    return { success: true, message: 'Account successfully recovered!', user };
+  }
+
+  // Backup user's Pi coin data
+  static backupUserData(userId: string): { success: boolean; backup?: any; message: string } {
+    try {
+      const user = this.getAllUsers().find(u => u.id === userId);
+      if (!user) {
+        return { success: false, message: 'User not found' };
+      }
+
+      // Get Pi coin data
+      const coinData = localStorage.getItem('pi_coin_data') || '{}';
+      const transactionData = localStorage.getItem('pi_coin_transactions') || '[]';
+      
+      let userBalance = {};
+      let userTransactions = [];
+
+      try {
+        const balances = JSON.parse(coinData);
+        userBalance = balances[userId] || {};
+      } catch (e) {
+        console.warn('Could not parse balance data');
+      }
+
+      try {
+        const transactions = JSON.parse(transactionData);
+        userTransactions = transactions.filter((t: any) => t.userId === userId);
+      } catch (e) {
+        console.warn('Could not parse transaction data');
+      }
+
+      const backup = {
+        user: user,
+        piCoins: userBalance,
+        transactions: userTransactions,
+        timestamp: new Date(),
+        backupId: `backup_${userId}_${Date.now()}`
+      };
+
+      // Store backup
+      const backupsStorage = localStorage.getItem('user_backups') || '[]';
+      const backups = JSON.parse(backupsStorage);
+      backups.push(backup);
+      // Keep only last 5 backups per user
+      const userBackups = backups.filter((b: any) => b.user.id === userId).slice(-5);
+      const otherBackups = backups.filter((b: any) => b.user.id !== userId);
+      localStorage.setItem('user_backups', JSON.stringify([...otherBackups, ...userBackups]));
+
+      return { success: true, backup, message: 'User data backed up successfully' };
+    } catch (error) {
+      return { success: false, message: 'Failed to backup user data' };
+    }
+  }
+
+  // Restore user data from backup
+  static restoreUserData(userId: string, backupId?: string): { success: boolean; message: string } {
+    try {
+      const backupsStorage = localStorage.getItem('user_backups') || '[]';
+      const backups = JSON.parse(backupsStorage);
+      
+      let backup;
+      if (backupId) {
+        backup = backups.find((b: any) => b.backupId === backupId);
+      } else {
+        // Get latest backup for user
+        const userBackups = backups.filter((b: any) => b.user.id === userId);
+        backup = userBackups[userBackups.length - 1];
+      }
+
+      if (!backup) {
+        return { success: false, message: 'No backup found for this user' };
+      }
+
+      // Restore user
+      this.updateUser(backup.user);
+
+      // Restore Pi coin data
+      if (backup.piCoins && Object.keys(backup.piCoins).length > 0) {
+        const coinData = localStorage.getItem('pi_coin_data') || '{}';
+        const balances = JSON.parse(coinData);
+        balances[userId] = backup.piCoins;
+        localStorage.setItem('pi_coin_data', JSON.stringify(balances));
+      }
+
+      // Restore transactions
+      if (backup.transactions && backup.transactions.length > 0) {
+        const transactionData = localStorage.getItem('pi_coin_transactions') || '[]';
+        let transactions = JSON.parse(transactionData);
+        // Remove existing user transactions
+        transactions = transactions.filter((t: any) => t.userId !== userId);
+        // Add backup transactions
+        transactions.push(...backup.transactions);
+        localStorage.setItem('pi_coin_transactions', JSON.stringify(transactions));
+      }
+
+      SecurityUtils.logSecurityEvent('user_data_restored', {
+        userId: userId,
+        backupId: backup.backupId
+      });
+
+      return { success: true, message: 'User data restored successfully!' };
+    } catch (error) {
+      return { success: false, message: 'Failed to restore user data' };
+    }
+  }
+
   static logoutUser(): void {
     if (typeof window === 'undefined') return;
 
