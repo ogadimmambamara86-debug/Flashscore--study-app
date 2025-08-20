@@ -5,6 +5,10 @@
       "static/chunks/src_utils_alertUtils_ts.js"
     ]
   },
+  "pages/_app.tsx -> ../components/FloatingAlert": {
+    "id": "pages/_app.tsx -> ../components/FloatingAlert",
+    "files": []
+  },
   "utils/piCoinManager.ts -> ./monetizationManager": {
     "id": "utils/piCoinManager.ts -> ./monetizationManager",
     "files": [
