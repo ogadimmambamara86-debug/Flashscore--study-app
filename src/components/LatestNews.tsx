@@ -1,39 +1,119 @@
+import React, { useState, useEffect } from 'react';
 
-import React, { useState } from 'react';
+// Define the structure for a news item
+interface NewsItem {
+  id: number;
+  title: string;
+  preview: string;
+  fullContent: string;
+}
 
-const LatestNews = () => {
+const LatestNews: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showStoryEditor, setShowStoryEditor] = useState<boolean>(false);
+  const [editingStory, setEditingStory] = useState<NewsItem | undefined>(undefined);
 
-  const newsItems = [
-    {
-      id: 1,
-      title: "Village Tragedy Shakes Community",
-      preview: "The news of Ella's father passing shook the entire village...",
-      fullContent: "The news of Ella's father passing shook the entire village. He was a respected member of the community, known for his kindness and wisdom. The funeral was attended by hundreds of people who came to pay their respects. Ella found herself overwhelmed by the support from neighbors and friends during this difficult time."
-    },
-    {
-      id: 2,
-      title: "New Responsibilities Emerge",
-      preview: "In the days that followed, Ella found herself burdened with new responsibilities...",
-      fullContent: "In the days that followed, Ella found herself burdened with new responsibilities that she had never imagined. Managing her father's affairs, taking care of the family business, and supporting her younger siblings became her daily reality. Despite the challenges, she discovered inner strength she didn't know she possessed and began to see a path forward through the difficulties."
-    },
-    {
-      id: 3,
-      title: "Community Support Grows",
-      preview: "Local businesses and neighbors have rallied together to help...",
-      fullContent: "Local businesses and neighbors have rallied together to help Ella and her family during this transition period. A support fund has been established, meals are being provided daily, and volunteers have stepped up to assist with various tasks. This outpouring of community spirit has shown the true character of the village and provided hope for the future."
+  // Initialize news items from local storage or default
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(() => {
+    const storedNews = localStorage.getItem('newsItems');
+    if (storedNews) {
+      return JSON.parse(storedNews);
+    } else {
+      return [
+        {
+          id: 1,
+          title: "Village Tragedy Shakes Community",
+          preview: "The news of Ella's father passing shook the entire village...",
+          fullContent: "The news of Ella's father passing shook the entire village. He was a respected member of the community, known for his kindness and wisdom. The funeral was attended by hundreds of people who came to pay their respects. Ella found herself overwhelmed by the support from neighbors and friends during this difficult time."
+        },
+        {
+          id: 2,
+          title: "New Responsibilities Emerge",
+          preview: "In the days that followed, Ella found herself burdened with new responsibilities...",
+          fullContent: "In the days that followed, Ella found herself burdened with new responsibilities that she had never imagined. Managing her father's affairs, taking care of the family business, and supporting her younger siblings became her daily reality. Despite the challenges, she discovered inner strength she didn't know she possessed and began to see a path forward through the difficulties."
+        },
+        {
+          id: 3,
+          title: "Community Support Grows",
+          preview: "Local businesses and neighbors have rallied together to help...",
+          fullContent: "Local businesses and neighbors have rallied together to help Ella and her family during this transition period. A support fund has been established, meals are being provided daily, and volunteers have stepped up to assist with various tasks. This outpouring of community spirit has shown the true character of the village and provided hope for the future."
+        }
+      ];
     }
-  ];
+  });
+
+  // Save news items to local storage whenever they change
+  useEffect(() => {
+    localStorage.setItem('newsItems', JSON.stringify(newsItems));
+  }, [newsItems]);
 
   const toggleExpand = (itemId: number) => {
-    setExpandedItems(prev => 
-      prev.includes(itemId) 
+    setExpandedItems(prev =>
+      prev.includes(itemId)
         ? prev.filter(id => id !== itemId)
         : [...prev, itemId]
     );
   };
 
   const isExpanded = (itemId: number) => expandedItems.includes(itemId);
+
+  // Check for existing login state
+  useEffect(() => {
+    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+    if (adminLoggedIn === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // Login handler
+  const handleLogin = (credentials: { username: string; password: string }) => {
+    // Simple authentication (in production, use proper authentication)
+    if (credentials.username === 'admin' && credentials.password === 'sports123') {
+      setIsLoggedIn(true);
+      localStorage.setItem('adminLoggedIn', 'true');
+      setShowLoginModal(false);
+    } else {
+      alert('Invalid credentials. Use admin/sports123');
+    }
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('adminLoggedIn');
+  };
+
+  // Story handlers
+  const handleSaveStory = (story: NewsItem) => {
+    if (story.id) {
+      // Update existing story
+      setNewsItems(prev => prev.map(item =>
+        item.id === story.id ? story : item
+      ));
+    } else {
+      // Add new story
+      const newStory = {
+        ...story,
+        id: Math.max(0, ...newsItems.map(item => item.id)) + 1 // Ensure id is positive
+      };
+      setNewsItems(prev => [newStory, ...prev]);
+    }
+    setShowStoryEditor(false);
+    setEditingStory(undefined);
+  };
+
+  const handleEditStory = (story: NewsItem) => {
+    setEditingStory(story);
+    setShowStoryEditor(true);
+  };
+
+  const handleDeleteStory = (storyId: number) => {
+    if (confirm('Are you sure you want to delete this story?')) {
+      setNewsItems(prev => prev.filter(item => item.id !== storyId));
+    }
+  };
 
   return (
     <div className="glass-card" style={{
@@ -45,22 +125,67 @@ const LatestNews = () => {
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
       border: '1px solid rgba(255, 255, 255, 0.2)'
     }}>
-      <h3 style={{
-        fontSize: '1.5rem',
-        fontWeight: '700',
-        marginBottom: '20px',
-        background: 'linear-gradient(135deg, #22c55e, #06b6d4)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
-      }}>
-        📰 Latest News
-      </h3>
-      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          background: 'linear-gradient(135deg, #22c55e, #06b6d4)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+        }}>
+          📰 Latest News
+        </h3>
+        <div>
+          {!isLoggedIn ? (
+            <button onClick={() => setShowLoginModal(true)} style={{ /* Login Button Styles */
+              background: 'linear-gradient(135deg, #facc15, #eab308)',
+              color: 'black',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+            }}>Login</button>
+          ) : (
+            <button onClick={handleLogout} style={{ /* Logout Button Styles */
+              background: 'linear-gradient(135deg, #ef4444, #b91c1c)',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+            }}>Logout</button>
+          )}
+          {isLoggedIn && (
+            <button onClick={() => { setEditingStory(undefined); setShowStoryEditor(true); }} style={{ /* Add Story Button Styles */
+              marginLeft: '10px',
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
+            }}>+ Add Story</button>
+          )}
+        </div>
+      </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {newsItems.map((item) => (
-          <div 
+          <div
             key={item.id}
             style={{
               padding: '16px',
@@ -70,15 +195,27 @@ const LatestNews = () => {
               transition: 'all 0.3s ease'
             }}
           >
-            <h4 style={{
-              color: '#e8f5e8',
-              marginBottom: '8px',
-              fontWeight: '600',
-              fontSize: '1.1rem'
-            }}>
-              {item.title}
-            </h4>
-            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{
+                color: '#e8f5e8',
+                marginBottom: '8px',
+                fontWeight: '600',
+                fontSize: '1.1rem'
+              }}>
+                {item.title}
+              </h4>
+              {isLoggedIn && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => handleEditStory(item)} style={{ /* Edit Button Styles */
+                    background: 'none', color: '#a0aec0', border: 'none', cursor: 'pointer', fontSize: '0.8rem'
+                  }}>Edit</button>
+                  <button onClick={() => handleDeleteStory(item.id)} style={{ /* Delete Button Styles */
+                    background: 'none', color: '#f56565', border: 'none', cursor: 'pointer', fontSize: '0.8rem'
+                  }}>Delete</button>
+                </div>
+              )}
+            </div>
+
             <p style={{
               color: '#d1fae5',
               lineHeight: '1.6',
@@ -86,7 +223,7 @@ const LatestNews = () => {
             }}>
               {isExpanded(item.id) ? item.fullContent : item.preview}
             </p>
-            
+
             <button
               onClick={() => toggleExpand(item.id)}
               style={{
@@ -115,6 +252,133 @@ const LatestNews = () => {
           </div>
         ))}
       </div>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div style={{ /* Modal Overlay Styles */
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div style={{ /* Modal Content Styles */
+            background: 'rgba(255, 255, 255, 0.1)', padding: '30px',
+            borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(15px)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            <h3 style={{ color: 'white', marginBottom: '20px' }}>Admin Login</h3>
+            <input
+              type="text"
+              placeholder="Username (admin)"
+              onChange={(e) => { /* handle username input */ }}
+              style={{ /* Input Styles */
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
+                padding: '10px', marginBottom: '15px', width: 'calc(100% - 20px)'
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Password (sports123)"
+              onChange={(e) => { /* handle password input */ }}
+              style={{ /* Input Styles */
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
+                padding: '10px', marginBottom: '20px', width: 'calc(100% - 20px)'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button onClick={() => setShowLoginModal(false)} style={{ /* Cancel Button Styles */
+                background: 'linear-gradient(135deg, #9ca3af, #6b7280)', color: 'white',
+                border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={() => {
+                const usernameInput = document.querySelector('input[placeholder="Username (admin)"]') as HTMLInputElement;
+                const passwordInput = document.querySelector('input[placeholder="Password (sports123)"]') as HTMLInputElement;
+                if (usernameInput && passwordInput) {
+                  handleLogin({ username: usernameInput.value, password: passwordInput.value });
+                }
+              }} style={{ /* Login Button Styles */
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white',
+                border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
+              }}>Login</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Story Editor Modal */}
+      {showStoryEditor && (
+        <div style={{ /* Modal Overlay Styles */
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div style={{ /* Modal Content Styles */
+            background: 'rgba(255, 255, 255, 0.1)', padding: '30px',
+            borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(15px)', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            width: '80%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <h3 style={{ color: 'white', marginBottom: '20px' }}>{editingStory ? 'Edit Story' : 'Add New Story'}</h3>
+            <input
+              type="text"
+              placeholder="Title"
+              defaultValue={editingStory?.title || ''}
+              onChange={(e) => { /* handle title input */ }}
+              style={{ /* Input Styles */
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
+                padding: '10px', marginBottom: '15px', width: 'calc(100% - 20px)'
+              }}
+            />
+            <textarea
+              placeholder="Preview Text"
+              defaultValue={editingStory?.preview || ''}
+              onChange={(e) => { /* handle preview input */ }}
+              style={{ /* Textarea Styles */
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
+                padding: '10px', marginBottom: '15px', width: 'calc(100% - 20px)',
+                minHeight: '80px', resize: 'vertical'
+              }}
+            />
+            <textarea
+              placeholder="Full Content"
+              defaultValue={editingStory?.fullContent || ''}
+              onChange={(e) => { /* handle full content input */ }}
+              style={{ /* Textarea Styles */
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
+                padding: '10px', marginBottom: '20px', width: 'calc(100% - 20px)',
+                minHeight: '150px', resize: 'vertical'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <button onClick={() => { setShowStoryEditor(false); setEditingStory(undefined); }} style={{ /* Cancel Button Styles */
+                background: 'linear-gradient(135deg, #9ca3af, #6b7280)', color: 'white',
+                border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
+              }}>Cancel</button>
+              <button onClick={() => {
+                const titleInput = document.querySelector('input[placeholder="Title"]') as HTMLInputElement;
+                const previewInput = document.querySelector('textarea[placeholder="Preview Text"]') as HTMLTextAreaElement;
+                const fullContentInput = document.querySelector('textarea[placeholder="Full Content"]') as HTMLTextAreaElement;
+                if (titleInput && previewInput && fullContentInput) {
+                  const newStory: NewsItem = {
+                    id: editingStory?.id || 0, // Use existing ID if editing, 0 if new
+                    title: titleInput.value,
+                    preview: previewInput.value,
+                    fullContent: fullContentInput.value
+                  };
+                  handleSaveStory(newStory);
+                }
+              }} style={{ /* Save Button Styles */
+                background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: 'white',
+                border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer'
+              }}>{editingStory ? 'Save Changes' : 'Add Story'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
