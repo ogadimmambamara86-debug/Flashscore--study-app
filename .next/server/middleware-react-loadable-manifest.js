@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"utils/userManager.ts -> ./piCoinManager\":{\"id\":\"utils/userManager.ts -> ./piCoinManager\",\"files\":[]}}"
