@@ -3,7 +3,7 @@ interface PiCoinTransaction {
   id: string;
   userId: string;
   amount: number;
-  type: 'quiz_complete' | 'daily_login' | 'prediction_correct' | 'bonus';
+  type: 'quiz_complete' | 'daily_login' | 'prediction_correct' | 'bonus' | 'voting';
   timestamp: Date;
   description: string;
 }

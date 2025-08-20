@@ -13,11 +13,12 @@ import ChallengeSystem from '../components/ChallengeSystem';
 import Forum from '../components/Forum';
 import BackupSettings from '../components/BackupSettings';
 import BackupManager from '../utils/backupManager';
+import CommunityVoting from '../components/CommunityVoting'; // Import CommunityVoting component
 
 
 export default function Home() {
   const [predictions] = useState([]);
-  const [activeTab, setActiveTab] = useState<'predictions' | 'news' | 'stories' | 'quiz' | 'tools' | 'challenges' | 'forum'>('predictions');
+  const [activeTab, setActiveTab] = useState<'predictions' | 'news' | 'stories' | 'quiz' | 'tools' | 'challenges' | 'forum' | 'voting'>('predictions');
   const [isOffline, setIsOffline] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
@@ -276,7 +277,7 @@ export default function Home() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
-        {['predictions', 'news', 'stories', 'quiz', 'challenges', 'forum', 'tools'].map(tab => (
+        {['predictions', 'news', 'stories', 'quiz', 'challenges', 'forum', 'voting'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -301,6 +302,7 @@ export default function Home() {
                tab === 'quiz' ? '🧠 Quiz Mode' :
                tab === 'challenges' ? '🏆 Challenges' :
                tab === 'forum' ? '💬 Forum' :
+               tab === 'voting' ? '🗳️ Voting' :
                '🔧 Tools'}
             </button>
           ))}
@@ -467,6 +469,30 @@ export default function Home() {
               }}
             >
               Sign Up to Join Forum
+            </button>
+          </div>
+        ))}
+        {activeTab === 'voting' && (currentUser ? <CommunityVoting currentUser={currentUser} /> : (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>🗳️ Community Voting</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
+              Participate in community polls and vote on your favorite topics using Pi Coins!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              Sign Up to Vote
             </button>
           </div>
         ))}
