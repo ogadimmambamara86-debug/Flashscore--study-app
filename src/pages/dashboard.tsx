@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import LatestNews from "../components/LatestNews";
+import PredictionsTable from "../components/PredictionsTable";
 
 interface Match {
   id: number;
@@ -48,9 +49,9 @@ export default function Dashboard() {
       <h1 className="text-2xl font-bold mb-4">
         ⚽ Sports Predictions Dashboard
       </h1>
-      
+
       <LatestNews />
-      
+
       <div className="grid lg:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl font-semibold mb-4">Our Predictions</h2>
@@ -65,7 +66,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-        
+
         <div>
           <h2 className="text-xl font-semibold mb-4">External Predictions</h2>
           <div className="grid gap-4">
@@ -82,6 +83,12 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+        
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Tomorrow's Predictions</h2>
+          <PredictionsTable />
+        </div>
+
       </div>
     </div>
   );
