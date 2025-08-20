@@ -211,7 +211,7 @@ export default function Home() {
         marginBottom: '30px',
         lineHeight: '1.6'
       }}>
-        Your ultimate destination for live sports data, predictions, and real-time updates across NFL, NBA, MLB, and Soccer.
+        Your ultimate destination for <strong>free AI-powered sports predictions</strong>, live sports data, and real-time updates across <em>NFL, NBA, MLB, and Soccer</em>. Join thousands of sports fans earning Pi coins through accurate predictions and interactive challenges.
       </p>
 
       {isOffline && <OfflineManager />}
@@ -222,7 +222,7 @@ export default function Home() {
         gap: '24px', 
         marginBottom: '50px' 
       }}>
-        <div style={{ 
+        <article style={{ 
           padding: '24px', 
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(15px)',
@@ -249,9 +249,9 @@ export default function Home() {
             backgroundClip: 'text',
             marginBottom: '12px',
             fontWeight: '700'
-          }}>Live Matches</h3>
-          <p style={{ color: '#d1fae5', margin: '0', lineHeight: '1.5' }}>Real-time scores and updates</p>
-        </div>
+          }}>⚽ Live Sports Matches</h3>
+          <p style={{ color: '#d1fae5', margin: '0', lineHeight: '1.5' }}>Real-time NFL, NBA, MLB, and Soccer scores with instant updates</p>
+        </article>
 
         <div style={{ 
           padding: '24px', 
