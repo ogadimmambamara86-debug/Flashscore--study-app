@@ -18,6 +18,11 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
       setIsOnline(true);
       setShowOfflineMode(false);
       console.log('✅ Back online!');
+      
+      // Trigger floating alert
+      import('../utils/alertUtils').then(({ AlertManager }) => {
+        AlertManager.showOnlineMode();
+      });
     };
 
     const handleOffline = () => {
@@ -25,6 +30,11 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
       setLastOnlineTime(new Date());
       setShowOfflineMode(true);
       console.log('📱 Offline mode activated');
+      
+      // Trigger floating alert
+      import('../utils/alertUtils').then(({ AlertManager }) => {
+        AlertManager.showOfflineMode();
+      });
     };
 
     // Add event listeners

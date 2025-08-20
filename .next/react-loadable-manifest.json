@@ -1,4 +1,10 @@
 {
+  "components/OfflineManager.tsx -> ../utils/alertUtils": {
+    "id": "components/OfflineManager.tsx -> ../utils/alertUtils",
+    "files": [
+      "static/chunks/src_utils_alertUtils_ts.js"
+    ]
+  },
   "utils/piCoinManager.ts -> ./monetizationManager": {
     "id": "utils/piCoinManager.ts -> ./monetizationManager",
     "files": [
