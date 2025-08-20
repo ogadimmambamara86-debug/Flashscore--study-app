@@ -7,17 +7,24 @@ import LatestNews from '../components/LatestNews';
 import InteractiveTools from '../components/InteractiveTools';
 import PiCoinWallet from '../components/PiCoinWallet';
 import UserRegistration from '../components/UserRegistration';
-import PiCoinManager from '../utils/piCoinManager';
 import UserManager, { User } from '../utils/userManager';
+import PiCoinManager from '../utils/piCoinManager';
+import ChallengeSystem from '../components/ChallengeSystem';
+import Forum from '../components/Forum';
+import BackupSettings from '../components/BackupSettings';
+import BackupManager from '../utils/backupManager';
+
 
 export default function Home() {
   const [predictions] = useState([]);
-  const [activeTab, setActiveTab] = useState('predictions');
+  const [activeTab, setActiveTab] = useState<'predictions' | 'news' | 'stories' | 'quiz' | 'tools' | 'challenges' | 'forum'>('predictions');
   const [isOffline, setIsOffline] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [piBalance, setPiBalance] = useState(0);
+  const [isBackupOpen, setIsBackupOpen] = useState(false);
+
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -45,7 +52,7 @@ export default function Home() {
     const handleOpenRegistration = () => {
       setIsRegistrationOpen(true);
     };
-    
+
     window.addEventListener('openRegistration', handleOpenRegistration);
 
     return () => {
@@ -130,7 +137,7 @@ export default function Home() {
             </p>
           )}
         </div>
-        
+
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           {currentUser && (
             <>
@@ -163,27 +170,35 @@ export default function Home() {
                 <span style={{ fontSize: '1.3rem' }}>π</span>
                 {piBalance.toLocaleString()} Pi Coins
               </button>
-              
+
+              <button
+                onClick={() => setIsBackupOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: '20px',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(139, 92, 246, 0.3)'
+                }}
+              >
+                💾 Backup
+              </button>
               <button
                 onClick={handleLogout}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'transparent',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
                   padding: '12px 20px',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  borderRadius: '20px',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
                 }}
               >
-                Logout
+                🚪 Logout
               </button>
             </>
           )}
@@ -261,96 +276,34 @@ export default function Home() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
-        <button
-          key="predictions"
-          onClick={() => setActiveTab('predictions')}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: activeTab === 'predictions' ? '#22c55e' : 'transparent',
-            color: activeTab === 'predictions' ? 'white' : '#d1fae5',
-            border: activeTab === 'predictions' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          📊 Predictions
-        </button>
-        <button
-          key="news"
-          onClick={() => setActiveTab('news')}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: activeTab === 'news' ? '#22c55e' : 'transparent',
-            color: activeTab === 'news' ? 'white' : '#d1fae5',
-            border: activeTab === 'news' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          📰 News
-        </button>
-        <button
-          key="stories"
-          onClick={() => setActiveTab('stories')}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: activeTab === 'stories' ? '#22c55e' : 'transparent',
-            color: activeTab === 'stories' ? 'white' : '#d1fae5',
-            border: activeTab === 'stories' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          📖 Stories
-        </button>
-        <button
-          key="quiz"
-          onClick={() => setActiveTab('quiz')}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: activeTab === 'quiz' ? '#22c55e' : 'transparent',
-            color: activeTab === 'quiz' ? 'white' : '#d1fae5',
-            border: activeTab === 'quiz' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🎯 Quiz
-        </button>
-        <button
-          key="tools"
-          onClick={() => setActiveTab('tools')}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: activeTab === 'tools' ? '#22c55e' : 'transparent',
-            color: activeTab === 'tools' ? 'white' : '#d1fae5',
-            border: activeTab === 'tools' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🛠️ Tools
-        </button>
+        {['predictions', 'news', 'stories', 'quiz', 'challenges', 'forum', 'tools'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              style={{
+                background: activeTab === tab 
+                  ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                  : 'rgba(255, 255, 255, 0.1)',
+                color: activeTab === tab ? 'white' : '#d1d5db',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                padding: '12px 24px',
+                borderRadius: '25px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                textTransform: 'capitalize'
+              }}
+            >
+              {tab === 'predictions' ? '🔮 Predictions' : 
+               tab === 'news' ? '📰 Latest News' :
+               tab === 'stories' ? '📖 Stories' :
+               tab === 'quiz' ? '🧠 Quiz Mode' :
+               tab === 'challenges' ? '🏆 Challenges' :
+               tab === 'forum' ? '💬 Forum' :
+               '🔧 Tools'}
+            </button>
+          ))}
       </div>
 
       {/* Always show latest news for guests */}
@@ -469,6 +422,54 @@ export default function Home() {
             </button>
           </div>
         ))}
+        {activeTab === 'challenges' && (currentUser ? <ChallengeSystem /> : (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>🏆 Challenges</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
+              Compete with other users in exciting sports challenges!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              Sign Up to Compete
+            </button>
+          </div>
+        ))}
+        {activeTab === 'forum' && (currentUser ? <Forum /> : (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>💬 Forum</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
+              Join the discussion, share your insights, and connect with fellow sports fans!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              Sign Up to Join Forum
+            </button>
+          </div>
+        ))}
       </div>
 
       <Link href="/dashboard" style={{
@@ -526,15 +527,23 @@ export default function Home() {
         </div>
       </div>
 
-      <PiCoinWallet 
-        isOpen={isWalletOpen} 
-        onClose={() => setIsWalletOpen(false)} 
+      <PiCoinWallet
+        isOpen={isWalletOpen}
+        onClose={() => setIsWalletOpen(false)}
+        currentUser={currentUser}
+        balance={piBalance}
+        onBalanceUpdate={setPiBalance}
       />
-      
+
       <UserRegistration
         isOpen={isRegistrationOpen}
         onClose={() => setIsRegistrationOpen(false)}
         onUserCreated={handleUserCreated}
+      />
+
+      <BackupSettings
+        isOpen={isBackupOpen}
+        onClose={() => setIsBackupOpen(false)}
       />
     </div>
   );
