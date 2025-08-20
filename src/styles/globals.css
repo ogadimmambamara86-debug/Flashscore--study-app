@@ -1,4 +1,61 @@
 
+/* SpaceX Mission Control Animations */
+@keyframes scan {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: scale(1); 
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2); 
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(90deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+  75% { transform: translateY(-10px) rotate(270deg); }
+}
+
+/* SpaceX Launch Theme Background */
+body {
+  background: radial-gradient(ellipse at center, 
+    rgba(0, 10, 30, 1) 0%, 
+    rgba(0, 0, 0, 1) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Mission Control Text Glow */
+.mission-text {
+  text-shadow: 
+    0 0 5px rgba(0, 212, 255, 0.5),
+    0 0 10px rgba(0, 212, 255, 0.3),
+    0 0 15px rgba(0, 212, 255, 0.2);
+}
+
+/* Particle Effect for Space Theme */
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: radial-gradient(circle, #00d4ff, transparent);
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: float ease-in-out infinite;
+}
+
+
+
 * {
   box-sizing: border-box;
 }

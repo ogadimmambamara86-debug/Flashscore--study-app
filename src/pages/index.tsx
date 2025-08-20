@@ -120,24 +120,57 @@ export default function Home() {
           <h1 style={{ 
             fontSize: '3.5rem', 
             margin: '0',
-            background: 'linear-gradient(135deg, #22c55e, #06b6d4, #3b82f6)',
+            background: 'linear-gradient(135deg, #ffffff, #00d4ff, #0066cc)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
             fontWeight: '800',
-            textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
+            letterSpacing: '-1px',
+            fontFamily: 'monospace'
           }}>
-            Welcome to Sports Central
+            🚀 SPACEX MISSION CONTROL
           </h1>
           {currentUser && (
-            <p style={{ 
-              color: '#22c55e', 
-              fontSize: '1.2rem', 
-              margin: '8px 0 0 0',
-              fontWeight: '600'
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px',
+              marginTop: '12px'
             }}>
-              Hello, {currentUser.username}! 👋
-            </p>
+              <p style={{ 
+                color: '#00d4ff', 
+                fontSize: '1.2rem', 
+                margin: '0',
+                fontWeight: '600',
+                fontFamily: 'monospace'
+              }}>
+                COMMANDER {currentUser.username.toUpperCase()}
+              </p>
+              <div style={{
+                padding: '4px 12px',
+                background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 102, 204, 0.2))',
+                border: '1px solid rgba(0, 212, 255, 0.4)',
+                borderRadius: '15px',
+                fontSize: '0.8rem',
+                color: '#00d4ff',
+                fontWeight: '700',
+                fontFamily: 'monospace',
+                textTransform: 'uppercase',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <div style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#00ff88',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }} />
+                MISSION ACTIVE
+              </div>
+            </div>
           )}
         </div>
 
@@ -208,104 +241,307 @@ export default function Home() {
         </div>
       </div>
 
-      <p style={{ 
+      <div style={{ 
         fontSize: '1.2rem', 
-        color: '#666', 
+        color: '#a0a0a0', 
         marginBottom: '30px',
-        lineHeight: '1.6'
+        lineHeight: '1.8',
+        fontFamily: 'monospace',
+        textAlign: 'center',
+        padding: '20px',
+        background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 0, 0, 0.8))',
+        borderRadius: '15px',
+        border: '1px solid rgba(0, 212, 255, 0.2)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        Your ultimate destination for <strong>free AI-powered sports predictions</strong>, live sports data, and real-time updates across <em>NFL, NBA, MLB, and Soccer</em>. Join thousands of sports fans earning Pi coins through accurate predictions and interactive challenges.
-      </p>
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          height: '2px',
+          background: 'linear-gradient(90deg, transparent, #00d4ff, transparent)',
+          animation: 'scan 3s ease-in-out infinite'
+        }} />
+        <strong style={{ color: '#00d4ff' }}>MISSION BRIEFING:</strong> Navigate the sports universe with our <strong style={{ color: '#ffffff' }}>quantum-powered prediction algorithms</strong>. Monitor live data streams across <em style={{ color: '#00ff88' }}>NFL, NBA, MLB, and Soccer sectors</em>. Earn mission credits through precision targeting and tactical challenges.
+        <div style={{
+          marginTop: '15px',
+          fontSize: '1rem',
+          color: '#00d4ff',
+          fontWeight: '700'
+        }}>
+          🛰️ TELEMETRY ACTIVE • 🚀 ENGINES NOMINAL • ⚡ NEURAL LINKS ESTABLISHED
+        </div>
+      </div>
 
       {isOffline && <OfflineManager />}
 
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '24px', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '20px', 
         marginBottom: '50px' 
       }}>
+        {/* Falcon Heavy - Live Data Module */}
         <article style={{ 
-          padding: '24px', 
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(15px)',
-          borderRadius: '16px', 
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderLeft: '4px solid #22c55e',
-          transition: 'all 0.3s ease',
-          cursor: 'pointer'
+          padding: '25px', 
+          background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(0, 0, 0, 0.9))',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '20px', 
+          boxShadow: '0 12px 40px rgba(0, 212, 255, 0.15)',
+          border: '1px solid rgba(0, 212, 255, 0.3)',
+          borderLeft: '4px solid #00d4ff',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          cursor: 'pointer',
+          position: 'relative',
+          overflow: 'hidden'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-5px)';
-          e.currentTarget.style.boxShadow = '0 12px 40px rgba(34, 197, 94, 0.2)';
+          e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 212, 255, 0.25)';
+          e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.6)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 212, 255, 0.15)';
+          e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
         }}
         >
-          <h3 style={{ 
-            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            marginBottom: '12px',
-            fontWeight: '700'
-          }}>⚽ Live Sports Matches</h3>
-          <p style={{ color: '#d1fae5', margin: '0', lineHeight: '1.5' }}>Real-time NFL, NBA, MLB, and Soccer scores with instant updates</p>
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            height: '3px',
+            background: 'linear-gradient(90deg, transparent, #00d4ff, transparent)',
+            animation: 'scan 2.5s ease-in-out infinite'
+          }} />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '15px'
+          }}>
+            <div style={{
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              background: '#00ff88',
+              boxShadow: '0 0 15px rgba(0, 255, 136, 0.6)',
+              animation: 'pulse 2s ease-in-out infinite'
+            }} />
+            <h3 style={{ 
+              color: '#ffffff',
+              margin: '0',
+              fontWeight: '800',
+              fontSize: '1.3rem',
+              fontFamily: 'monospace',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>🚀 FALCON HEAVY DATA STREAM</h3>
+          </div>
+          <p style={{ 
+            color: '#a0a0a0', 
+            margin: '0', 
+            lineHeight: '1.6',
+            fontFamily: 'monospace'
+          }}>Real-time telemetry from NFL, NBA, MLB, and Soccer orbital stations with quantum-encrypted data transmission</p>
         </article>
 
-        <div style={{ 
-          padding: '24px', 
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(15px)',
-          borderRadius: '16px', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
-        }}>
-          <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Predictions</h3>
-          <p style={{ color: '#666', margin: '0' }}>AI-powered match predictions</p>
-        </div>
+        {/* Dragon Capsule - Prediction Module */}
+        <article style={{ 
+          padding: '25px', 
+          background: 'linear-gradient(135deg, rgba(0, 102, 204, 0.08), rgba(0, 0, 0, 0.9))',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '20px', 
+          boxShadow: '0 12px 40px rgba(0, 102, 204, 0.15)',
+          border: '1px solid rgba(0, 102, 204, 0.3)',
+          borderLeft: '4px solid #0066cc',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          cursor: 'pointer',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 102, 204, 0.25)';
+          e.currentTarget.style.borderColor = 'rgba(0, 102, 204, 0.6)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 102, 204, 0.15)';
+          e.currentTarget.style.borderColor = 'rgba(0, 102, 204, 0.3)';
+        }}
+        >
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            right: '0',
+            width: '80px',
+            height: '80px',
+            background: 'radial-gradient(circle, rgba(0, 102, 204, 0.15) 0%, transparent 70%)',
+            borderRadius: '50%'
+          }} />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '15px'
+          }}>
+            <div style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: '#0066cc',
+              boxShadow: '0 0 12px rgba(0, 102, 204, 0.6)'
+            }} />
+            <h3 style={{ 
+              color: '#ffffff',
+              margin: '0',
+              fontWeight: '800',
+              fontSize: '1.3rem',
+              fontFamily: 'monospace',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>🛸 DRAGON AI PREDICTIONS</h3>
+          </div>
+          <p style={{ 
+            color: '#a0a0a0', 
+            margin: '0', 
+            lineHeight: '1.6',
+            fontFamily: 'monospace'
+          }}>Neural network powered match outcome calculations with 95% accuracy rating from mission control</p>
+        </article>
 
-        <div style={{ 
-          padding: '20px', 
-          background: 'white', 
-          borderRadius: '8px', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
-        }}>
-          <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Odds & Analytics</h3>
-          <p style={{ color: '#666', margin: '0' }}>Comprehensive betting insights</p>
-        </div>
+        {/* Starship - Analytics Module */}
+        <article style={{ 
+          padding: '25px', 
+          background: 'linear-gradient(135deg, rgba(255, 165, 0, 0.08), rgba(0, 0, 0, 0.9))',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '20px', 
+          boxShadow: '0 12px 40px rgba(255, 165, 0, 0.15)',
+          border: '1px solid rgba(255, 165, 0, 0.3)',
+          borderLeft: '4px solid #ffa500',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          cursor: 'pointer',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 20px 60px rgba(255, 165, 0, 0.25)';
+          e.currentTarget.style.borderColor = 'rgba(255, 165, 0, 0.6)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 12px 40px rgba(255, 165, 0, 0.15)';
+          e.currentTarget.style.borderColor = 'rgba(255, 165, 0, 0.3)';
+        }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '15px'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#ffa500',
+              boxShadow: '0 0 10px rgba(255, 165, 0, 0.6)'
+            }} />
+            <h3 style={{ 
+              color: '#ffffff',
+              margin: '0',
+              fontWeight: '800',
+              fontSize: '1.3rem',
+              fontFamily: 'monospace',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>🌌 STARSHIP ANALYTICS</h3>
+          </div>
+          <p style={{ 
+            color: '#a0a0a0', 
+            margin: '0', 
+            lineHeight: '1.6',
+            fontFamily: 'monospace'
+          }}>Deep space reconnaissance and comprehensive betting intelligence from Mars orbital platform</p>
+        </article>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        gap: '12px', 
+        marginBottom: '40px', 
+        flexWrap: 'wrap',
+        padding: '20px',
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 212, 255, 0.05))',
+        borderRadius: '25px',
+        border: '1px solid rgba(0, 212, 255, 0.2)',
+        backdropFilter: 'blur(15px)'
+      }}>
         {['predictions', 'news', 'stories', 'quiz', 'challenges', 'forum', 'voting'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               style={{
                 background: activeTab === tab 
-                  ? 'linear-gradient(135deg, #22c55e, #16a34a)'
-                  : 'rgba(255, 255, 255, 0.1)',
-                color: activeTab === tab ? 'white' : '#d1d5db',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                padding: '12px 24px',
-                borderRadius: '25px',
+                  ? 'linear-gradient(135deg, #00d4ff, #0066cc)'
+                  : 'rgba(0, 212, 255, 0.1)',
+                color: activeTab === tab ? '#000000' : '#ffffff',
+                border: `1px solid ${activeTab === tab ? 'rgba(0, 212, 255, 0.6)' : 'rgba(0, 212, 255, 0.3)'}`,
+                padding: '14px 26px',
+                borderRadius: '30px',
                 fontSize: '1rem',
-                fontWeight: '600',
+                fontWeight: '700',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textTransform: 'capitalize'
+                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                letterSpacing: '0.5px',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: activeTab === tab 
+                  ? '0 8px 25px rgba(0, 212, 255, 0.3)' 
+                  : '0 4px 15px rgba(0, 0, 0, 0.2)'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 102, 204, 0.1))';
+                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab) {
+                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }
               }}
             >
-              {tab === 'predictions' ? '🔮 Predictions' : 
-               tab === 'news' ? '📰 Latest News' :
-               tab === 'stories' ? '📖 Stories' :
-               tab === 'quiz' ? '🧠 Quiz Mode' :
-               tab === 'challenges' ? '🏆 Challenges' :
-               tab === 'forum' ? '💬 Forum' :
-               tab === 'voting' ? '🗳️ Voting' :
-               '🔧 Tools'}
+              {activeTab === tab && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  right: '0',
+                  height: '2px',
+                  background: 'linear-gradient(90deg, transparent, #ffffff, transparent)',
+                  animation: 'scan 2s ease-in-out infinite'
+                }} />
+              )}
+              {tab === 'predictions' ? '🎯 TRAJECTORY' : 
+               tab === 'news' ? '📡 COMMS' :
+               tab === 'stories' ? '📋 MISSION LOG' :
+               tab === 'quiz' ? '🧠 TRAINING SIM' :
+               tab === 'challenges' ? '🏆 OBJECTIVES' :
+               tab === 'forum' ? '💬 CREW CHAT' :
+               tab === 'voting' ? '🗳️ CONSENSUS' :
+               '🔧 SYSTEMS'}
             </button>
           ))}
       </div>
@@ -517,41 +753,71 @@ export default function Home() {
 
       <div style={{ 
         marginTop: '50px', 
-        padding: '20px', 
-        background: '#f8f9fa', 
-        borderRadius: '8px',
-        borderLeft: '4px solid #007bff'
+        padding: '30px', 
+        background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 212, 255, 0.08))',
+        borderRadius: '20px',
+        borderLeft: '4px solid #00d4ff',
+        border: '1px solid rgba(0, 212, 255, 0.3)',
+        backdropFilter: 'blur(15px)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <h4 style={{ color: '#333', marginBottom: '15px' }}>Available APIs</h4>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <span style={{ 
-            padding: '5px 12px', 
-            background: '#007bff', 
-            color: 'white', 
-            borderRadius: '20px', 
-            fontSize: '0.9rem' 
-          }}>NFL</span>
-          <span style={{ 
-            padding: '5px 12px', 
-            background: '#007bff', 
-            color: 'white', 
-            borderRadius: '20px', 
-            fontSize: '0.9rem' 
-          }}>NBA</span>
-          <span style={{ 
-            padding: '5px 12px', 
-            background: '#007bff', 
-            color: 'white', 
-            borderRadius: '20px', 
-            fontSize: '0.9rem' 
-          }}>MLB</span>
-          <span style={{ 
-            padding: '5px 12px', 
-            background: '#007bff', 
-            color: 'white', 
-            borderRadius: '20px', 
-            fontSize: '0.9rem' 
-          }}>Soccer</span>
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          height: '2px',
+          background: 'linear-gradient(90deg, transparent, #00d4ff, transparent)',
+          animation: 'scan 4s ease-in-out infinite'
+        }} />
+        <h4 style={{ 
+          color: '#ffffff', 
+          marginBottom: '20px',
+          fontSize: '1.4rem',
+          fontFamily: 'monospace',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          textAlign: 'center'
+        }}>🛰️ ACTIVE SATELLITE NETWORKS</h4>
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {['NFL', 'NBA', 'MLB', 'SOCCER'].map((sport, index) => (
+            <span key={sport} style={{ 
+              padding: '12px 20px', 
+              background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 102, 204, 0.1))',
+              color: '#00d4ff',
+              borderRadius: '25px',
+              fontSize: '1rem',
+              fontWeight: '700',
+              fontFamily: 'monospace',
+              border: '1px solid rgba(0, 212, 255, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 15px rgba(0, 212, 255, 0.1)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#00ff88',
+                boxShadow: '0 0 10px rgba(0, 255, 136, 0.6)',
+                animation: `pulse ${2 + index * 0.5}s ease-in-out infinite`
+              }} />
+              {sport}
+            </span>
+          ))}
+        </div>
+        <div style={{
+          textAlign: 'center',
+          marginTop: '20px',
+          color: '#a0a0a0',
+          fontSize: '0.9rem',
+          fontFamily: 'monospace'
+        }}>
+          STATUS: ALL SYSTEMS NOMINAL • UPLINK: SECURE • LATENCY: &lt;50ms
         </div>
       </div>
 
