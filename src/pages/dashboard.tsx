@@ -108,8 +108,8 @@ export default function Dashboard() {
         {/* Enhanced device indicator */}
         <div className="glass-card" style={{
           padding: '8px 16px',
-          background: isMobile 
-            ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
+          background: isMobile
+            ? 'linear-gradient(135deg, #22c55e, #16a34a)'
             : 'linear-gradient(135deg, #06b6d4, #0891b2)',
           borderRadius: '20px',
           fontSize: '0.85rem',
@@ -136,8 +136,8 @@ export default function Dashboard() {
           </h2>
           <div className="grid gap-6">
             {matches.map((match, index) => (
-              <div 
-                key={match.id} 
+              <div
+                key={match.id}
                 className="glass-card"
                 style={{
                   padding: '20px',
@@ -190,8 +190,8 @@ export default function Dashboard() {
           <div className="grid gap-6">
             {predictions.length > 0 ? (
               predictions.map((prediction, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="glass-card"
                   style={{
                     padding: '20px',

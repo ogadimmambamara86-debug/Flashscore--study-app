@@ -35,7 +35,7 @@ class PiCoinManager {
     if (typeof window === 'undefined') {
       return { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };
     }
-    
+
     const data = localStorage.getItem(this.STORAGE_KEY);
     if (!data) {
       return { userId, balance: 0, totalEarned: 0, lastUpdated: new Date() };

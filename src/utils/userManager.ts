@@ -15,6 +15,7 @@ interface User {
 class UserManager {
   private static readonly STORAGE_KEY = 'sports_central_users';
   private static readonly CURRENT_USER_KEY = 'current_user';
+  private static readonly ENCRYPTION_KEY = 'your_super_secret_key'; // Replace with a strong, securely managed key
 
   static createUser(username: string, email?: string): User {
     const users = this.getAllUsers();
@@ -79,33 +80,30 @@ class UserManager {
   }
 
   static getCurrentUser(): User | null {
-    // Try cache first
-    const CacheManager = require('./cacheManager').default;
-    const cached = CacheManager.get('current_user');
-    if (cached) return cached;
+    if (typeof window === 'undefined') return null;
 
-    const userData = localStorage.getItem(this.CURRENT_USER_KEY);
-    if (!userData) {
+    try {
+      const userData = localStorage.getItem(this.CURRENT_USER_KEY);
+      if (!userData) {
+        return null;
+      }
+      const user: User = JSON.parse(userData);
+
+      // Check if session token is still valid (e.g., not expired)
+      if (user.sessionToken && !SecurityUtils.isTokenValid(user.sessionToken)) {
+        this.logoutUser();
+        return null;
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Failed to get current user:', error);
       return null;
     }
-    const user: User = JSON.parse(userData);
-    
-    // Check if session token is still valid (e.g., not expired)
-    if (user.sessionToken && !SecurityUtils.isTokenValid(user.sessionToken)) {
-      this.logoutUser();
-      return null;
-    }
-
-    // Cache user data securely
-    CacheManager.set('current_user', user, 5, {
-      userId: user.id,
-      sensitiveData: true
-    });
-
-    return user;
   }
 
   static setCurrentUser(user: User): void {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
   }
 
@@ -139,6 +137,8 @@ class UserManager {
   }
 
   static logoutUser(): void {
+    if (typeof window === 'undefined') return;
+
     const currentUser = this.getCurrentUser();
     if (currentUser) {
       // Invalidate session token on logout
@@ -149,11 +149,14 @@ class UserManager {
   }
 
   static getAllUsers(): User[] {
+    if (typeof window === 'undefined') return [];
     const data = localStorage.getItem(this.STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   }
 
   static updateUser(user: User): void {
+    if (typeof window === 'undefined') return;
+
     const users = this.getAllUsers();
     const index = users.findIndex(u => u.id === user.id);
 
@@ -164,6 +167,8 @@ class UserManager {
   }
 
   static deleteUser(userId: string): void {
+    if (typeof window === 'undefined') return;
+
     const users = this.getAllUsers();
     const filteredUsers = users.filter(u => u.id !== userId);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredUsers));
