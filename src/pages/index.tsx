@@ -38,15 +38,25 @@ export default function Home() {
     setIsOffline(!navigator.onLine);
 
     // Check for existing user
-    const existingUser = UserManager.getCurrentUser();
-    if (existingUser) {
-      setCurrentUser(existingUser);
-      // Load Pi coin balance and award daily login
-      const dailyBonus = PiCoinManager.awardDailyLogin(existingUser.id);
-      const balance = PiCoinManager.getBalance(existingUser.id);
-      setPiBalance(balance.balance);
-    } else {
-      // Show registration modal for new users
+    try {
+      const existingUser = UserManager.getCurrentUser();
+      if (existingUser && existingUser.id) {
+        setCurrentUser(existingUser);
+        // Load Pi coin balance and award daily login
+        try {
+          const dailyBonus = PiCoinManager.awardDailyLogin(existingUser.id);
+          const balance = PiCoinManager.getBalance(existingUser.id);
+          setPiBalance(balance.balance);
+        } catch (error) {
+          console.error('Error loading user balance:', error);
+          setPiBalance(0);
+        }
+      } else {
+        // Show registration modal for new users
+        setIsRegistrationOpen(true);
+      }
+    } catch (error) {
+      console.error('Error checking existing user:', error);
       setIsRegistrationOpen(true);
     }
 

@@ -138,10 +138,10 @@ class PiCoinManager {
     MONTHLY_BONUS: 100
   };
 
-  static getBalance(userId: string = 'default'): PiCoinBalance {
-    if (typeof window === 'undefined') {
-      // Return a default object if not in a browser environment
-      return { userId: userId || 'default', balance: 0, totalEarned: 0, lastUpdated: new Date() };
+  static getBalance(userId: string): { balance: number, lastUpdated: Date } {
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+      console.warn('Invalid userId provided to getBalance:', userId);
+      return { balance: 0, lastUpdated: new Date() };
     }
 
     const data = ClientStorage.getItem(this.STORAGE_KEY);
@@ -224,8 +224,14 @@ class PiCoinManager {
     userId: string,
     amount: number,
     type: PiCoinTransaction['type'],
-    description: string
+    description: string = ''
   ): boolean {
+    if (!userId || userId.trim() === '' || typeof userId !== 'string') {
+      SecurityManager.logSecurityEvent('invalid_transaction_user', { amount, type, userId: userId?.toString() || 'null' });
+      console.error('Invalid user ID provided to addTransaction:', userId);
+      return false;
+    }
+
     // Sanitize and validate userId early
     const sanitizedUserId = SecurityManager.sanitizeInput(userId);
     if (!sanitizedUserId || sanitizedUserId === '' || sanitizedUserId === 'undefined' || sanitizedUserId === 'null') {
@@ -270,10 +276,10 @@ class PiCoinManager {
             transactions = [];
         }
       } catch (error) {
-        console.error('Failed to decrypt transaction data, proceeding with empty transactions:', error);
         SecurityManager.logSecurityEvent('transaction_decryption_error', { userId: sanitizedUserId });
-        // If decryption fails, reset transactions to prevent using potentially compromised data
-        transactions = [];
+        console.error('Failed to decrypt transaction data:', error);
+        // Return empty array instead of throwing
+        return false; // Return false on decryption error
       }
     }
 
