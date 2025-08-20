@@ -14,6 +14,16 @@ const LatestNews: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showStoryEditor, setShowStoryEditor] = useState<boolean>(false);
   const [editingStory, setEditingStory] = useState<NewsItem | undefined>(undefined);
+  
+  // Check if user is logged in (for guest experience)
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  useEffect(() => {
+    // Simple check for logged in user
+    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+    const userData = localStorage.getItem('currentUser');
+    setCurrentUser(adminLoggedIn === 'true' || userData ? JSON.parse(userData || '{}') : null);
+  }, []);
 
   // Initialize news items from local storage or default
   const [newsItems, setNewsItems] = useState<NewsItem[]>(() => {
@@ -138,47 +148,86 @@ const LatestNews: React.FC = () => {
           📰 Latest News
         </h3>
         <div>
-          {!isLoggedIn ? (
-            <button onClick={() => setShowLoginModal(true)} style={{ /* Login Button Styles */
-              background: 'linear-gradient(135deg, #facc15, #eab308)',
-              color: 'black',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
-            }}>Login</button>
-          ) : (
-            <button onClick={handleLogout} style={{ /* Logout Button Styles */
-              background: 'linear-gradient(135deg, #ef4444, #b91c1c)',
-              color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
-            }}>Logout</button>
+          {/* Show admin controls only if user is actually an admin */}
+          {!isLoggedIn && !currentUser && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ 
+                color: '#d1fae5', 
+                fontSize: '0.8rem',
+                padding: '4px 8px',
+                background: 'rgba(34, 197, 94, 0.1)',
+                borderRadius: '12px',
+                border: '1px solid rgba(34, 197, 94, 0.3)'
+              }}>
+                📰 Live News Feed
+              </span>
+              <button onClick={() => setShowLoginModal(true)} style={{
+                background: 'linear-gradient(135deg, #facc15, #eab308)',
+                color: 'black',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '16px',
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+              }}>Admin</button>
+            </div>
           )}
+          
+          {!isLoggedIn && currentUser && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ 
+                color: '#22c55e', 
+                fontSize: '0.8rem',
+                fontWeight: '600'
+              }}>
+                Welcome {currentUser.username || 'User'}! 👋
+              </span>
+              <button onClick={() => setShowLoginModal(true)} style={{
+                background: 'linear-gradient(135deg, #facc15, #eab308)',
+                color: 'black',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '16px',
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+              }}>Admin</button>
+            </div>
+          )}
+
           {isLoggedIn && (
-            <button onClick={() => { setEditingStory(undefined); setShowStoryEditor(true); }} style={{ /* Add Story Button Styles */
-              marginLeft: '10px',
-              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-              color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
-            }}>+ Add Story</button>
+            <>
+              <button onClick={handleLogout} style={{
+                background: 'linear-gradient(135deg, #ef4444, #b91c1c)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '0.85rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+              }}>Logout</button>
+              <button onClick={() => { setEditingStory(undefined); setShowStoryEditor(true); }} style={{
+                marginLeft: '10px',
+                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '0.85rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
+              }}>+ Add Story</button>
+            </>
           )}
         </div>
       </div>
@@ -251,6 +300,62 @@ const LatestNews: React.FC = () => {
             </button>
           </div>
         ))}
+        
+        {/* Sign-up prompt for guests */}
+        {!currentUser && !isLoggedIn && (
+          <div style={{
+            marginTop: '24px',
+            padding: '20px',
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.05))',
+            borderRadius: '12px',
+            border: '2px dashed rgba(34, 197, 94, 0.3)',
+            textAlign: 'center'
+          }}>
+            <h4 style={{
+              color: '#22c55e',
+              marginBottom: '12px',
+              fontSize: '1.1rem',
+              fontWeight: '600'
+            }}>
+              🎯 Want More Sports Content?
+            </h4>
+            <p style={{
+              color: '#d1fae5',
+              marginBottom: '16px',
+              fontSize: '0.9rem'
+            }}>
+              Join Sports Central for exclusive predictions, quizzes, and π50 welcome bonus!
+            </p>
+            <button
+              onClick={() => {
+                // Trigger registration modal (assuming parent component handles this)
+                window.dispatchEvent(new CustomEvent('openRegistration'));
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '20px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.3)';
+              }}
+            >
+              🚀 Sign Up Free
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Login Modal */}

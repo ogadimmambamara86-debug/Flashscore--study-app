@@ -41,9 +41,17 @@ export default function Home() {
       setIsRegistrationOpen(true);
     }
 
+    // Listen for registration modal trigger from news component
+    const handleOpenRegistration = () => {
+      setIsRegistrationOpen(true);
+    };
+    
+    window.addEventListener('openRegistration', handleOpenRegistration);
+
     return () => {
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
+      window.removeEventListener('openRegistration', handleOpenRegistration);
     };
   }, []);
 
@@ -345,6 +353,64 @@ export default function Home() {
         </button>
       </div>
 
+      {/* Always show latest news for guests */}
+      {!currentUser && (
+        <div style={{ 
+          marginBottom: '40px'
+        }}>
+          <LatestNews />
+          <div style={{
+            textAlign: 'center',
+            padding: '30px',
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.1))',
+            borderRadius: '16px',
+            border: '2px dashed rgba(34, 197, 94, 0.3)',
+            marginTop: '20px'
+          }}>
+            <h3 style={{
+              color: '#22c55e',
+              marginBottom: '16px',
+              fontSize: '1.4rem',
+              fontWeight: '700'
+            }}>
+              🎉 Want More Features?
+            </h3>
+            <p style={{
+              color: '#d1fae5',
+              marginBottom: '20px',
+              fontSize: '1.1rem'
+            }}>
+              Sign up now and get π50 Welcome Bonus! Access quizzes, predictions, interactive tools and much more!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.4)';
+              }}
+            >
+              🚀 Join Sports Central Free!
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{ 
         marginTop: '40px', 
         padding: '30px', 
@@ -355,8 +421,54 @@ export default function Home() {
         {activeTab === 'predictions' && <PredictionsTable predictions={predictions} />}
         {activeTab === 'news' && <LatestNews />}
         {activeTab === 'stories' && <LatestNews />}
-        {activeTab === 'quiz' && <QuizMode isOffline={isOffline} />}
-        {activeTab === 'tools' && <InteractiveTools />}
+        {activeTab === 'quiz' && (currentUser ? <QuizMode isOffline={isOffline} /> : (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>🎯 Quiz Mode</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
+              Test your sports knowledge with our interactive quizzes!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              Sign Up to Play Quiz
+            </button>
+          </div>
+        ))}
+        {activeTab === 'tools' && (currentUser ? <InteractiveTools /> : (
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>🛠️ Interactive Tools</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
+              Access powerful sports analytics and prediction tools!
+            </p>
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '25px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              Sign Up to Access Tools
+            </button>
+          </div>
+        ))}
       </div>
 
       <Link href="/dashboard" style={{
