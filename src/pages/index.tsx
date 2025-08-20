@@ -14,6 +14,7 @@ import Forum from '../components/Forum';
 import BackupSettings from '../components/BackupSettings';
 import BackupManager from '../utils/backupManager';
 import CommunityVoting from '../components/CommunityVoting'; // Import CommunityVoting component
+import BettingAgreement from '../components/BettingAgreement';
 
 
 export default function Home() {
@@ -839,6 +840,9 @@ export default function Home() {
         isOpen={isBackupOpen}
         onClose={() => setIsBackupOpen(false)}
       />
+
+      {/* Betting Agreement - Always visible when logged in */}
+      <BettingAgreement isVisible={!!currentUser} />
     </div>
   );
 }

@@ -27,6 +27,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
   const [quizComplete, setQuizComplete] = useState(false);
   const [piCoinsEarned, setPiCoinsEarned] = useState(0);
   const [currentBalance, setCurrentBalance] = useState(0);
+  const [showBettingAgreement, setShowBettingAgreement] = useState(false); // State for the betting agreement
 
   // Offline questions cache
   const offlineQuestions: Question[] = [
@@ -101,9 +102,15 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
     };
 
     handleDailyLogin();
-    
+
     const balance = PiCoinManager.getBalance();
     setCurrentBalance(balance.balance);
+
+    // Check if the user has logged in to show the betting agreement
+    const currentUser = UserManager.getCurrentUser(); // Assuming this function exists and returns user info or null
+    if (currentUser) {
+      setShowBettingAgreement(true);
+    }
   }, [isOffline, category]);
 
   useEffect(() => {
@@ -193,6 +200,10 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
     return "Keep trying! 💪";
   };
 
+  const closeBettingAgreement = () => {
+    setShowBettingAgreement(false);
+  };
+
   if (!quizStarted) {
     return (
       <div style={{
@@ -229,6 +240,39 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
             π {currentBalance.toLocaleString()} Pi Coins
           </div>
         </div>
+
+        {/* Betting Agreement */}
+        {showBettingAgreement && (
+          <div style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '20px',
+            color: '#e2e8f0',
+            textAlign: 'left',
+            position: 'relative'
+          }}>
+            <button
+              onClick={closeBettingAgreement}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'transparent',
+                border: 'none',
+                color: '#fff',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }}
+            >
+              &times;
+            </button>
+            <p>
+              <strong>Betting Agreement:</strong> You agree to bet responsibly. Please remember to manage your wagers wisely.
+            </p>
+          </div>
+        )}
 
         {isOffline && (
           <div style={{
