@@ -1,6 +1,7 @@
-
 import React, { useState } from 'react';
 import UserManager, { User } from '../utils/userManager';
+import PiCoinManager from '../utils/piCoinManager';
+import ResponsibleBettingTutorial from './ResponsibleBettingTutorial';
 
 interface UserRegistrationProps {
   isOpen: boolean;
@@ -11,38 +12,82 @@ interface UserRegistrationProps {
 const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, onUserCreated }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [age, setAge] = useState('');
   const [error, setError] = useState('');
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialAccepted, setTutorialAccepted] = useState(false);
+  const [formData, setFormData] = useState<{username: string; email: string; age: string} | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    if (!username.trim()) {
-      setError('Username is required');
+    // Validation
+    if (!username.trim() || !email.trim() || !age.trim()) {
+      setError('Please fill in all fields');
+      setIsLoading(false);
       return;
     }
 
+    if (parseInt(age) < 13) {
+      setError('You must be at least 13 years old to use this platform');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Store form data and show tutorial
+    setFormData({ username: username.trim(), email: email.trim(), age });
+    setShowTutorial(true);
+    setIsLoading(false);
+  };
+
+  const handleTutorialAccept = () => {
+    if (!formData) return;
+
+    setIsLoading(true);
     try {
-      let user: User | null = null;
+      // Create user
+      const newUser = UserManager.createUser(formData.username, formData.email, parseInt(formData.age));
 
-      if (isLogin) {
-        user = UserManager.loginUser(username);
-        if (!user) {
-          setError('User not found');
-          return;
-        }
-      } else {
-        user = UserManager.createUser(username, email);
-      }
+      // Award welcome bonus
+      PiCoinManager.awardWelcomeBonus(newUser.id);
 
-      onUserCreated(user);
+      onUserCreated(newUser);
+      onClose();
+
+      // Clear form
       setUsername('');
       setEmail('');
-      onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setAge('');
+      setFormData(null);
+      setTutorialAccepted(false);
+      setShowTutorial(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account. Please try again.');
+      setShowTutorial(false);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleTutorialDecline = () => {
+    setShowTutorial(false);
+    setFormData(null);
+    setError('You must accept the Responsible Betting Guidelines to create an account');
   };
 
   if (!isOpen) return null;
@@ -130,23 +175,63 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
               />
             </div>
           )}
+          {!isLogin && (
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="number"
+                placeholder="Age"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                  fontSize: '16px'
+                }}
+              />
+            </div>
+          )}
 
           <button
             type="submit"
+            disabled={isLoading}
             style={{
               width: '100%',
-              padding: '12px',
-              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+              padding: '16px',
+              background: isLoading 
+                ? 'linear-gradient(135deg, #6b7280, #9ca3af)' 
+                : 'linear-gradient(135deg, #22c55e, #16a34a)',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginBottom: '12px'
+              borderRadius: '12px',
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
             }}
           >
-            {isLogin ? 'Login' : 'Create Account & Get π50 Welcome Bonus!'}
+            {isLoading ? (
+              <>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  borderTop: '2px solid white',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                Creating Account...
+              </>
+            ) : (
+              '📖 Continue to Guidelines'
+            )}
           </button>
 
           <div style={{ textAlign: 'center' }}>
@@ -184,6 +269,14 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
           </button>
         </form>
       </div>
+
+      {showTutorial && formData && (
+        <ResponsibleBettingTutorial
+          isOpen={true}
+          onAccept={handleTutorialAccept}
+          onDecline={handleTutorialDecline}
+        />
+      )}
     </div>
   );
 };
