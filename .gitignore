@@ -91,3 +91,54 @@ temp/
 # Replit specific
 .replit_env
 .upm
+
+# TypeScript
+*.tsbuildinfo
+.tscache/
+
+# Next.js specific
+.next/
+out/
+.vercel/
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Temporary files
+.tmp/
+*.tmp
+*.temp
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Editor swap files
+*.swp
+*.swo
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Attached assets (if these are temporary/generated)
+attached_assets/
