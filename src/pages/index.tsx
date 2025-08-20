@@ -7,17 +7,48 @@ export default function Home() {
     <div style={{ 
       padding: '40px', 
       textAlign: 'center', 
-      maxWidth: '800px', 
+      maxWidth: '900px', 
       margin: '0 auto',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      position: 'relative'
     }}>
+      {/* Animated background particles */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+        zIndex: -1
+      }}>
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              width: '4px',
+              height: '4px',
+              background: 'radial-gradient(circle, #22c55e, transparent)',
+              borderRadius: '50%',
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${4 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 6}s`
+            }}
+          />
+        ))}
+      </div>
+
       <h1 style={{ 
-        fontSize: '3rem', 
-        marginBottom: '20px', 
-        background: 'linear-gradient(135deg, #007bff, #0056b3)',
+        fontSize: '3.5rem', 
+        marginBottom: '24px', 
+        background: 'linear-gradient(135deg, #22c55e, #06b6d4, #3b82f6)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text'
+        backgroundClip: 'text',
+        fontWeight: '800',
+        textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
       }}>
         Welcome to Sports Central
       </h1>
@@ -33,24 +64,46 @@ export default function Home() {
       
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-        gap: '20px', 
-        marginBottom: '40px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+        gap: '24px', 
+        marginBottom: '50px' 
       }}>
         <div style={{ 
-          padding: '20px', 
-          background: 'white', 
-          borderRadius: '8px', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
-        }}>
-          <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Live Matches</h3>
-          <p style={{ color: '#666', margin: '0' }}>Real-time scores and updates</p>
+          padding: '24px', 
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(15px)',
+          borderRadius: '16px', 
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderLeft: '4px solid #22c55e',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-5px)';
+          e.currentTarget.style.boxShadow = '0 12px 40px rgba(34, 197, 94, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+        }}
+        >
+          <h3 style={{ 
+            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: '12px',
+            fontWeight: '700'
+          }}>Live Matches</h3>
+          <p style={{ color: '#d1fae5', margin: '0', lineHeight: '1.5' }}>Real-time scores and updates</p>
         </div>
         
         <div style={{ 
-          padding: '20px', 
-          background: 'white', 
-          borderRadius: '8px', 
+          padding: '24px', 
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(15px)',
+          borderRadius: '16px', 
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
         }}>
           <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Predictions</h3>
