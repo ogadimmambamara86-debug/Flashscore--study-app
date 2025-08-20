@@ -42,23 +42,35 @@ const fallbackMatches: Match[] = [
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
-      // Try to fetch live matches from Sports API
-      const liveMatches = await sportsAPI.fetchAllLiveMatches();
+      // Try to fetch enhanced live matches with FlashScore and StatArea data
+      const liveMatches = await sportsAPI.fetchEnhancedLiveMatches();
       
-      // Convert live matches to dashboard format with sample predictions
+      // Convert live matches to dashboard format with real predictions
       const matches: Match[] = liveMatches.map((match, index) => ({
         id: parseInt(match.id) || index + 1,
         home: match.homeTeam,
         away: match.awayTeam,
-        prediction: `Prediction for ${match.homeTeam} vs ${match.awayTeam}`
+        prediction: match.prediction || `Analysis: ${match.homeTeam} vs ${match.awayTeam} - Check recent form and head-to-head records`
       }));
 
       // If no live matches, use fallback data
       res.status(200).json(matches.length > 0 ? matches : fallbackMatches);
     } catch (error) {
-      console.error('Error fetching live matches:', error);
-      // Return fallback data if API fails
-      res.status(200).json(fallbackMatches);
+      console.error('Error fetching enhanced live matches:', error);
+      // Fallback to regular matches
+      try {
+        const regularMatches = await sportsAPI.fetchAllLiveMatches();
+        const matches: Match[] = regularMatches.map((match, index) => ({
+          id: parseInt(match.id) || index + 1,
+          home: match.homeTeam,
+          away: match.awayTeam,
+          prediction: `Prediction for ${match.homeTeam} vs ${match.awayTeam}`
+        }));
+        res.status(200).json(matches.length > 0 ? matches : fallbackMatches);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        res.status(200).json(fallbackMatches);
+      }
     }
   } else {
     res.setHeader('Allow', ['GET']);

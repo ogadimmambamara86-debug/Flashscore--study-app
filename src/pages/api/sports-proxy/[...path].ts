@@ -15,6 +15,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.json(matches);
         break;
       
+      case 'enhanced-matches':
+        const enhancedMatches = await sportsAPI.fetchEnhancedLiveMatches();
+        res.json(enhancedMatches);
+        break;
+      
+      case 'flashscore':
+        const flashScoreData = await sportsAPI.fetchFlashScoreData();
+        res.json(flashScoreData);
+        break;
+      
+      case 'statarea-predictions':
+        const predictions = await sportsAPI.fetchStatAreaPredictions();
+        res.json(predictions);
+        break;
+      
       case 'health':
         const health = await sportsAPI.checkAPIHealth();
         res.json(health);

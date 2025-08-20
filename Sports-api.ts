@@ -15,6 +15,8 @@ gameTime: string;
 status: string;
 homeScore?: number;
 awayScore?: number;
+prediction?: string;
+confidence?: number;
 }
 
 interface OddsData {
@@ -369,6 +371,140 @@ return allMatches;
 
 }
 
+// FlashScore integration (web scraping approach)
+async fetchFlashScoreData(): Promise<LiveMatch[]> {
+try {
+  // FlashScore uses dynamic content, so we'll use their mobile API endpoints
+  const response = await fetch('https://www.flashscore.com/x/feed/proxy-dienst', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Referer': 'https://www.flashscore.com/'
+    },
+    body: 'commands=[{"type":"live-score","params":{"sport":"football"}}]'
+  });
+
+  if (!response.ok) {
+    throw new Error(`FlashScore API error: ${response.status}`);
+  }
+
+  const data = await response.text();
+  return this.parseFlashScoreData(data);
+} catch (error) {
+  console.error('FlashScore fetch error:', error);
+  return [];
+}
+}
+
+// Statarea integration
+async fetchStatAreaPredictions(): Promise<{ matchId: string; prediction: string; confidence: number }[]> {
+try {
+  const response = await fetch('https://www.statarea.com/predictions/today', {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`StatArea API error: ${response.status}`);
+  }
+
+  const html = await response.text();
+  return this.parseStatAreaPredictions(html);
+} catch (error) {
+  console.error('StatArea fetch error:', error);
+  return [];
+}
+}
+
+// Enhanced live score data with FlashScore and StatArea
+async fetchEnhancedLiveMatches(): Promise<LiveMatch[]> {
+const sources = await Promise.allSettled([
+  this.fetchAllLiveMatches(),
+  this.fetchFlashScoreData()
+]);
+
+const allMatches: LiveMatch[] = [];
+const predictions = await this.fetchStatAreaPredictions();
+
+sources.forEach((result) => {
+  if (result.status === 'fulfilled') {
+    allMatches.push(...result.value);
+  }
+});
+
+// Enhance matches with predictions
+return allMatches.map(match => ({
+  ...match,
+  prediction: predictions.find(p => 
+    p.matchId === match.id || 
+    (p.matchId.includes(match.homeTeam) && p.matchId.includes(match.awayTeam))
+  )?.prediction || 'No prediction available'
+}));
+}
+
+// Parse FlashScore data
+private parseFlashScoreData(data: string): LiveMatch[] {
+try {
+  // FlashScore returns encoded data, basic parsing approach
+  const matches: LiveMatch[] = [];
+  const lines = data.split('\n');
+  
+  for (const line of lines) {
+    if (line.includes('~') && line.includes('|')) {
+      const parts = line.split('~');
+      if (parts.length >= 5) {
+        matches.push({
+          id: parts[0] || 'unknown',
+          sport: 'Soccer',
+          homeTeam: parts[2] || 'Unknown',
+          awayTeam: parts[3] || 'Unknown',
+          gameTime: new Date().toISOString(),
+          status: 'Live',
+          homeScore: parseInt(parts[4]) || 0,
+          awayScore: parseInt(parts[5]) || 0
+        });
+      }
+    }
+  }
+  
+  return matches;
+} catch (error) {
+  console.error('Error parsing FlashScore data:', error);
+  return [];
+}
+}
+
+// Parse StatArea predictions
+private parseStatAreaPredictions(html: string): { matchId: string; prediction: string; confidence: number }[] {
+const predictions: { matchId: string; prediction: string; confidence: number }[] = [];
+
+try {
+  // Basic HTML parsing for predictions
+  const matches = html.match(/<div[^>]*class="[^"]*prediction[^"]*"[^>]*>[\s\S]*?<\/div>/g) || [];
+  
+  matches.forEach((match, index) => {
+    const teamMatch = match.match(/([A-Za-z\s]+)\s+vs?\s+([A-Za-z\s]+)/);
+    const predictionMatch = match.match(/prediction[^>]*>([^<]+)/);
+    const confidenceMatch = match.match(/confidence[^>]*>(\d+)%/);
+    
+    if (teamMatch && predictionMatch) {
+      predictions.push({
+        matchId: `${teamMatch[1]}_vs_${teamMatch[2]}`,
+        prediction: predictionMatch[1].trim(),
+        confidence: confidenceMatch ? parseInt(confidenceMatch[1]) : 75
+      });
+    }
+  });
+} catch (error) {
+  console.error('Error parsing StatArea predictions:', error);
+}
+
+return predictions;
+}
+
 // Health check method
 async checkAPIHealth(): Promise<{ service: string; status: string; error?: string }[]> {
 const checks = [
@@ -379,6 +515,8 @@ const checks = [
 { name: 'ESPN NFL (Free)', test: () => this.fetchESPNNFL() },
 { name: 'ESPN NBA (Free)', test: () => this.fetchESPNNBA() },
 { name: 'ESPN MLB (Free)', test: () => this.fetchESPNMLB() },
+{ name: 'FlashScore', test: () => this.fetchFlashScoreData() },
+{ name: 'StatArea', test: () => this.fetchStatAreaPredictions() },
 { name: 'Odds API NFL', test: () => this.fetchOddsData('NFL') }
 ];
 
