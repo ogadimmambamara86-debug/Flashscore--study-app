@@ -1,5 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
+import { withSecurity } from '../../../utils/apiSecurity';
 
 interface Question {
   id: number;

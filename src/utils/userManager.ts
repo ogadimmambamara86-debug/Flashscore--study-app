@@ -1,3 +1,4 @@
+import SecurityUtils from './securityUtils';
 
 interface User {
   id: string;
@@ -5,6 +6,10 @@ interface User {
   email?: string;
   createdAt: Date;
   lastLogin: Date;
+  sessionToken?: string;
+  loginAttempts: number;
+  lockedUntil?: Date;
+  emailVerified: boolean;
 }
 
 class UserManager {
@@ -13,35 +18,56 @@ class UserManager {
 
   static createUser(username: string, email?: string): User {
     const users = this.getAllUsers();
-    
+
+    // Validate and sanitize input
+    const sanitizedUsername = SecurityUtils.sanitizeInput(username);
+    const sanitizedEmail = email ? SecurityUtils.sanitizeInput(email) : undefined;
+
     // Check if username already exists
-    if (users.find(u => u.username === username)) {
+    if (users.find(u => u.username === sanitizedUsername)) {
       throw new Error('Username already exists');
     }
 
+    // Generate a secure session token
+    const sessionToken = SecurityUtils.generateSecureToken();
+
     const newUser: User = {
       id: this.generateUserId(),
-      username,
-      email,
+      username: sanitizedUsername,
+      email: sanitizedEmail,
       createdAt: new Date(),
-      lastLogin: new Date()
+      lastLogin: new Date(),
+      sessionToken: sessionToken,
+      loginAttempts: 0,
+      emailVerified: false, // Email not verified by default
     };
 
     users.push(newUser);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
-    
+
     // Set as current user
     this.setCurrentUser(newUser);
-    
+
     // Create wallet for new user
     this.initializeUserWallet(newUser.id);
-    
+
+    // TODO: Implement email verification process here
+
     return newUser;
   }
 
   static getCurrentUser(): User | null {
     const userData = localStorage.getItem(this.CURRENT_USER_KEY);
-    return userData ? JSON.parse(userData) : null;
+    if (!userData) {
+      return null;
+    }
+    const user: User = JSON.parse(userData);
+    // Check if session token is still valid (e.g., not expired)
+    if (user.sessionToken && !SecurityUtils.isTokenValid(user.sessionToken)) {
+      this.logoutUser();
+      return null;
+    }
+    return user;
   }
 
   static setCurrentUser(user: User): void {
@@ -50,19 +76,40 @@ class UserManager {
 
   static loginUser(username: string): User | null {
     const users = this.getAllUsers();
-    const user = users.find(u => u.username === username);
-    
-    if (user) {
-      user.lastLogin = new Date();
-      this.updateUser(user);
-      this.setCurrentUser(user);
-      return user;
+    const sanitizedUsername = SecurityUtils.sanitizeInput(username);
+    let user = users.find(u => u.username === sanitizedUsername);
+
+    if (!user) {
+      return null; // User not found
     }
-    
-    return null;
+
+    // Check if user account is locked
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      throw new Error('Account locked. Please try again later.');
+    }
+
+    // Dummy password check (in a real app, use hashed passwords)
+    // For now, we assume a successful login if username matches and email is verified
+    if (!user.emailVerified) {
+      throw new Error('Please verify your email before logging in.');
+    }
+
+    user.lastLogin = new Date();
+    user.loginAttempts = 0; // Reset login attempts on successful login
+    user.sessionToken = SecurityUtils.generateSecureToken(); // Generate new token on login
+
+    this.updateUser(user);
+    this.setCurrentUser(user);
+    return user;
   }
 
   static logoutUser(): void {
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      // Invalidate session token on logout
+      currentUser.sessionToken = undefined;
+      this.updateUser(currentUser);
+    }
     localStorage.removeItem(this.CURRENT_USER_KEY);
   }
 
@@ -74,7 +121,7 @@ class UserManager {
   static updateUser(user: User): void {
     const users = this.getAllUsers();
     const index = users.findIndex(u => u.id === user.id);
-    
+
     if (index !== -1) {
       users[index] = user;
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
@@ -85,7 +132,7 @@ class UserManager {
     const users = this.getAllUsers();
     const filteredUsers = users.filter(u => u.id !== userId);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredUsers));
-    
+
     // Clear user's wallet data
     this.clearUserWallet(userId);
   }
@@ -111,13 +158,13 @@ class UserManager {
     // Clear user's Pi coin data
     const coinData = localStorage.getItem('pi_coin_data');
     const transactionData = localStorage.getItem('pi_coin_transactions');
-    
+
     if (coinData) {
       const balances = JSON.parse(coinData);
       delete balances[userId];
       localStorage.setItem('pi_coin_data', JSON.stringify(balances));
     }
-    
+
     if (transactionData) {
       const transactions = JSON.parse(transactionData);
       const filteredTransactions = transactions.filter((t: any) => t.userId !== userId);
