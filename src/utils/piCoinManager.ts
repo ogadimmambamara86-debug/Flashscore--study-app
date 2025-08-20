@@ -97,7 +97,7 @@ class PiCoinManager {
       .slice(0, 20); // Return last 20 transactions
   }
 
-  static awardQuizCompletion(userId: string = 'default', score: number, totalQuestions: number): number {
+  static awardQuizCompletion(userId: string, score: number, totalQuestions: number): number {
     const percentage = (score / totalQuestions) * 100;
     let amount = this.REWARDS.QUIZ_COMPLETE;
     let description = `Quiz completed: ${score}/${totalQuestions}`;
@@ -111,7 +111,7 @@ class PiCoinManager {
     return amount;
   }
 
-  static awardDailyLogin(userId: string = 'default'): number {
+  static awardDailyLogin(userId: string): number {
     const lastLogin = localStorage.getItem(`last_login_${userId}`);
     const today = new Date().toDateString();
     
