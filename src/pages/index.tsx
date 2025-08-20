@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import QuizMode from '../components/QuizMode';
 import OfflineManager from '../components/OfflineManager';
+import PredictionsTable from '../components/PredictionsTable';
+import LatestNews from '../components/LatestNews';
+import InteractiveTools from '../components/InteractiveTools';
 
 export default function Home() {
   const [predictions] = useState([]);
