@@ -1,11 +1,17 @@
 import express from 'express';
 import { createSportsAPIService } from './Sports-api';
+import { connectDatabase } from './config/database';
+import { NewsController } from './controllers/newsController';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Initialize database connection
+connectDatabase();
 
 // Initialize sports API service
 const sportsAPI = createSportsAPIService();
@@ -68,6 +74,13 @@ app.get('/health', async (req, res) => {
    res.status(500).json({ error: 'Failed to check API health' });
  }
 });
+
+// News API Routes
+app.get('/api/news', NewsController.getAllNews);
+app.get('/api/news/:id', NewsController.getNewsById);
+app.post('/api/news', NewsController.createNews);
+app.put('/api/news/:id', NewsController.updateNews);
+app.delete('/api/news/:id', NewsController.deleteNews);
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {

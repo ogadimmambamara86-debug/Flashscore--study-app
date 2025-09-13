@@ -90,31 +90,81 @@ const LatestNews: React.FC = () => {
 
   const isExpanded = (itemId: number) => expandedItems.includes(itemId);
 
-  // Check for existing login state
+  // Enhanced auto-login with session management
   useEffect(() => {
-    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
-    if (adminLoggedIn === 'true') {
-      setIsLoggedIn(true);
-    }
+    const checkAutoLogin = () => {
+      const adminLoggedIn = localStorage.getItem('adminLoggedIn');
+      const adminSessionExpiry = localStorage.getItem('adminSessionExpiry');
+      const rememberMe = localStorage.getItem('adminRememberMe');
+      
+      if (adminLoggedIn === 'true') {
+        // Check if session is still valid
+        if (adminSessionExpiry && Date.now() < parseInt(adminSessionExpiry)) {
+          setIsLoggedIn(true);
+          // Extend session if remember me is enabled
+          if (rememberMe === 'true') {
+            const newExpiry = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days
+            localStorage.setItem('adminSessionExpiry', newExpiry.toString());
+          }
+        } else {
+          // Session expired, clear login
+          localStorage.removeItem('adminLoggedIn');
+          localStorage.removeItem('adminSessionExpiry');
+          localStorage.removeItem('adminRememberMe');
+          setIsLoggedIn(false);
+        }
+      }
+    };
+
+    checkAutoLogin();
+    // Check session every 5 minutes
+    const sessionCheckInterval = setInterval(checkAutoLogin, 5 * 60 * 1000);
+    
+    return () => clearInterval(sessionCheckInterval);
   }, []);
 
-  // Login handler
-  const handleLogin = (credentials: { username: string; password: string }) => {
+  // Enhanced login handler with session management
+  const handleLogin = (credentials: { username: string; password: string; rememberMe?: boolean }) => {
     // Simple authentication (in production, use proper authentication)
-    const adminCredentials = { username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin', password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'securePassword123!' };
+    const adminCredentials = { 
+      username: process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin', 
+      password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'securePassword123!' 
+    };
+    
     if (credentials.username === adminCredentials.username && credentials.password === adminCredentials.password) {
       setIsLoggedIn(true);
       localStorage.setItem('adminLoggedIn', 'true');
+      
+      // Set session expiry
+      const sessionDuration = credentials.rememberMe ? (7 * 24 * 60 * 60 * 1000) : (24 * 60 * 60 * 1000); // 7 days vs 24 hours
+      const expiryTime = Date.now() + sessionDuration;
+      localStorage.setItem('adminSessionExpiry', expiryTime.toString());
+      
+      if (credentials.rememberMe) {
+        localStorage.setItem('adminRememberMe', 'true');
+      }
+      
       setShowLoginModal(false);
+      
+      // Show success message
+      if (window.showAlert) {
+        window.showAlert('✅ Admin login successful!', 'success');
+      }
     } else {
       alert('Invalid credentials. Use admin/securePassword123!');
     }
   };
 
-  // Logout handler
+  // Enhanced logout handler
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminSessionExpiry');
+    localStorage.removeItem('adminRememberMe');
+    
+    if (window.showAlert) {
+      window.showAlert('👋 Admin logged out successfully!', 'info');
+    }
   };
 
   // Story handlers
@@ -410,9 +460,24 @@ const LatestNews: React.FC = () => {
               style={{ /* Input Styles */
                 background: 'rgba(255, 255, 255, 0.1)', color: 'white',
                 border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px',
-                padding: '10px', marginBottom: '20px', width: 'calc(100% - 20px)'
+                padding: '10px', marginBottom: '15px', width: 'calc(100% - 20px)'
               }}
             />
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              marginBottom: '20px',
+              color: 'white'
+            }}>
+              <input
+                id="admin-remember"
+                type="checkbox"
+                style={{ marginRight: '8px' }}
+              />
+              <label htmlFor="admin-remember" style={{ fontSize: '0.9rem' }}>
+                Remember me (7 days)
+              </label>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <button onClick={() => setShowLoginModal(false)} style={{ /* Cancel Button Styles */
                 background: 'linear-gradient(135deg, #9ca3af, #6b7280)', color: 'white',
@@ -421,8 +486,13 @@ const LatestNews: React.FC = () => {
               <button onClick={() => {
                 const usernameInput = document.getElementById('admin-username') as HTMLInputElement;
                 const passwordInput = document.getElementById('admin-password') as HTMLInputElement;
+                const rememberInput = document.getElementById('admin-remember') as HTMLInputElement;
                 if (usernameInput && passwordInput) {
-                  handleLogin({ username: usernameInput.value, password: passwordInput.value });
+                  handleLogin({ 
+                    username: usernameInput.value, 
+                    password: passwordInput.value,
+                    rememberMe: rememberInput?.checked || false
+                  });
                 }
               }} style={{ /* Login Button Styles */
                 background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white',
