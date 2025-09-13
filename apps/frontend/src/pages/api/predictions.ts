@@ -19,18 +19,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Combine both sources
       const allPredictions = [
         ...internalPredictions.map(p => ({ 
+          id: p.id,
           title: p.title, 
           content: p.content,
           source: 'internal',
           sport: p.sport,
-          confidence: `${p.confidence}%`
+          confidence: `${p.confidence}%`,
+          status: p.status,
+          match: p.matchDetails ? `${p.matchDetails.home} vs ${p.matchDetails.away}` : 'TBD'
         })),
-        ...externalPredictions.map(p => ({ 
+        ...externalPredictions.map((p, index) => ({ 
+          id: `ext_${index}`,
           title: p.title, 
-          content: p.content || 'External prediction',
+          content: p.content || 'External prediction analysis',
           source: 'external',
-          sport: 'Football',
-          confidence: 'N/A'
+          sport: p.sport || 'Football',
+          confidence: p.confidence || '70%',
+          status: 'active',
+          match: 'External Match'
         }))
       ];
       
