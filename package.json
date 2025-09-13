@@ -1,35 +1,23 @@
+
 {
-  "name": "workspace",
+  "name": "sports-central-monorepo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "next dev -H 0.0.0.0 -p 3000",
-    "build": "next build",
-    "start": "next start -H 0.0.0.0 -p 3000",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/express": "^5.0.3",
-    "@types/node-fetch": "^2.6.13",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "axios": "^1.11.0",
-    "express": "^5.1.0",
-    "jsdom": "^26.1.0",
-    "next": "^14.0.0",
-    "node-fetch": "^3.3.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "dev": "npm run dev --workspace=@sports-central/frontend & npm run dev --workspace=@sports-central/backend",
+    "dev:frontend": "npm run dev --workspace=@sports-central/frontend",
+    "dev:backend": "npm run dev --workspace=@sports-central/backend",
+    "build": "npm run build --workspace=@sports-central/frontend",
+    "start": "npm run start --workspace=@sports-central/frontend & npm run start --workspace=@sports-central/backend",
+    "lint": "npm run lint --workspace=@sports-central/frontend",
+    "type-check": "npm run type-check --workspace=@sports-central/frontend && npm run type-check --workspace=@sports-central/backend",
+    "install-all": "npm install && npm install --workspace=@sports-central/frontend && npm install --workspace=@sports-central/backend"
   },
   "devDependencies": {
-    "tsx": "^4.20.4"
+    "typescript": "^5.9.2"
   }
 }

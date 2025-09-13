@@ -111,3 +111,55 @@ ISC License
 ## Support
 
 For support or questions, please open an issue in the repository.
+# Sports Central - Monorepo
+
+A modern monorepo structure for Sports Central with separate frontend and backend applications.
+
+## Project Structure
+
+```
+apps/
+├── frontend/           # Next.js frontend application
+│   ├── src/           # React components, pages, styles
+│   ├── public/        # Static assets
+│   └── package.json   # Frontend dependencies
+├── backend/           # Express.js backend API
+│   ├── server.ts      # Main server file
+│   ├── Sports-api.ts  # Sports API service
+│   └── package.json   # Backend dependencies
+packages/
+├── shared/            # Shared types and utilities
+│   └── src/types/     # TypeScript interfaces
+```
+
+## Getting Started
+
+1. Install all dependencies:
+```bash
+npm run install-all
+```
+
+2. Start development servers:
+```bash
+npm run dev
+```
+
+This will start:
+- Frontend on port 3000
+- Backend on port 5000
+
+## Available Scripts
+
+- `npm run dev` - Start both frontend and backend
+- `npm run dev:frontend` - Start only frontend
+- `npm run dev:backend` - Start only backend
+- `npm run build` - Build frontend for production
+- `npm run start` - Start production servers
+
+## Monorepo Benefits
+
+- **Separation of concerns**: Clear boundaries between frontend and backend
+- **Shared code**: Common types and utilities in the shared package
+- **Independent deployment**: Deploy frontend and backend separately
+- **Better organization**: Easier to manage and scale
+- **Type safety**: Shared TypeScript interfaces across apps

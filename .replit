@@ -9,7 +9,7 @@ run = ["sh", "-c", "npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Full Stack Next.js"
+runButton = "Full Stack Monorepo"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -32,6 +32,37 @@ args = "npm install tsx --save-dev && npx tsx server.ts"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Full Stack Monorepo"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm run dev"
+
+[[workflows.workflow]]
+name = "Backend Only"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm run dev"
+
+[[workflows.workflow]]
+name = "Frontend Only"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm run dev"
 
 [[ports]]
 localPort = 3000

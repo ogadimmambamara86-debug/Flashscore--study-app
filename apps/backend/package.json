@@ -1,0 +1,23 @@
+
+{
+  "name": "@sports-central/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx tsx server.ts",
+    "start": "npx tsx server.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.0.0",
+    "@types/node-fetch": "^2.6.13",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.4"
+  }
+}
