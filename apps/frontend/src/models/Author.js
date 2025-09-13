@@ -1,12 +1,22 @@
 
 class Author {
-  constructor(id, name, email, bio, expertise, isActive = true) {
+  constructor(id, name, email, bio, expertise, isActive = true, badges = [], stats = {}) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.bio = bio;
     this.expertise = expertise; // Array of sports/areas of expertise
     this.isActive = isActive;
+    this.badges = badges || []; // Array of earned badges
+    this.stats = {
+      totalPredictions: 0,
+      correctPredictions: 0,
+      winStreak: 0,
+      maxWinStreak: 0,
+      followers: 0,
+      engagement: 0,
+      ...stats
+    };
     this.createdAt = new Date();
     this.updatedAt = new Date();
   }
@@ -75,8 +85,82 @@ class Author {
       name: this.name,
       bio: this.bio,
       expertise: this.expertise,
-      isActive: this.isActive
+      isActive: this.isActive,
+      badges: this.badges,
+      stats: this.stats,
+      winRate: this.getWinRate(),
+      level: this.getLevel()
     };
+  }
+
+  // Calculate win rate
+  getWinRate() {
+    if (this.stats.totalPredictions === 0) return 0;
+    return Math.round((this.stats.correctPredictions / this.stats.totalPredictions) * 100);
+  }
+
+  // Calculate author level based on stats
+  getLevel() {
+    const points = this.stats.correctPredictions * 10 + this.stats.followers * 2 + this.stats.engagement;
+    return Math.floor(points / 100) + 1;
+  }
+
+  // Add badge to author
+  addBadge(badge) {
+    if (!this.badges.find(b => b.id === badge.id)) {
+      this.badges.push(badge);
+      this.updatedAt = new Date();
+    }
+  }
+
+  // Check if author qualifies for new badges
+  checkForNewBadges() {
+    const newBadges = [];
+    const winRate = this.getWinRate();
+
+    // Win rate badges
+    if (winRate >= 80 && !this.badges.find(b => b.id === 'expert_predictor')) {
+      newBadges.push({
+        id: 'expert_predictor',
+        name: 'Expert Predictor',
+        description: '80%+ win rate',
+        icon: '🏆',
+        color: '#FFD700'
+      });
+    }
+
+    if (this.stats.winStreak >= 5 && !this.badges.find(b => b.id === 'hot_streak')) {
+      newBadges.push({
+        id: 'hot_streak',
+        name: 'Hot Streak',
+        description: '5+ correct predictions in a row',
+        icon: '🔥',
+        color: '#FF4500'
+      });
+    }
+
+    if (this.stats.totalPredictions >= 100 && !this.badges.find(b => b.id === 'veteran')) {
+      newBadges.push({
+        id: 'veteran',
+        name: 'Veteran',
+        description: '100+ total predictions',
+        icon: '⭐',
+        color: '#9370DB'
+      });
+    }
+
+    if (this.stats.followers >= 50 && !this.badges.find(b => b.id === 'popular')) {
+      newBadges.push({
+        id: 'popular',
+        name: 'Popular',
+        description: '50+ followers',
+        icon: '👥',
+        color: '#1E90FF'
+      });
+    }
+
+    newBadges.forEach(badge => this.addBadge(badge));
+    return newBadges;
   }
 }
 

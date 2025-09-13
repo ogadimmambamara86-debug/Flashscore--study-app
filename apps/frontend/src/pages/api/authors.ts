@@ -9,7 +9,7 @@ const authorController = new AuthorController();
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
-      const { expertise, search } = req.query;
+      const { expertise, search, top, badge } = req.query;
       
       let authors;
       
@@ -17,6 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         authors = authorController.getAuthorsByExpertise(expertise as string);
       } else if (search) {
         authors = authorController.searchAuthors(search as string);
+      } else if (top) {
+        const limit = parseInt(top as string) || 5;
+        authors = authorController.getTopAuthors(limit);
+      } else if (badge) {
+        authors = authorController.getAuthorsByBadge(badge as string);
       } else {
         authors = authorController.getAllAuthors();
       }
