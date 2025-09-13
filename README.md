@@ -47,7 +47,7 @@ npm run dev
 ```
 
 This will start:
-- Next.js frontend on port 3000
+- Next.js frontend on port 3001
 - Express backend on port 5000
 
 ### Available Scripts
