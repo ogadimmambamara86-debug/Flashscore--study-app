@@ -635,56 +635,99 @@ export default function Home() {
         <div style={{ 
           marginBottom: '40px'
         }}>
-          <LatestNews />
           <div style={{
             textAlign: 'center',
             padding: '30px',
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.1))',
-            borderRadius: '16px',
-            border: '2px dashed rgba(34, 197, 94, 0.3)',
-            marginTop: '20px'
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(0, 212, 255, 0.1))',
+            borderRadius: '20px',
+            border: '2px solid rgba(34, 197, 94, 0.3)',
+            marginBottom: '20px',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <h3 style={{
+            <div style={{
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              right: '0',
+              height: '3px',
+              background: 'linear-gradient(90deg, transparent, #22c55e, transparent)',
+              animation: 'scan 3s ease-in-out infinite'
+            }} />
+            <h2 style={{
               color: '#22c55e',
               marginBottom: '16px',
-              fontSize: '1.4rem',
-              fontWeight: '700'
+              fontSize: '2rem',
+              fontWeight: '800',
+              fontFamily: 'monospace',
+              textTransform: 'uppercase'
             }}>
-              🎉 Want More Features?
-            </h3>
+              🌟 GUEST MODE ACTIVE
+            </h2>
             <p style={{
               color: '#d1fae5',
-              marginBottom: '20px',
-              fontSize: '1.1rem'
+              marginBottom: '25px',
+              fontSize: '1.2rem',
+              fontFamily: 'monospace'
             }}>
-              Sign up now and get π50 Welcome Bonus! Access quizzes, predictions, interactive tools and much more!
+              Welcome aboard! You're experiencing <strong>limited features</strong>. Access latest news and basic content below.
             </p>
-            <button
-              onClick={() => setIsRegistrationOpen(true)}
-              style={{
-                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                color: 'white',
-                border: 'none',
-                padding: '16px 32px',
-                borderRadius: '25px',
-                fontSize: '1.1rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.4)';
-              }}
-            >
-              🚀 Join Sports Central Free!
-            </button>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setIsRegistrationOpen(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '18px 36px',
+                  borderRadius: '30px',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)',
+                  transition: 'all 0.3s ease',
+                  fontFamily: 'monospace',
+                  textTransform: 'uppercase'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(34, 197, 94, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
+                }}
+              >
+                🚀 ACTIVATE FULL ACCESS
+              </button>
+              <button
+                onClick={() => setIsRecoveryOpen(true)}
+                style={{
+                  background: 'rgba(0, 212, 255, 0.2)',
+                  color: '#00d4ff',
+                  border: '2px solid rgba(0, 212, 255, 0.5)',
+                  padding: '16px 24px',
+                  borderRadius: '30px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontFamily: 'monospace'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.2)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                🔑 Recover Account
+              </button>
+            </div>
           </div>
+          <LatestNews />
         </div>
       )}
 
@@ -699,26 +742,34 @@ export default function Home() {
         {activeTab === 'news' && <LatestNews />}
         {activeTab === 'stories' && <LatestNews />}
         {activeTab === 'quiz' && (currentUser ? <QuizMode isOffline={isOffline} /> : (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <h3 style={{ color: '#22c55e', marginBottom: '20px', fontSize: '1.5rem' }}>🎯 Quiz Mode</h3>
-            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.1rem' }}>
-              Test your sports knowledge with our interactive quizzes!
+          <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '15px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🔒</div>
+            <h3 style={{ color: '#ffd700', marginBottom: '20px', fontSize: '1.8rem', fontWeight: '800', fontFamily: 'monospace' }}>🎯 QUIZ TRAINING SIM</h3>
+            <p style={{ color: '#d1fae5', marginBottom: '30px', fontSize: '1.2rem', fontFamily: 'monospace' }}>
+              ACCESS RESTRICTED: Test your sports knowledge with interactive quizzes, earn Pi Coins, and compete with other commanders!
             </p>
+            <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '20px', borderRadius: '12px', marginBottom: '25px', border: '1px solid rgba(255, 215, 0, 0.3)' }}>
+              <p style={{ color: '#ffd700', margin: '0', fontSize: '1rem', fontWeight: '600' }}>
+                🏆 UNLOCK: Multiple choice quizzes • π Coin rewards • Leaderboards • Achievement system
+              </p>
+            </div>
             <button
               onClick={() => setIsRegistrationOpen(true)}
               style={{
                 background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                 color: 'white',
                 border: 'none',
-                padding: '16px 32px',
-                borderRadius: '25px',
-                fontSize: '1.1rem',
+                padding: '18px 36px',
+                borderRadius: '30px',
+                fontSize: '1.2rem',
                 fontWeight: '700',
                 cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.4)'
+                boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)',
+                fontFamily: 'monospace',
+                textTransform: 'uppercase'
               }}
             >
-              Sign Up to Play Quiz
+              🚀 UNLOCK TRAINING SIM
             </button>
           </div>
         ))}

@@ -1,22 +1,19 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  
+
   async rewrites() {
-    const isProduction = process.env.NODE_ENV === 'production';
-    
     return [
       {
         source: '/api/sports-proxy/:path*',
-        destination: isProduction 
+        destination: process.env.NODE_ENV === 'production' 
           ? 'https://api.the-odds-api.com/:path*'
           : 'http://0.0.0.0:5000/api/sports-proxy/:path*'
       },
       {
         source: '/api/backend/:path*',
-        destination: isProduction
+        destination: process.env.NODE_ENV === 'production'
           ? '/api/backend/:path*'
           : 'http://0.0.0.0:5000/:path*'
       }
@@ -41,6 +38,21 @@ const nextConfig = {
             value: 'strict-origin-when-cross-origin'
           }
         ]
+      }
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        has: [
+          {
+            type: 'host',
+            value: '.*:3000'
+          }
+        ],
+        destination: 'http://0.0.0.0:3001',
+        permanent: false
       }
     ];
   }

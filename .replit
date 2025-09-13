@@ -5,11 +5,11 @@ run = ".ts"
 channel = "stable-25_05"
 
 [deployment]
-run = ["sh", "-c", "npm start"]
+run = ["sh", "-c", "cd apps/frontend && npm run build && npm start"]
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Full Stack Monorepo"
+runButton = "Full Stack Monorepo Fixed"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -63,6 +63,28 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd apps/frontend && npm run dev"
+
+[[workflows.workflow]]
+name = "Frontend Port 3001"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm run dev"
+
+[[workflows.workflow]]
+name = "Full Stack Monorepo Fixed"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && PORT=3001 npm run dev"
 
 [[ports]]
 localPort = 3000
