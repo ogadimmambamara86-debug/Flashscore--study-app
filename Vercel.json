@@ -1,15 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "./index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.js"
-    }
-  ]
+  "buildCommand": "npm run build --workspace=@sports-central/frontend",
+  "devCommand": "npm run dev --workspace=@sports-central/frontend",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "rootDirectory": "apps/frontend"
 }
