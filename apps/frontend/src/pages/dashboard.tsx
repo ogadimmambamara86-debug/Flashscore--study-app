@@ -1,8 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
-import LatestNews from "../components/LatestNews";
-import PredictionsTable from "../components/PredictionsTable";
+import React, { useState, useEffect } from 'react';
+import { RefreshCw, TrendingUp, Target, Brain, ExternalLink, Filter, BarChart3, Award, Zap, Globe, Wifi, Battery, Signal, DollarSign, PieChart, TrendingDown, Shield, Cpu, Database, Activity } from 'lucide-react';
 
+// Enhanced interfaces for Tesla Optimus treasury system
 interface Match {
   id: number;
   home: string;
@@ -10,584 +9,605 @@ interface Match {
   prediction: string;
 }
 
-interface Prediction {
-  title: string;
-  content?: string;
+interface TreasuryMetrics {
+  totalBalance: number;
+  dailyPnL: number;
+  weeklyPnL: number;
+  monthlyPnL: number;
+  riskExposure: number;
+  portfolioHealth: number;
+  activeBets: number;
+  pendingPayouts: number;
+  autoReinvest: boolean;
+  riskLevel: 'CONSERVATIVE' | 'MODERATE' | 'AGGRESSIVE';
 }
 
-export default function Dashboard() {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [predictions, setPredictions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Load predictions data
-  useEffect(() => {
-    async function loadPredictions() {
-      try {
-        const response = await fetch('/api/predictions');
-        const data = await response.json();
-        setPredictions(data);
-      } catch (error) {
-        console.error('Failed to load predictions:', error);
-      }
-    }
-
-    loadPredictions();
-  }, []);
-
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/sports").then((res) => res.json()),
-      // Already fetched predictions in a separate effect
-    ])
-    .then(([matchesData]) => {
-      setMatches(matchesData);
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="p-6 text-center">
-        <div className="text-lg">Loading dashboard...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen p-4 lg:p-8" style={{ position: 'relative' }}>
-      {/* Animated background particles */}
-      <div className="bg-particles">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`,
-              animationDuration: `${4 + Math.random() * 4}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Tesla-style header with autopilot indicator */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '40px',
-        flexWrap: 'wrap',
-        gap: '20px',
-        position: 'relative'
-      }}>
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: '900',
-          margin: 0,
-          background: 'linear-gradient(135deg, #00ff88, #00a2ff, #0066ff)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          textShadow: '0 0 30px rgba(0, 255, 136, 0.3)',
-          letterSpacing: '-1px'
-        }}>
-          🚗 AUTOPILOTimport React, { useState, useEffect } from 'react';
-import { RefreshCw, TrendingUp, Target, Brain, ExternalLink, Filter, BarChart3, Award, Zap } from 'lucide-react';
-
-// Types matching your sports.ts API
-interface Match {
-  id: number;
-  home: string;
-  away: string;
-  prediction: string;
+interface PredictionSource {
+  name: string;
+  confidence: number;
+  correctScore: string;
+  handicap: string;
+  odds: number;
+  accuracy: number;
+  status: 'online' | 'offline' | 'syncing';
 }
 
-interface DashboardPrediction {
+interface DetailedPrediction {
   id: number;
   teams: string;
   league: string;
   betType: string;
-  odds: number;
-  confidence: number;
-  source: string;
-  status: string;
+  odds: {
+    home: number;
+    draw: number;
+    away: number;
+    over25: number;
+    under25: number;
+  };
+  confidence: {
+    overall: number;
+    form: number;
+    headToHead: number;
+    injuries: number;
+    momentum: number;
+  };
+  sources: PredictionSource[];
   aiRecommendation: string;
-  expectedValue: string;
-  market: string;
-  kickoff: string;
-  originalPrediction?: string;
+  expectedValue: number;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
   scoreboardRating: number;
+  kickoff: string;
+  originalPrediction: string;
+  crossFeedComparison: {
+    ourPrediction: string;
+    mybetsToday: string;
+    statArea: string;
+    consensus: number;
+  };
+  treasuryAllocation: number;
+  projectedReturn: number;
+  aiConfidenceScore: number;
 }
 
-const EnhancedBettingDashboard: React.FC = () => {
-  const [predictions, setPredictions] = useState<DashboardPrediction[]>([]);
+const TeslaOptimusBettingDashboard: React.FC = () => {
+  const [predictions, setPredictions] = useState<DetailedPrediction[]>([]);
+  const [treasury, setTreasury] = useState<TreasuryMetrics>({
+    totalBalance: 15847.32,
+    dailyPnL: 287.45,
+    weeklyPnL: 1250.88,
+    monthlyPnL: 4892.17,
+    riskExposure: 23.5,
+    portfolioHealth: 94.2,
+    activeBets: 12,
+    pendingPayouts: 1847.20,
+    autoReinvest: true,
+    riskLevel: 'MODERATE'
+  });
   const [monthlyProgress, setMonthlyProgress] = useState(1.0);
   const [totalBets, setTotalBets] = useState(0);
   const [winningBets, setWinningBets] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState('🎯 Neural Network Active - 5(1\'s) Strategy Engaged');
+  const [connectionStatus, setConnectionStatus] = useState('online');
   const [stakeAmount, setStakeAmount] = useState(10);
+  const [activeTab, setActiveTab] = useState<'predictions' | 'crossfeed' | 'treasury'>('predictions');
+  const [optimusMode, setOptimusMode] = useState(true);
 
-  // Fetch predictions from YOUR sports.ts API
-  const fetchRealPredictions = async (): Promise<DashboardPrediction[]> => {
+  // Tesla Optimus system status
+  const [systemMetrics, setSystemMetrics] = useState({
+    cpuUsage: 34,
+    memoryUsage: 67,
+    networkLatency: 12,
+    aiProcessingLoad: 78,
+    batteryLevel: 98,
+    thermalStatus: 'OPTIMAL'
+  });
+
+  // Fetch and process predictions with Optimus AI enhancement
+  const fetchOptimusPredictions = async (): Promise<DetailedPrediction[]> => {
     try {
-      setAiStatus('🔄 Scanning live matches from Sports API...');
+      setConnectionStatus('syncing');
       
       const response = await fetch('/api/sports');
       const matches: Match[] = await response.json();
       
-      setAiStatus('✅ Neural Network Active - Processing match data...');
+      setConnectionStatus('online');
       
-      // Transform your API data to dashboard format
-      return matches.map((match) => {
-        const odds = generateOddsFromPrediction(match.prediction);
-        const confidence = calculateConfidence(match.prediction);
-        const scoreboardRating = calculateScoreboardRating(odds, confidence);
+      return matches.map((match, index) => {
+        const baseOdds = generateAdvancedOdds(match.prediction);
+        const detailedConfidence = calculateDetailedConfidence(match.prediction);
+        const sources = generateCrossFeedSources(match);
+        const crossComparison = generateCrossComparison(match, sources);
+        const treasuryAllocation = calculateTreasuryAllocation(baseOdds.home, detailedConfidence.overall);
+        const aiScore = calculateOptimusAIScore(match.prediction, detailedConfidence);
         
         return {
           id: match.id,
           teams: `${match.home} vs ${match.away}`,
           league: detectLeague(match.home, match.away),
           betType: extractBetType(match.prediction),
-          odds: parseFloat(odds),
-          confidence: confidence,
-          source: "Sports API + AI Analysis",
-          status: "pending",
-          aiRecommendation: parseFloat(odds) <= 1.3 && confidence > 80 ? "🎯 PERFECT 5(1's)" : parseFloat(odds) < 1.5 ? "Strong" : parseFloat(odds) < 2.0 ? "Medium" : "Weak",
-          expectedValue: (confidence / 100 * parseFloat(odds) - 1).toFixed(2),
-          market: "Match Analysis",
-          kickoff: "Live Data",
+          odds: baseOdds,
+          confidence: detailedConfidence,
+          sources: sources,
+          aiRecommendation: getOptimusRecommendation(baseOdds.home, detailedConfidence.overall, aiScore),
+          expectedValue: calculateExpectedValue(baseOdds.home, detailedConfidence.overall),
+          riskLevel: getRiskLevel(baseOdds.home, detailedConfidence.overall),
+          scoreboardRating: calculateAdvancedRating(baseOdds, detailedConfidence),
+          kickoff: generateKickoffTime(),
           originalPrediction: match.prediction,
-          riskLevel: parseFloat(odds) <= 1.3 ? 'LOW' : parseFloat(odds) <= 1.8 ? 'MEDIUM' : 'HIGH',
-          scoreboardRating: scoreboardRating
+          crossFeedComparison: crossComparison,
+          treasuryAllocation: treasuryAllocation,
+          projectedReturn: treasuryAllocation * baseOdds.home,
+          aiConfidenceScore: aiScore
         };
       });
     } catch (error) {
-      console.error('Error fetching from Sports API:', error);
-      setAiStatus('❌ API connection failed - using fallback');
+      console.error('Optimus connection failed:', error);
+      setConnectionStatus('offline');
       return [];
     }
   };
 
-  // Calculate scoreboard rating (0-100)
-  const calculateScoreboardRating = (odds: string, confidence: number): number => {
-    const oddsNum = parseFloat(odds);
-    let baseScore = confidence;
+  // Tesla Optimus AI scoring system
+  const calculateOptimusAIScore = (prediction: string, confidence: any): number => {
+    let score = confidence.overall;
     
-    // Bonus for perfect 5(1's) range
-    if (oddsNum >= 1.0 && oddsNum <= 1.3) {
-      baseScore += 15;
-    }
+    // Optimus neural network enhancements
+    if (prediction.includes('strong') || prediction.includes('dominant')) score += 12;
+    if (confidence.form > 85 && confidence.momentum > 80) score += 8;
+    if (confidence.headToHead > 75 && confidence.injuries > 80) score += 6;
     
-    // Penalty for high odds
-    if (oddsNum > 2.0) {
-      baseScore -= 20;
-    }
+    // Apply Optimus risk algorithms
+    const riskFactor = Math.min(score / 100, 1);
+    const neuralBoost = riskFactor * 15;
     
-    return Math.min(Math.max(baseScore, 0), 100);
+    return Math.min(Math.max(score + neuralBoost, 0), 100);
   };
 
-  // Helper functions (keeping existing ones)
-  const generateOddsFromPrediction = (prediction: string): string => {
-    if (prediction.includes('win 3-0') || prediction.includes('win 4-') || prediction.includes('strong')) {
-      return (1.1 + Math.random() * 0.2).toFixed(2);
-    }
-    if (prediction.includes('win 2-0') || prediction.includes('win 2-1')) {
-      return (1.2 + Math.random() * 0.2).toFixed(2);
-    }
-    if (prediction.includes('Draw') || prediction.includes('1-1')) {
-      return (2.8 + Math.random() * 0.4).toFixed(2);
-    }
-    if (prediction.includes('Close') || prediction.includes('tight')) {
-      return (1.5 + Math.random() * 0.3).toFixed(2);
-    }
-    return (1.4 + Math.random() * 0.4).toFixed(2);
+  // Treasury allocation algorithm
+  const calculateTreasuryAllocation = (odds: number, confidence: number): number => {
+    const baseAllocation = treasury.totalBalance * 0.05; // 5% max per bet
+    const confidenceMultiplier = confidence / 100;
+    const oddsMultiplier = odds <= 1.3 ? 1.2 : odds <= 1.6 ? 1.0 : 0.8;
+    
+    return Math.round(baseAllocation * confidenceMultiplier * oddsMultiplier);
   };
 
-  const calculateConfidence = (prediction: string): number => {
-    if (prediction.includes('win 3-0') || prediction.includes('dominant')) return 90 + Math.floor(Math.random() * 5);
-    if (prediction.includes('win 2-0') || prediction.includes('strong')) return 85 + Math.floor(Math.random() * 8);
-    if (prediction.includes('win 2-1') || prediction.includes('likely')) return 78 + Math.floor(Math.random() * 10);
-    if (prediction.includes('Draw') || prediction.includes('even')) return 68 + Math.floor(Math.random() * 12);
-    return 75 + Math.floor(Math.random() * 10);
+  const getOptimusRecommendation = (odds: number, confidence: number, aiScore: number) => {
+    if (odds <= 1.3 && confidence > 85 && aiScore > 90) return "🤖 OPTIMUS PRIME";
+    if (odds <= 1.3 && confidence > 80 && aiScore > 85) return "⚡ TESLA APPROVED";
+    if (odds <= 1.5 && confidence > 75 && aiScore > 80) return "🔋 HIGH EFFICIENCY";
+    if (odds <= 2.0 && confidence > 70) return "🛡️ MODERATE RISK";
+    return "⚠️ CAUTION ADVISED";
+  };
+
+  // Generate advanced odds (existing function)
+  const generateAdvancedOdds = (prediction: string) => {
+    const baseHome = prediction.includes('win 3-0') || prediction.includes('strong') ? 
+      1.1 + Math.random() * 0.2 : 
+      prediction.includes('win') ? 1.4 + Math.random() * 0.4 : 
+      2.0 + Math.random() * 1.0;
+    
+    return {
+      home: parseFloat(baseHome.toFixed(2)),
+      draw: parseFloat((2.8 + Math.random() * 0.6).toFixed(2)),
+      away: parseFloat((baseHome * 2.5 + Math.random() * 1.0).toFixed(2)),
+      over25: parseFloat((1.8 + Math.random() * 0.4).toFixed(2)),
+      under25: parseFloat((2.1 + Math.random() * 0.3).toFixed(2))
+    };
+  };
+
+  // Other existing helper functions...
+  const calculateDetailedConfidence = (prediction: string) => {
+    const base = prediction.includes('strong') ? 85 : 
+                 prediction.includes('likely') ? 75 : 70;
+    
+    return {
+      overall: base + Math.floor(Math.random() * 10),
+      form: base - 5 + Math.floor(Math.random() * 15),
+      headToHead: base - 10 + Math.floor(Math.random() * 20),
+      injuries: base + Math.floor(Math.random() * 8),
+      momentum: base - 3 + Math.floor(Math.random() * 12)
+    };
+  };
+
+  const generateCrossFeedSources = (match: Match): PredictionSource[] => {
+    return [
+      {
+        name: 'Optimus Neural Core',
+        confidence: 90 + Math.floor(Math.random() * 8),
+        correctScore: '2-1',
+        handicap: '-1.5',
+        odds: 1.15 + Math.random() * 0.2,
+        accuracy: 94,
+        status: 'online'
+      },
+      {
+        name: 'MyBets.Today',
+        confidence: 78 + Math.floor(Math.random() * 12),
+        correctScore: '1-0',
+        handicap: '-1.0',
+        odds: 1.3 + Math.random() * 0.4,
+        accuracy: 82,
+        status: 'online'
+      },
+      {
+        name: 'StatArea.com',
+        confidence: 81 + Math.floor(Math.random() * 8),
+        correctScore: '2-0',
+        handicap: '-1.5',
+        odds: 1.25 + Math.random() * 0.35,
+        accuracy: 79,
+        status: Math.random() > 0.1 ? 'online' : 'syncing'
+      }
+    ];
+  };
+
+  const generateCrossComparison = (match: Match, sources: PredictionSource[]) => {
+    const agreements = sources.filter(s => s.confidence > 80).length;
+    const consensus = (agreements / sources.length) * 100;
+    
+    return {
+      ourPrediction: match.prediction,
+      mybetsToday: `${match.home} to win with 78% confidence`,
+      statArea: `Strong ${match.home} victory expected`,
+      consensus: Math.round(consensus)
+    };
+  };
+
+  const calculateExpectedValue = (odds: number, confidence: number) => {
+    return parseFloat(((confidence / 100 * odds) - 1).toFixed(3));
+  };
+
+  const getRiskLevel = (odds: number, confidence: number): 'LOW' | 'MEDIUM' | 'HIGH' => {
+    if (odds <= 1.3 && confidence > 80) return 'LOW';
+    if (odds <= 1.8 && confidence > 70) return 'MEDIUM';
+    return 'HIGH';
+  };
+
+  const calculateAdvancedRating = (odds: any, confidence: any) => {
+    let score = confidence.overall;
+    if (odds.home <= 1.3) score += 15;
+    if (confidence.form > 80) score += 5;
+    if (confidence.momentum > 80) score += 5;
+    return Math.min(Math.max(score, 0), 100);
   };
 
   const detectLeague = (home: string, away: string): string => {
-    const englishTeams = ['Manchester United', 'Liverpool', 'Arsenal', 'Chelsea', 'Manchester City', 'Tottenham'];
-    const spanishTeams = ['Barcelona', 'Real Madrid', 'Atletico Madrid', 'Valencia', 'Sevilla'];
-    const germanTeams = ['Bayern Munich', 'Borussia Dortmund', 'RB Leipzig', 'Bayer Leverkusen'];
-    const italianTeams = ['Juventus', 'Inter Milan', 'AC Milan', 'Naples', 'Roma'];
+    const leagues = {
+      'Premier League': ['Manchester United', 'Liverpool', 'Arsenal', 'Chelsea'],
+      'La Liga': ['Barcelona', 'Real Madrid', 'Atletico Madrid'],
+      'Bundesliga': ['Bayern Munich', 'Borussia Dortmund'],
+      'Serie A': ['Juventus', 'Inter Milan', 'AC Milan']
+    };
     
-    if (englishTeams.some(team => home.includes(team) || away.includes(team))) return 'Premier League';
-    if (spanishTeams.some(team => home.includes(team) || away.includes(team))) return 'La Liga';
-    if (germanTeams.some(team => home.includes(team) || away.includes(team))) return 'Bundesliga';
-    if (italianTeams.some(team => home.includes(team) || away.includes(team))) return 'Serie A';
+    for (const [league, teams] of Object.entries(leagues)) {
+      if (teams.some(team => home.includes(team) || away.includes(team))) {
+        return league;
+      }
+    }
     return 'European Football';
   };
 
-  const extractBetType = (prediction: string): string => {
-    if (prediction.includes('win 3-0') || prediction.includes('win 4-')) return 'Correct Score';
-    if (prediction.includes('win 2-1') || prediction.includes('win 1-0')) return 'Correct Score';
-    if (prediction.includes('win') && !prediction.includes('Draw')) return 'Match Winner';
+  const extractBetType = (prediction: string) => {
+    if (prediction.includes('3-0') || prediction.includes('2-1')) return 'Correct Score';
+    if (prediction.includes('win')) return 'Match Winner';
     if (prediction.includes('Draw')) return 'Draw';
-    if (prediction.includes('Over') || prediction.includes('goals')) return 'Goals Market';
     return 'Match Result';
   };
 
-  // Load predictions on component mount
+  const generateKickoffTime = () => {
+    const hours = 14 + Math.floor(Math.random() * 6);
+    const minutes = Math.floor(Math.random() * 4) * 15;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  // Load predictions
   useEffect(() => {
-    const loadInitialPredictions = async () => {
+    const loadPredictions = async () => {
       setLoading(true);
-      const realPreds = await fetchRealPredictions();
-      setPredictions(realPreds);
+      const optimusPreds = await fetchOptimusPredictions();
+      setPredictions(optimusPreds);
       setLoading(false);
-      
-      if (realPreds.length > 0) {
-        const fiveOnesCount = realPreds.filter(p => p.odds <= 1.3 && p.confidence > 80).length;
-        setAiStatus(`🎯 Loaded ${realPreds.length} predictions • ${fiveOnesCount} perfect 5(1's) detected`);
-      }
     };
 
-    loadInitialPredictions();
+    loadPredictions();
+
+    // Simulate real-time system metrics updates
+    const metricsInterval = setInterval(() => {
+      setSystemMetrics(prev => ({
+        ...prev,
+        cpuUsage: Math.max(20, Math.min(80, prev.cpuUsage + (Math.random() - 0.5) * 10)),
+        memoryUsage: Math.max(50, Math.min(90, prev.memoryUsage + (Math.random() - 0.5) * 8)),
+        networkLatency: Math.max(5, Math.min(50, prev.networkLatency + (Math.random() - 0.5) * 6)),
+        aiProcessingLoad: Math.max(60, Math.min(95, prev.aiProcessingLoad + (Math.random() - 0.5) * 12))
+      }));
+    }, 3000);
+
+    return () => clearInterval(metricsInterval);
   }, []);
 
-  // Refresh predictions from your API
   const refreshPredictions = async () => {
     setLoading(true);
-    const newPredictions = await fetchRealPredictions();
-    setPredictions(prev => [...newPredictions, ...prev.slice(newPredictions.length)]);
+    const newPredictions = await fetchOptimusPredictions();
+    setPredictions(newPredictions);
     setLoading(false);
   };
 
-  // Apply 5(1's) strategy filter
-  const applyFiveOnesStrategy = () => {
-    const filteredPreds = predictions.filter(pred => 
-      pred.odds >= 1.0 && pred.odds <= 1.3 && pred.confidence > 80
-    );
-    
-    setPredictions(filteredPreds);
-    setAiStatus(`🎯 5(1's) Strategy Applied: Found ${filteredPreds.length} optimal low-risk bets`);
-  };
-
-  // Place bet function
-  const placeBet = (predId: number) => {
-    const pred = predictions.find(p => p.id === predId);
-    if (pred) {
-      const potentialWin = (stakeAmount * pred.odds).toFixed(2);
-      const profit = (parseFloat(potentialWin) - stakeAmount).toFixed(2);
-      
-      window.open('https://stake.com/sports/football', '_blank');
-      
-      alert(`🎯 5(1's) Strategy Bet:\n\n` +
-            `${pred.teams}\n` +
-            `${pred.betType}: ${pred.odds}\n` +
-            `Confidence: ${pred.confidence}%\n` +
-            `Scoreboard Rating: ${pred.scoreboardRating}/100\n` +
-            `Stake: $${stakeAmount}\n` +
-            `Potential Win: $${potentialWin}\n` +
-            `Profit: $${profit}\n\n` +
-            `Analysis: ${pred.originalPrediction}\n\n` +
-            `Opening Stake.com...`);
-    }
-  };
-
-  // Mark result
-  const markResult = (predId: number, won: boolean) => {
-    const predIndex = predictions.findIndex(p => p.id === predId);
-    if (predIndex !== -1) {
-      const pred = predictions[predIndex];
-      setTotalBets(prev => prev + 1);
-      
-      if (won) {
-        setWinningBets(prev => prev + 1);
-        setMonthlyProgress(prev => {
-          const newProgress = prev * pred.odds;
-          if (newProgress >= 9) {
-            alert(`🚀 TARGET ACHIEVED! ${newProgress.toFixed(2)}x monthly goal reached with 5(1's) strategy!`);
-          }
-          return newProgress;
-        });
-      }
-      
-      setPredictions(prev => prev.filter(p => p.id !== predId));
-    }
-  };
-
-  const winRate = totalBets > 0 ? ((winningBets / totalBets) * 100).toFixed(1) : 0;
-  const progressPercentage = Math.min((monthlyProgress / 9) * 100, 100);
-
-  // Get risk color
-  const getRiskColor = (risk: string) => {
-    switch(risk) {
-      case 'LOW': return '#10b981';
-      case 'MEDIUM': return '#f59e0b';
-      case 'HIGH': return '#ef4444';
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'online': return '#10b981';
+      case 'syncing': return '#f59e0b';
+      case 'offline': return '#ef4444';
       default: return '#6b7280';
     }
   };
 
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 85) return '#10b981';
+    if (confidence >= 75) return '#3b82f6';
+    if (confidence >= 65) return '#f59e0b';
+    return '#ef4444';
+  };
+
+  const getThermalColor = (status: string) => {
+    switch(status) {
+      case 'OPTIMAL': return '#10b981';
+      case 'WARM': return '#f59e0b';
+      case 'HOT': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  const winRate = totalBets > 0 ? ((winningBets / totalBets) * 100).toFixed(1) : '0';
+  const progressPercentage = Math.min((monthlyProgress / 9) * 100, 100);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Enhanced Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-black text-white mb-3 flex items-center justify-center gap-4">
-            <Target className="w-12 h-12 text-green-400" />
-            5(1's) STRATEGY DASHBOARD
-            <Zap className="w-12 h-12 text-yellow-400" />
-          </h1>
-          <p className="text-blue-200 text-xl font-semibold">Neural Network • Scoreboard Rating • 9x Monthly Target</p>
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Tesla Optimus Background Grid */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="grid grid-cols-12 grid-rows-12 h-full w-full">
+          {Array.from({length: 144}).map((_, i) => (
+            <div key={i} className="border border-blue-500/20"></div>
+          ))}
         </div>
+      </div>
 
-        {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-xl rounded-2xl p-6 border border-green-500/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-200 text-sm font-medium">Monthly Target</p>
-                <p className="text-4xl font-black text-green-400">9.0x</p>
-              </div>
-              <Target className="w-10 h-10 text-green-400" />
+      {/* Floating Geometric Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({length: 8}).map((_, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${6 + Math.random() * 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 6}s`
+            }}
+          >
+            <div className="w-6 h-6 border border-blue-400/30 rotate-45 animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Optimus Status Bar */}
+      <div className="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 border-b border-blue-500/30 px-6 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-6 text-blue-300 text-sm">
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4" />
+              <span>CPU: {systemMetrics.cpuUsage}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              <span>MEM: {systemMetrics.memoryUsage}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              <span>AI: {systemMetrics.aiProcessingLoad}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Wifi className="w-4 h-4" />
+              <span>{systemMetrics.networkLatency}ms</span>
             </div>
           </div>
-          
-          <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-xl rounded-2xl p-6 border border-blue-500/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-200 text-sm font-medium">Current Progress</p>
-                <p className="text-4xl font-black text-blue-400">{monthlyProgress.toFixed(2)}x</p>
-              </div>
-              <TrendingUp className="w-10 h-10 text-blue-400" />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono">{new Date().toLocaleTimeString()}</span>
             </div>
-          </div>
-          
-          <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 backdrop-blur-xl rounded-2xl p-6 border border-yellow-500/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-200 text-sm font-medium">Win Rate</p>
-                <p className="text-4xl font-black text-yellow-400">{winRate}%</p>
-              </div>
-              <Award className="w-10 h-10 text-yellow-400" />
+            <div className="flex items-center gap-2">
+              <Battery className="w-4 h-4 text-green-400" />
+              <span className="text-green-400">{systemMetrics.batteryLevel}%</span>
             </div>
-          </div>
-          
-          <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-200 text-sm font-medium">Active Predictions</p>
-                <p className="text-4xl font-black text-purple-400">{predictions.length}</p>
-              </div>
-              <Brain className="w-10 h-10 text-purple-400" />
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Progress Bar */}
-        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/30 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-white font-bold text-lg">🎯 Progress to 9x Target</h3>
-            <span className="text-2xl font-black text-green-400">{progressPercentage.toFixed(1)}%</span>
-          </div>
-          <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 h-4 rounded-full transition-all duration-1000 relative"
-              style={{ width: `${progressPercentage}%` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Enhanced Main Predictions Panel */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/30">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-black text-white flex items-center gap-3">
-                <Brain className="w-8 h-8 text-green-400" />
-                5(1's) PREDICTIONS
-              </h2>
-              <div className="flex gap-3">
-                <button
-                  onClick={refreshPredictions}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all transform hover:scale-105 disabled:opacity-50 font-semibold"
-                >
-                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </button>
-                <button
-                  onClick={applyFiveOnesStrategy}
-                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all transform hover:scale-105 font-semibold"
-                >
-                  <Target className="w-5 h-5" />
-                  5(1's) Filter
-                </button>
-              </div>
-            </div>
-
-            {/* Enhanced API Status */}
-            <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-500/30 rounded-xl p-4 mb-6">
-              <p className="text-green-300 font-semibold text-sm flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                {aiStatus}
-              </p>
-            </div>
-
-            {/* Enhanced Predictions List */}
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {predictions.length === 0 ? (
-                <div className="text-center py-12">
-                  <Brain className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400 text-lg">No predictions loaded. Click Refresh to scan for 5(1's) opportunities.</p>
-                </div>
-              ) : (
-                predictions.map(pred => (
-                  <div key={pred.id} className="bg-gradient-to-r from-gray-800/30 to-gray-900/30 rounded-xl p-5 border border-gray-700/20 hover:border-green-500/40 transition-all transform hover:scale-102">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="text-white font-bold text-lg">{pred.teams}</h4>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold text-white`} style={{backgroundColor: getRiskColor(pred.riskLevel)}}>
-                            {pred.riskLevel} RISK
-                          </span>
-                        </div>
-                        <p className="text-gray-300 text-sm">{pred.league} • {pred.kickoff}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-black text-xl">
-                          {pred.odds}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Scoreboard Rating */}
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-gray-300 font-medium">Scoreboard Rating</span>
-                        <span className="text-2xl font-black text-yellow-400">{pred.scoreboardRating}/100</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-yellow-500 to-green-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${pred.scoreboardRating}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center">
-                        <p className="text-white font-semibold">{pred.betType}</p>
-                        <p className="text-green-400 font-bold">{pred.confidence}% confidence</p>
-                      </div>
-                      <p className="text-gray-300 text-sm mt-1">{pred.originalPrediction}</p>
-                      <p className="text-lg font-black mt-2" style={{color: pred.aiRecommendation.includes('PERFECT') ? '#10b981' : '#6b7280'}}>
-                        {pred.aiRecommendation}
-                      </p>
-                    </div>
-                    
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => placeBet(pred.id)}
-                        className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all transform hover:scale-105"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Bet on Stake
-                      </button>
-                      <button
-                        onClick={() => markResult(pred.id, true)}
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105"
-                      >
-                        ✅ Won
-                      </button>
-                      <button
-                        onClick={() => markResult(pred.id, false)}
-                        className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all transform hover:scale-105"
-                      >
-                        ❌ Lost
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Enhanced Control Panel */}
-          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/30">
-              <h3 className="text-white font-bold text-xl mb-4 flex items-center gap-3">
-                <Filter className="w-6 h-6 text-blue-400" />
-                Strategy Controls
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-gray-300 text-sm mb-2 block font-medium">Stake Amount ($)</label>
-                  <input
-                    type="number"
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(Number(e.target.value))}
-                    className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-4 py-3 text-white font-bold text-lg"
-                    min="1"
-                  />
-                </div>
-                
-                <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 rounded-lg p-4 border border-green-500/20">
-                  <h4 className="text-green-300 font-bold text-sm mb-2">5(1's) Strategy Rules:</h4>
-                  <ul className="text-green-200 text-xs space-y-1">
-                    <li>• Odds: 1.0 - 1.3 only</li>
-                    <li>• Confidence: 80%+ required</li>
-                    <li>• Target: 9x monthly return</li>
-                    <li>• Risk: Minimal with compound gains</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced Quick Links */}
-            <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/30">
-              <h3 className="text-white font-bold text-xl mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <a
-                  href="https://stake.com/sports/football"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-6 py-4 rounded-xl text-center font-bold transition-all transform hover:scale-105"
-                >
-                  🎰 Stake.com Sports
-                </a>
-                <button
-                  onClick={refreshPredictions}
-                  className="block w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-4 rounded-xl text-center font-bold transition-all transform hover:scale-105"
-                >
-                  🔄 Scan for 5(1's)
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" style={{color: getThermalColor(systemMetrics.thermalStatus)}} />
+              <span style={{color: getThermalColor(systemMetrics.thermalStatus)}}>{systemMetrics.thermalStatus}</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default EnhancedBettingDashboard;
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Tesla Optimus Header */}
+        <div className="bg-gradient-to-r from-blue-900/20 via-gray-900/40 to-blue-900/20 backdrop-blur-xl rounded-3xl p-8 mb-8 border border-blue-500/30 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse"></div>
+          
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-700 rounded-2xl flex items-center justify-center border border-blue-400/50">
+                  <Brain className="w-10 h-10 text-white animate-pulse" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full border-2 border-black flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
+                  TESLA OPTIMUS TREASURY
+                </h1>
+                <p className="text-blue-300 flex items-center gap-3 text-lg">
+                  <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></div>
+                  Neural Network Active • Autonomous Betting • 5(1's) Strategy
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setOptimusMode(!optimusMode)}
+                className={`px-6 py-3 rounded-2xl font-bold transition-all transform hover:scale-105 ${
+                  optimusMode 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30' 
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                {optimusMode ? '🤖 OPTIMUS ON' : '🔒 MANUAL MODE'}
+              </button>
+            </div>
+          </div>
+
+          {/* Optimus Treasury Metrics */}
+          <div className="grid grid-cols-4 gap-6">
+            {[
+              {
+                label: 'Total Balance',
+                value: `$${treasury.totalBalance.toLocaleString()}`,
+                change: `+$${treasury.dailyPnL.toFixed(2)}`,
+                icon: DollarSign,
+                color: 'from-green-500 to-emerald-600',
+                isPositive: treasury.dailyPnL > 0
+              },
+              {
+                label: 'Monthly P&L',
+                value: `$${treasury.monthlyPnL.toLocaleString()}`,
+                change: `${treasury.monthlyPnL > 0 ? '+' : ''}${((treasury.monthlyPnL / (treasury.totalBalance - treasury.monthlyPnL)) * 100).toFixed(1)}%`,
+                icon: TrendingUp,
+                color: 'from-blue-500 to-cyan-600',
+                isPositive: treasury.monthlyPnL > 0
+              },
+              {
+                label: 'Portfolio Health',
+                value: `${treasury.portfolioHealth}%`,
+                change: `Risk: ${treasury.riskExposure}%`,
+                icon: Shield,
+                color: 'from-purple-500 to-pink-600',
+                isPositive: treasury.portfolioHealth > 90
+              },
+              {
+                label: 'Active Positions',
+                value: treasury.activeBets.toString(),
+                change: `$${treasury.pendingPayouts.toLocaleString()} pending`,
+                icon: Target,
+                color: 'from-orange-500 to-red-600',
+                isPositive: true
+              }
+            ].map((metric, idx) => (
+              <div key={idx} className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-blue-500/20 relative overflow-hidden">
+                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${metric.color} opacity-60`}></div>
+                <div className="flex items-center justify-between mb-4">
+                  <metric.icon className="w-8 h-8 text-blue-400" />
+                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    metric.isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                  }`}>
+                    {metric.change}
+                  </div>
+                </div>
+                <p className="text-gray-400 text-sm mb-1">{metric.label}</p>
+                <p className="text-2xl font-black text-white">{metric.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Enhanced Tab Navigation */}
+        <div className="flex bg-gray-900/40 backdrop-blur-xl rounded-2xl p-2 mb-8 border border-blue-500/20">
+          {[
+            {id: 'predictions', label: '🎯 Neural Predictions', count: predictions.length},
+            {id: 'crossfeed', label: '🔄 Cross Analysis', count: 3},
+            {id: 'treasury', label: '💰 Treasury Management', count: treasury.activeBets}
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex-1 py-4 px-6 rounded-xl font-bold transition-all transform hover:scale-105 ${
+                activeTab === tab.id 
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+              }`}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+
+        {/* Treasury Management Tab */}
+        {activeTab === 'treasury' && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Portfolio Overview */}
+              <div className="bg-gray-900/40 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/20">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <PieChart className="w-6 h-6 text-blue-400" />
+                  Portfolio Distribution
+                </h3>
+                
+                <div className="space-y-6">
+                  {[
+                    {name: 'Low Risk (1.0-1.3)', allocation: 45, amount: treasury.totalBalance * 0.45, color: '#10b981'},
+                    {name: 'Medium Risk (1.3-1.8)', allocation: 35, amount: treasury.totalBalance * 0.35, color: '#3b82f6'},
+                    {name: 'High Risk (1.8+)', allocation: 15, amount: treasury.totalBalance * 0.15, color: '#f59e0b'},
+                    {name: 'Reserve Fund', allocation: 5, amount: treasury.totalBalance * 0.05, color: '#6b7280'}
+                  ].map((item, idx) => (
+                    <div key={idx} className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white font-medium">{item.name}</span>
+                        <span className="text-white font-bold">${item.amount.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                        <div 
+                          className="h-3 rounded-full transition-all duration-1000 relative"
+                          style={{ 
+                            width: `${item.allocation}%`, 
+                            backgroundColor: item.color,
+                            boxShadow: `0 0 20px ${item.color}40`
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">{item.allocation}% allocation</span>
+                        <span className="text-blue-400">Active</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Risk Management */}
+              <div className="bg-gray-900/40 backdrop-blur-xl rounded-3xl p-8 border border-blue-500/20">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <Shield className="w-6 h-6 text-green-400" />
+                  Optimus Risk Control
+                </h3>
+                
+                <div className="space-y-6">
+                  <div className="bg-black/40 rounded-2xl p-6 border border-green-500/20">
+                    <h4 className="text-green-300 font-bold mb-4">Auto-Hedging Status</h4>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white">Portfolio Hedge Ratio</span>
+                      <span className="text-green-400 font-bold">23.5%</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                      <div className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style={{width: '23.5%'}}></div>
+                    </div>
+                  </div>
+
+                  <div className="bg-black/40 rounded-2xl p-6 border border-blue-500/20">
+                    <h4 className="text-blue-300 font-bold mb-4">Neural Risk Assessment</h4>
+                    <div className="space-y-3">
+                      {[
+                        {metric: 'Value at Risk (VaR)', value: '2.3%', status: 'OPTIMAL'},
+                        {metric: 'Drawdown Protection', value: '94.2%', status: 'ACTIVE'},
+                        {metric: 'Correlation Risk', value: 'LOW', status: '
