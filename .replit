@@ -9,7 +9,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Full Stack Monorepo Fixed"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -86,6 +86,43 @@ args = "cd apps/backend && npm run dev"
 task = "shell.exec"
 args = "cd apps/frontend && PORT=3001 npm run dev"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend"
+
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:frontend"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev:backend"
+waitForPort = 8000
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
@@ -97,6 +134,14 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
+[[ports]]
+localPort = 40089
+externalPort = 3002
 
 [agent]
 expertMode = true

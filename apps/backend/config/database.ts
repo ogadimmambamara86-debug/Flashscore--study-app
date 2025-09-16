@@ -31,7 +31,7 @@ export const connectDatabase = async (): Promise<void> => {
 
   } catch (error) {
     console.error('❌ Database connection failed:', error);
-    process.exit(1);
+    console.log('⚠️ Continuing without database - some features may be limited');
   }
 };
 

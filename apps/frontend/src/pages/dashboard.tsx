@@ -610,4 +610,44 @@ const TeslaOptimusBettingDashboard: React.FC = () => {
                       {[
                         {metric: 'Value at Risk (VaR)', value: '2.3%', status: 'OPTIMAL'},
                         {metric: 'Drawdown Protection', value: '94.2%', status: 'ACTIVE'},
-                        {metric: 'Correlation Risk', value: 'LOW', status: '
+                        {metric: 'Correlation Risk', value: 'LOW', status: 'OPTIMAL'}
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center">
+                          <span className="text-gray-300">{item.metric}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-white font-semibold">{item.value}</span>
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                              item.status === 'OPTIMAL' ? 'bg-green-500/20 text-green-400' : 
+                              item.status === 'ACTIVE' ? 'bg-blue-500/20 text-blue-400' : 
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {item.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default TeslaOptimusBettingDashboard;

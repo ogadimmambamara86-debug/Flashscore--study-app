@@ -5,13 +5,13 @@ const { connectDatabase } = require('./config/database');
 const { NewsController } = require('./controllers/newsController');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // CORS configuration for production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.FRONTEND_URL || '*'
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://0.0.0.0:3001'],
+    : ['http://localhost:5000', 'http://localhost:3000', 'http://0.0.0.0:5000'],
   credentials: true
 }));
 

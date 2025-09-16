@@ -13,7 +13,7 @@ const nextConfig = {
         source: '/api/backend/:path*',
         destination: process.env.BACKEND_URL
           ? `${process.env.BACKEND_URL}/:path*`
-          : 'http://localhost:5000/:path*'
+          : 'http://localhost:8000/:path*'
       }
     ];
   },
