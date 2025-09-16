@@ -17,6 +17,9 @@
     "install-all": "npm install && npm install --workspace=@sports-central/frontend && npm install --workspace=@sports-central/backend"
   },
   "devDependencies": {
+    "@types/node": "^24.5.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }
