@@ -1,4 +1,4 @@
-// scraper.js - Add to your Replit backend
+// scraper.ts - Add to your Replit backend
 const scrapeStakeOdds = async () => {
   // Scrape Stake.com football odds
   // Parse betting markets
