@@ -1,19 +1,20 @@
 import mongoose from "mongoose";
 
-// Get MongoDB URI based on environment
-const MONGODB_URI = process.env.NODE_ENV === 'production' 
-  ? process.env.MONGODB_URI 
-  : process.env.MONGODB_URI || 'mongodb://localhost:27017/sports-central';
+// Get MongoDB URI from environment variables
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error("❌ MONGODB_URI environment variable is not defined");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("MongoDB connection string is required in production");
+  }
+}
 
 let isConnected = false;
 
 export const connectDatabase = async (): Promise<void> => {
   if (!MONGODB_URI) {
-    console.error("❌ MongoDB connection string is not defined");
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error("MongoDB connection string is required in production");
-    }
-    console.log("⚠️ Continuing without database connection - some features may be limited");
+    console.log("⚠️ Skipping database connection - MONGODB_URI not set");
     return;
   }
 
@@ -31,7 +32,7 @@ export const connectDatabase = async (): Promise<void> => {
 
     isConnected = true;
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-
+    
     // Handle connection events
     mongoose.connection.on("error", (err) => {
       console.error("❌ MongoDB connection error:", err);
@@ -50,19 +51,20 @@ export const connectDatabase = async (): Promise<void> => {
     });
   } catch (error) {
     console.error("❌ Database connection failed:", error);
-    if (process.env.NODE_ENV === 'production') {
-      throw error; // Fail hard in production
+    if (process.env.NODE_ENV === "production") {
+      throw error;
     }
-    console.log("⚠️ Continuing without database - some features may be limited");
   }
 };
 
 export const disconnectDatabase = async (): Promise<void> => {
-  try {
-    await mongoose.connection.close();
-    console.log("🔄 Database disconnected successfully");
-    isConnected = false;
-  } catch (error) {
-    console.error("❌ Error disconnecting from database:", error);
+  if (mongoose.connection.readyState !== 0) {
+    try {
+      await mongoose.connection.close();
+      console.log("🔄 Database disconnected successfully");
+      isConnected = false;
+    } catch (error) {
+      console.error("❌ Error disconnecting from database:", error);
+    }
   }
 };
