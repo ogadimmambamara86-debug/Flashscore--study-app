@@ -1,5 +1,5 @@
 
-import { triggerFloatingAlert } from '../components/FloatingAlert';
+import { triggerFloatingAlert } from '@components/FloatingAlert';
 
 export class AlertManager {
   static showInfo(message: string, persistent: boolean = false) {
