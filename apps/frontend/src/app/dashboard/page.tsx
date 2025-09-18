@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, TrendingUp, Target, Brain, ExternalLink, Filter, BarChart3, Award, Zap, Globe, Wifi, Battery, Signal, DollarSign, PieChart, TrendingDown, Shield, Cpu, Database, Activity } from 'lucide-react';
 
