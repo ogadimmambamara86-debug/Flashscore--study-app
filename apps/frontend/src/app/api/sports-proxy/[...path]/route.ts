@@ -1,4 +1,4 @@
-//apps/frontend/src/app/api/sports-proxy/[...]/ routes.ts
+//apps/frontend/src/app/api/sports-proxy/[...path]/ routes.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createSportsAPIService } from '@api/route';
 
