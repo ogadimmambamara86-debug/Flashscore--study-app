@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createSportsAPIService } from '@api';
+import { createSportsAPIService } from '@api/route';
 
 interface Match {
   id: number;
