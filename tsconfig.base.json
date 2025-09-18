@@ -6,6 +6,7 @@
       "@components/*": ["apps/frontend/src/app/components/*"],
       "@controllers/*": ["apps/frontend/src/app/controllers/*"],
       "@services/*": ["apps/frontend/src/app/services/*"],
+      "@hooks/*": ["apps/frontend/src/app/hooks/*"],
       "@style/*": ["apps/frontend/src/app/style/*"],
 
       // Shared across apps
