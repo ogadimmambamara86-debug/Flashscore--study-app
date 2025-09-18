@@ -1,5 +1,4 @@
-//apps/frontend/src/app/api/sports-proxy/[...path]/ routes.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+// apps/frontend/src/app/api/sports-proxy/[...path]/route.ts
 import { createSportsAPIService } from '@api/route';
 
 interface Match {
@@ -11,7 +10,6 @@ interface Match {
 
 const sportsAPI = createSportsAPIService();
 
-// Sample fallback match data
 const fallbackMatches: Match[] = [
   { id: 1, home: "Manchester United", away: "Liverpool", prediction: "Liverpool to win 2-1" },
   { id: 2, home: "Barcelona", away: "Real Madrid", prediction: "Draw 1-1" },
@@ -19,31 +17,28 @@ const fallbackMatches: Match[] = [
   { id: 4, home: "Arsenal", away: "Chelsea", prediction: "Arsenal to win 2-0" },
 ];
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Match[] | { message: string }>) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
-  }
-
+export async function GET(req: Request) {
   try {
-    // Try fetching enhanced live matches
     const liveMatches = await sportsAPI.fetchEnhancedLiveMatches();
 
     const matches: Match[] = liveMatches.map((match, index) => ({
       id: Number(match.id) || index + 1,
       home: match.homeTeam || 'Unknown',
       away: match.awayTeam || 'Unknown',
-      prediction: match.prediction || `Analysis: ${match.homeTeam} vs ${match.awayTeam} - check form & stats`,
+      prediction: match.prediction || `Analysis: ${match.homeTeam} vs ${match.awayTeam}`,
     }));
 
-    return res.status(200).json(matches.length ? matches : fallbackMatches);
+    return new Response(JSON.stringify(matches.length ? matches : fallbackMatches), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
 
   } catch (error) {
     console.error('Error fetching enhanced live matches:', error);
 
     try {
-      // Fallback: regular live matches
       const regularMatches = await sportsAPI.fetchAllLiveMatches();
+
       const matches: Match[] = regularMatches.map((match, index) => ({
         id: Number(match.id) || index + 1,
         home: match.homeTeam || 'Unknown',
@@ -51,11 +46,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         prediction: `Prediction for ${match.homeTeam} vs ${match.awayTeam}`,
       }));
 
-      return res.status(200).json(matches.length ? matches : fallbackMatches);
+      return new Response(JSON.stringify(matches.length ? matches : fallbackMatches), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
 
     } catch (fallbackError) {
       console.error('Fallback fetch failed:', fallbackError);
-      return res.status(200).json(fallbackMatches);
+      return new Response(JSON.stringify(fallbackMatches), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
   }
 }
