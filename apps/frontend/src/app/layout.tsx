@@ -1,5 +1,7 @@
-// apps/frontend/app/layout.tsx
+// apps/frontend/src/app/layout.tsx
 import React from "react";
+import BackgroundParticles from "@components/BackgroundParticles";
+import OfflineManager from "@components/OfflineManager";
 
 export const metadata = {
   title: "Flashscore Study App",
@@ -13,7 +15,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="relative">
+        {/* Background animation */}
+        <BackgroundParticles />
+
+        {/* Offline manager wraps all children so notifications work globally */}
+        <OfflineManager>
+          {children}
+        </OfflineManager>
+      </body>
     </html>
   );
 }
