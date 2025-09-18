@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import BackgroundParticles from ".../app/components/BackgroundParticles";
+import BackgroundParticles from ".../../components/BackgroundParticles";
 import Header from ".../../components/Header";
 import MissionBriefing from ".../../components/MissionBriefing";
 import ModulesGrid from ".../../components/ModulesGrid";
