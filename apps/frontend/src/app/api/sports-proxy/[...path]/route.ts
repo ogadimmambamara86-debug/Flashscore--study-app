@@ -1,5 +1,4 @@
-// apps/frontend/src/app/api/sports-proxy/[...path]/route.ts
-import { createSportsAPIService } from '@api/route';
+import { createSportsAPIService } from '@api/service';
 
 interface Match {
   id: number;
