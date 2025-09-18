@@ -1,8 +1,8 @@
 // apps/frontend/app/api/predictions/route.ts
 
 import { NextApiRequest, NextApiResponse } from "next";
-import { fetchPredictions } from "./../../services/predictionsService";
-import PredictionController from "../../../controllers/predictionController";
+import { fetchPredictions } from "@services/predictionsService";
+import PredictionController from "@controllers/predictionController";
 
 const predictionController = new PredictionController();
 
