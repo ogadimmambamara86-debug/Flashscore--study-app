@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Package.json Syntax Error Fix</title>
+    <title>Package.json Syntax Fix</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,49 +12,45 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
             line-height: 1.6;
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
         .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             margin-top: 20px;
-        }
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
         }
         header {
             text-align: center;
             padding: 20px;
-            background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
+            background: linear-gradient(90deg, #16213e 0%, #0f3460 100%);
             border-radius: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
+            color: #4ecca3;
         }
         .card {
-            background-color: #1e293b;
+            background-color: #16213e;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
         h2 {
-            color: #3b82f6;
+            color: #4ecca3;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #4ecca3;
         }
         h3 {
-            color: #60a5fa;
+            color: #4ecca3;
             margin: 15px 0 10px;
         }
         pre {
@@ -62,50 +58,66 @@
             padding: 15px;
             border-radius: 5px;
             overflow-x: auto;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid #4ecca3;
+            white-space: pre-wrap;
+            font-size: 14px;
         }
         code {
             font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
         }
         .error {
-            color: #ef4444;
+            color: #ff6b6b;
             font-weight: bold;
         }
         .fixed {
-            color: #10b981;
+            color: #4ecca3;
             font-weight: bold;
         }
         .key {
-            color: #3b82f6;
+            color: #f8b500;
         }
         .string {
-            color: #10b981;
+            color: #90be6d;
         }
         .number {
-            color: #f59e0b;
+            color: #f9c74f;
         }
         .boolean {
-            color: #8b5cf6;
-        }
-        .null {
-            color: #f97316;
-        }
-        ul {
-            padding-left: 20px;
-            margin: 10px 0;
-        }
-        li {
-            margin-bottom: 8px;
+            color: #ff6b6b;
         }
         .solution {
             margin-top: 30px;
         }
         .note {
-            background-color: #3b82f6;
+            background-color: #0f3460;
             padding: 15px;
             border-radius: 5px;
             margin: 15px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #4ecca3;
+            color: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn:hover {
+            background-color: #3cb391;
+        }
+        .flex-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .flex-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -131,7 +143,11 @@ JSONParseError: Expected ',' or ';' after property value in JSON</code></pre>
             </ol>
             
             <h3>Incorrect package.json (excerpt)</h3>
-            <pre><code>  "scripts": {
+            <pre><code>{
+  "name": "@sports-central/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
     "dev": "tsx server.ts",
     "build": "tsc",
     "start": "node dist/server.ts",
@@ -139,7 +155,11 @@ JSONParseError: Expected ',' or ';' after property value in JSON</code></pre>
   }    <span class="error">// Missing comma here</span>
     "build": "echo 'Backend build complete'", <span class="error">// Duplicate key</span>
     "type-check": "tsc --noEmit"
-  }, <span class="error">// Extra closing brace</span></code></pre>
+  }, <span class="error">// Extra closing brace</span>
+  "dependencies": {
+    ...
+  }
+}</code></pre>
         </div>
 
         <div class="card">
@@ -181,28 +201,87 @@ JSONParseError: Expected ',' or ';' after property value in JSON</code></pre>
   }
 }</code></pre>
         </div>
-    </div>
 
-    <div class="card solution">
-        <h2>How to Fix Your Package.json</h2>
-        <ol>
-            <li>Open your package.json file in a code editor</li>
-            <li>Remove the duplicate "build" property</li>
-            <li>Add a comma after the "dev:with-env" property</li>
-            <li>Remove the extra closing brace</li>
-            <li>Combine the two build commands if needed</li>
-            <li>Validate your JSON using a JSON validator like <a href="https://jsonlint.com/" style="color: #60a5fa;">JSONLint</a></li>
-        </ol>
+        <div class="card solution">
+            <h2>How to Fix Your Package.json</h2>
+            <ol>
+                <li>Open your package.json file in a code editor</li>
+                <li>Remove the duplicate "build" property</li>
+                <li>Add a comma after the "dev:with-env" property</li>
+                <li>Remove the extra closing brace</li>
+                <li>Combine the two build commands if needed</li>
+                <li>Validate your JSON using a JSON validator like <a href="https://jsonlint.com/" style="color: #4ecca3;">JSONLint</a></li>
+            </ol>
 
-        <div class="note">
-            <h3>Important Note</h3>
-            <p>After fixing the package.json, run <code>npm install</code> to ensure all dependencies are properly installed before running your dev script again.</p>
+            <div class="note">
+                <h3>Important Note</h3>
+                <p>After fixing the package.json, run <code>npm install</code> to ensure all dependencies are properly installed before running your dev script again.</p>
+            </div>
+
+            <h3>Validation Command</h3>
+            <p>You can validate your package.json with this command:</p>
+            <pre><code>node -e "console.log('Valid JSON')" &lt; package.json</code></pre>
+            <p>If this command runs without errors, your JSON is valid.</p>
+            
+            <div class="flex-group">
+                <div>
+                    <h3>Copy Fixed Package.json</h3>
+                    <button class="btn" onclick="copyFixedJson()">Copy Corrected JSON</button>
+                </div>
+                <div>
+                    <h3>Validate Your JSON</h3>
+                    <button class="btn" onclick="validateJson()">Validate JSON Online</button>
+                </div>
+            </div>
         </div>
-
-        <h3>Validation Command</h3>
-        <p>You can validate your package.json with this command:</p>
-        <pre><code>node -e "console.log('Valid JSON')" &lt; package.json</code></pre>
-        <p>If this command runs without errors, your JSON is valid.</p>
     </div>
+
+    <script>
+        function copyFixedJson() {
+            const fixedJson = `{
+  "name": "@sports-central/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "tsc && echo 'Backend build complete'",
+    "start": "node dist/server.ts",
+    "dev:with-env": "cp .env.example .env && tsx server.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^20.0.0",
+    "@types/node-fetch": "^2.6.13",
+    "axios": "^1.0.0",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.1",
+    "next": "14.2.32",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.0.0",
+    "puppeteer": "^24.21.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.4"
+  }
+}`;
+            
+            navigator.clipboard.writeText(fixedJson).then(() => {
+                alert('Fixed package.json copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
+        function validateJson() {
+            window.open('https://jsonlint.com/', '_blank');
+        }
+    </script>
 </body>
 </html>
