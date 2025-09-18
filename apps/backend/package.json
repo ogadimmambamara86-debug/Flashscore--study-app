@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx tsx server.ts",
     "start": "npx tsx server.ts",
+    "build": "tsc --noEmit",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
