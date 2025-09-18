@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 // Import the controller (will be converted to TypeScript later)
-const AuthorController = require('../../../controllers/authorController');
+const AuthorController = require('@controllers/authorController');
 
 const authorController = new AuthorController();
 
