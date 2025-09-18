@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -12,6 +11,21 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+
+    // 👇 add these
+    "baseUrl": ".",
+    "paths": {
+      "@frontend/*": ["apps/frontend/src/app/*"],
+      "@backend/*": ["apps/backend/src/*"],
+
+      // granular aliases for frontend
+      "@components/*": ["apps/frontend/src/app/components/*"],
+      "@controllers/*": ["apps/frontend/src/app/controllers/*"],
+      "@models/*": ["apps/frontend/src/app/models/*"],
+      "@services/*": ["apps/frontend/src/app/services/*"],
+      "@style/*": ["apps/frontend/src/app/style/*"],
+      "@types/*": ["apps/frontend/src/app/types/*"]
+    }
   }
 }
