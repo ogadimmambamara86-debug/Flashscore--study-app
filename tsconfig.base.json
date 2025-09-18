@@ -3,12 +3,14 @@
     "baseUrl": ".",
     "paths": {
       // Frontend-only
+      "@api/*": ["apps/frontend/src/app/sports-proxy/[...path]/route/*"],
       "@components/*": ["apps/frontend/src/app/components/*"],
       "@controllers/*": ["apps/frontend/src/app/controllers/*"],
       "@services/*": ["apps/frontend/src/app/services/*"],
       "@hooks/*": ["apps/frontend/src/app/hooks/*"],
       "@style/*": ["apps/frontend/src/app/style/*"],
 
+        
       // Shared across apps
       "@shared/types/*": ["packages/shared/src/libs/types/*"],
       "@shared/utils/*": ["packages/shared/src/libs/utils/*"],
