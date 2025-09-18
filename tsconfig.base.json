@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@api/*": ["apps/frontend/src/app/api/sports-proxy/[...path]/*"],
+      "@api/*": ["apps/frontend/src/app/api/sports-proxy/*"],
       "@components/*": ["apps/frontend/src/app/components/*"],
       "@controllers/*": ["apps/frontend/src/app/controllers/*"],
       "@services/*": ["apps/frontend/src/app/services/*"],
