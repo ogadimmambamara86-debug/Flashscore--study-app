@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { JSDOM } from 'jsdom';
-import CacheManager from '../utils/cacheManager';
+import CacheManager from '@shared/utils/cacheManager';
 
 interface Prediction {
   title: string;
