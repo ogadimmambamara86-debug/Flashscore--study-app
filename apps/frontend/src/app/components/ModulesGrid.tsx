@@ -17,6 +17,5 @@ import { Module } from "@shared/types/Module";
 // Components, hooks, services (if used)
 import BackgroundParticles from "@components/BackgroundParticles";
 import Header from "@components/Header";
-import ModulesGrid from "@components/ModulesGrid";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import OfflineManager from "@components/OfflineManager";
