@@ -20,6 +20,15 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "baseUrl": "./src",
+    "paths": {
+      "@components/*": ["app/components/*"],
+      "@hooks/*": ["app/hooks/*"],
+      "@services/*": ["app/services/*"],
+      "@controllers/*": ["app/controllers/*"],
+      "@api/*": ["app/api/*"],
+      "@styles/*": ["app/styles/*"] // Add this line
+    },
     "plugins": [
       {
         "name": "next"
