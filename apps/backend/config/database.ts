@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/sports_central";
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 let isConnected = false; // track connection
 
