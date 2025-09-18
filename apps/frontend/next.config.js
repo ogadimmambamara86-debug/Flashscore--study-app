@@ -1,35 +1,17 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
+"use client";
 
-  async rewrites() {
-    return [
-      {
-        source: '/api/sports-proxy/:path*',
-        destination: 'https://api.the-odds-api.com/:path*'
-      },
-      {
-        source: '/api/backend/:path*',
-        destination: process.env.BACKEND_URL
-          ? `${process.env.BACKEND_URL}/:path*`
-          : 'http://localhost:8000/:path*'
-      }
-    ];
-  },
+import React, { useState, useEffect } from "react";
 
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }
-        ]
-      }
-    ];
-  }
-};
+// Corrected imports using aliases
+import LaunchController from "@controllers/LaunchController";
+import OddsController from "@controllers/OddsController";
+import MarketController from "@controllers/MarketController";
+import RiskController from "@controllers/RiskController";
+import NotificationController from "@controllers/NotificationController";
+import DataController from "@controllers/DataController";
 
-module.exports = nextConfig;
+// If you have any shared types/models
+import { Module } from "@shared/types/Module";
+// import { Prediction } from "@shared/models/Prediction"; // example
+
+// Now the rest of your component code stays the same
