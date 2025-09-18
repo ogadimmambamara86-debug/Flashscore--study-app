@@ -1,5 +1,5 @@
 
-const Author = require('../models/Author');
+const Author = require('@shared/models/Author');
 
 class AuthorController {
   constructor() {
