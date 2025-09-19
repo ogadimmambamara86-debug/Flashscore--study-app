@@ -65,3 +65,13 @@ const shutdown = async (signal: string) => {
 };
 
 ["SIGINT", "SIGTERM"].forEach((signal) => process.on(signal, () => shutdown(signal)));
+
+// Catch uncaught exceptions & rejections
+process.on("uncaughtException", (err) => {
+  console.error(`💥 Uncaught Exception:`, err);
+  process.exit(1); // safest option in prod
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error(`💥 Unhandled Rejection:`, reason);
+});
