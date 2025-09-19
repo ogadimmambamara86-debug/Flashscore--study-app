@@ -7,7 +7,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*', // Proxy API requests to Express
+        destination: 'https://flashstudy-ri0g.onrender.com/api/:path*', // Proxy API requests to Render backend
       },
     ];
   },
