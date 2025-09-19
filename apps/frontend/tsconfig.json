@@ -20,14 +20,13 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@components/*": ["app/components/*"],
-      "@hooks/*": ["app/hooks/*"],
-      "@services/*": ["app/services/*"],
-      "@controllers/*": ["app/controllers/*"],
-      "@api/*": ["app/api/*"],
-      "@styles/*": ["app/styles/*"] // Add this line
+      "@components/*": ["src/app/components/*"],
+      "@hooks/*": ["src/app/hooks/*"],
+      "@controllers/*": ["src/app/controllers/*"],
+      "@api/*": ["src/app/api/*"],
+      "@shared/*": ["../../packages/shared/src/*"]
     },
     "plugins": [
       {
