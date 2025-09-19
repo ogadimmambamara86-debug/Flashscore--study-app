@@ -1,5 +1,6 @@
 // server.ts
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+dotenv.config();
 import path from "path";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
