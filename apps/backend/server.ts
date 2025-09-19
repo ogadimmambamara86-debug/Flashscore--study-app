@@ -11,12 +11,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ----------------- Load Environment -----------------
-const envFile =
-  process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+// Only load dotenv in local dev. On Render, env vars come from dashboard.
+if (process.env.NODE_ENV !== "production") {
+  const envFile =
+    process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+  dotenv.config({ path: path.join(__dirname, "..", envFile) });
+  console.log(`🛠 Loaded environment from ${envFile}`);
+}
 
-dotenv.config({ path: path.join(__dirname, "..", envFile) }); 
-// adjust if .env is in a different location
-
+// Debugging logs
 console.log("🔎 NODE_ENV:", process.env.NODE_ENV);
 console.log(
   "🔎 MONGODB_URI:",
