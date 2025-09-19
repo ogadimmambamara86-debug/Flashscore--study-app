@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import UserManager, { User } from '../utils/userManager';
 import PiCoinManager from '../utils/piCoinManager';
