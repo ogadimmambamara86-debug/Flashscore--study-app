@@ -1,4 +1,4 @@
-
+"use client";
 import React, { useState, useEffect } from 'react';
 import PiCoinManager from '../utils/piCoinManager';
 import UserManager, { User } from '../utils/userManager';
