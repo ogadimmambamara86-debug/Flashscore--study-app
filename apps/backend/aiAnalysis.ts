@@ -231,7 +231,7 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
     const strategyResult = applyFiveOnesStrategy(matchData);
     
     // Parse AI response (this depends on your AI API format)
-    const aiText = aiResponse.choices?.[0]?.message?.content || aiResponse.text || '';
+    const aiText = aiResponse?.choices?.[0]?.message?.content || aiResponse?.text || '';
     
     // Extract prediction from AI text (simplified parsing)
     let prediction: 'home' | 'draw' | 'away' = 'draw';
@@ -242,7 +242,7 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
     }
     
     // Combine AI confidence with strategy confidence
-    const combinedConfidence = Math.round((strategyResult.confidence + (aiResponse.confidence || 50)) / 2);
+    const combinedConfidence = Math.round((strategyResult.confidence + (aiResponse?.confidence || 50)) / 2);
     
     const riskLevel: 'low' | 'medium' | 'high' = 
       combinedConfidence >= 70 ? 'low' : 
