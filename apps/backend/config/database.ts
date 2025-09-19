@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Get MongoDB URI from environment variables
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -23,38 +22,36 @@ export const connectDatabase = async (): Promise<void> => {
     return;
   }
 
-  try {
-    const conn = await mongoose.connect(MONGODB_URI, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
+  const connect = async () => {
+    try {
+      const conn = await mongoose.connect(MONGODB_URI, {
+        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
 
-    isConnected = true;
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    
-    // Handle connection events
-    mongoose.connection.on("error", (err) => {
-      console.error("❌ MongoDB connection error:", err);
-      isConnected = false;
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      console.log("⚠️ MongoDB disconnected");
-      isConnected = false;
-    });
-
-    process.on("SIGINT", async () => {
-      await mongoose.connection.close();
-      console.log("🔄 MongoDB connection closed through app termination");
-      process.exit(0);
-    });
-  } catch (error) {
-    console.error("❌ Database connection failed:", error);
-    if (process.env.NODE_ENV === "production") {
-      throw error;
+      isConnected = true;
+      console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+      console.error("❌ Database connection failed:", error);
+      console.log("⏳ Retrying in 5s...");
+      setTimeout(connect, 5000); // Retry after 5 seconds
     }
-  }
+  };
+
+  mongoose.connection.on("error", (err) => {
+    console.error("❌ MongoDB connection error:", err);
+    isConnected = false;
+  });
+
+  mongoose.connection.on("disconnected", () => {
+    console.log("⚠️ MongoDB disconnected");
+    isConnected = false;
+    // try to reconnect
+    connect();
+  });
+
+  await connect();
 };
 
 export const disconnectDatabase = async (): Promise<void> => {
@@ -68,3 +65,12 @@ export const disconnectDatabase = async (): Promise<void> => {
     }
   }
 };
+
+// Graceful shutdown (works on Render/Docker too)
+["SIGINT", "SIGTERM"].forEach((signal) => {
+  process.on(signal, async () => {
+    console.log(`🛑 Received ${signal}, closing DB connection...`);
+    await disconnectDatabase();
+    process.exit(0);
+  });
+});
