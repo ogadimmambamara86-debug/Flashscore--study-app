@@ -5,14 +5,15 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { connectDatabase, disconnectDatabase } from "./config/database";
 
-// Load environment file depending on NODE_ENV
-const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
-dotenv.config({ path: path.join(__dirname
-import dotenv from "dotenv";
-dotenv.config();
+// ----------------- Load Environment -----------------
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+
+dotenv.config({ path: path.join(__dirname, "..", envFile) }); 
+// ".." = go up one level, adjust if your .env is in root
 
 console.log("🔎 NODE_ENV:", process.env.NODE_ENV);
-console.log("🔎 MONGODB_URI:", process.env.MONGODB_URI ? "✅ Loaded" : "❌ Not Loaded"); envFile) });
+console.log("🔎 MONGODB_URI:", process.env.MONGODB_URI ? "✅ Loaded" : "❌ Not Loaded");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -43,10 +44,6 @@ app.get("/", (req: Request, res: Response) => {
   res.json({ message: "API all set champion 🏆 🚀" });
 });
 
-// Example import usage
-// import { NewsController } from "./controllers/newsController";
-// app.use("/api/news", NewsController);
-
 // ----------------- Error Handler -----------------
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("❌ Server error:", err.stack);
@@ -71,10 +68,9 @@ const shutdown = async (signal: string) => {
 
 ["SIGINT", "SIGTERM"].forEach((signal) => process.on(signal, () => shutdown(signal)));
 
-// Catch uncaught exceptions & rejections
 process.on("uncaughtException", (err) => {
   console.error(`💥 Uncaught Exception:`, err);
-  process.exit(1); // safest option in prod
+  process.exit(1);
 });
 
 process.on("unhandledRejection", (reason, promise) => {
