@@ -25,6 +25,7 @@
     "@types/node": "^20.19.17",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.9.2"
   },
   "engines": {
