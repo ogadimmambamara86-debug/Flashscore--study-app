@@ -22,12 +22,17 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      // Make sure these paths are correct relative to apps/frontend
+      // Frontend aliases
       '@components': path.resolve(__dirname, 'src/app/components'),
       '@hooks': path.resolve(__dirname, 'src/app/hooks'),
       '@controllers': path.resolve(__dirname, 'src/app/controllers'),
       '@api': path.resolve(__dirname, 'src/app/api'),
-      '@shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@services': path.resolve(__dirname, 'src/app/services'),
+      '@style': path.resolve(__dirname, 'src/app/style'),
+      // Shared library aliases
+      '@shared/types': path.resolve(__dirname, '../../packages/shared/src/libs/types'),
+      '@shared/utils': path.resolve(__dirname, '../../packages/shared/src/libs/utils'),
+      '@shared/models': path.resolve(__dirname, '../../packages/shared/src/libs/models'),
     };
     return config;
   },
