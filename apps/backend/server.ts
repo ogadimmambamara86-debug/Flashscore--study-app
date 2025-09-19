@@ -7,7 +7,12 @@ import { connectDatabase, disconnectDatabase } from "./config/database";
 
 // Load environment file depending on NODE_ENV
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
-dotenv.config({ path: path.join(__dirname, envFile) });
+dotenv.config({ path: path.join(__dirname
+import dotenv from "dotenv";
+dotenv.config();
+
+console.log("🔎 NODE_ENV:", process.env.NODE_ENV);
+console.log("🔎 MONGODB_URI:", process.env.MONGODB_URI ? "✅ Loaded" : "❌ Not Loaded"); envFile) });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
