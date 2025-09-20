@@ -1,19 +1,25 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+import path from "path";
 
 let isConnected = false;
 
-export const connectDatabase = async (): Promise<void> => {
-  const MONGODB_URI = process.env.MONGODB_URI;
+// Load environment variables from the correct path
+const envPath = path.join(__dirname, '..', '.env');
+dotenv.config({ path: envPath });
+console.log(`🛠 Loading environment from .env`);
+console.log(`🛠 Environment file path: ${envPath}`);
+console.log(`🛠 MONGODB_URI: ${process.env.MONGODB_URI ? 'Found' : 'Not found'}`);
 
-  if (!MONGODB_URI) {
-    console.error("❌ MONGODB_URI environment variable is not defined");
+export const connectDatabase = async (): Promise<void> => {
+  let mongoUri = process.env.MONGODB_URI;
+
+  if (!mongoUri) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("MongoDB connection string is required in production");
     } else {
-      console.log("⚠️ Using default MongoDB URI for development");
-      const defaultURI = "mongodb://localhost:27017/sports_central";
-      console.log(`🔄 Attempting connection to: ${defaultURI}`);
-      process.env.MONGODB_URI = defaultURI;
+      mongoUri = "mongodb://localhost:27017/sports_central";
+      console.log(`🔄 Using default MongoDB URI: ${mongoUri}`);
     }
   }
 
@@ -24,7 +30,7 @@ export const connectDatabase = async (): Promise<void> => {
 
   const connect = async () => {
     try {
-      const conn = await mongoose.connect(MONGODB_URI, {
+      const conn = await mongoose.connect(mongoUri, {
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
