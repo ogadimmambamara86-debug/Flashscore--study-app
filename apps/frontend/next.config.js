@@ -27,7 +27,7 @@ const nextConfig = {
       '@controllers': path.resolve(__dirname, 'src/app/controllers'),
       '@api': path.resolve(__dirname, 'src/app/api'),
       '@services': path.resolve(__dirname, 'src/app/services'),
-      '@style': path.resolve(__dirname, 'src/app/style'),
+      '@styles': path.resolve(__dirname, 'src/app/styles'),
 
       // Simplified shared alias
       '@shared': path.resolve(__dirname, '../../packages/shared/src/libs'),

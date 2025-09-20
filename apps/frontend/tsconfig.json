@@ -16,7 +16,7 @@
       "@controllers/*": ["src/app/controllers/*"],
       "@api/*": ["src/app/api/*"],
       "@services/*": ["src/app/services/*"],
-      "@style/*": ["src/app/style/*"],
+      "@styles/*": ["src/app/styles/*"],
       "@config/*": ["src/app/config/*"]
     }
   },
