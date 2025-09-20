@@ -9,8 +9,14 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
-  }
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/types/*": ["packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["packages/shared/src/libs/models/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
 }
