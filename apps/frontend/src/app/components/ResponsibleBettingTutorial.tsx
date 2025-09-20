@@ -88,6 +88,25 @@ Remember: Sports predictions should enhance your enjoyment of sports, not create
     },
     {
       title: "🆘 Getting Help",
+      content: `If you need support or feel you're developing unhealthy patterns:
+
+IMMEDIATE RESOURCES:
+• National Problem Gambling Helpline: 1-800-522-4700
+• Crisis Text Line: Text HOME to 741741
+• National Suicide Prevention Lifeline: 988
+
+PLATFORM SUPPORT:
+• Contact our support team for account restrictions
+• Use our "Take a Break" feature in settings
+• Access our educational resources and tutorials
+
+PROFESSIONAL HELP:
+• Speak with a counselor or therapist
+• Contact your healthcare provider
+• Visit gambling addiction support groups
+
+Remember: Seeking help is a sign of strength, not weakness. We're here to support your well-being above all else.`
+    }elp",
       content: `If you need support with responsible gaming:
 
 NATIONAL RESOURCES:

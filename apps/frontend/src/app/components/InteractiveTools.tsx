@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import CacheManager from '../utils/cacheManager';
-import { ClientStorage } from '../utils/clientStorage';
+import CacheManager from '../../../../../packages/shared/src/libs/utils/cacheManager';
+import { ClientStorage } from '../../../../../packages/shared/src/libs/utils/clientStorage';
 
 interface ToolsProps {
   predictions: any[];

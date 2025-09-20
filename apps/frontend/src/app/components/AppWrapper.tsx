@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import FloatingAlert from "./FloatingAlert";
 import ErrorBoundary from "./ErrorBoundary";
-import { useLocalStorage } from "../utils/clientStorage";
+import { useLocalStorage } from "../../../../../packages/shared/src/libs/utils/clientStorage";
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const [floatingAlertsEnabled, setFloatingAlertsEnabled] = useLocalStorage(

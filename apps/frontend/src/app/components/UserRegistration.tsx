@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import UserManager from '../../../../../packages/shared/src/libs/utils/userManager';
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import ResponsibleBettingTutorial from './ResponsibleBettingTutorial';
 
 interface User {
   id: string;
@@ -9,8 +11,6 @@ interface User {
   role: string;
   piCoins: number;
 }
-import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
-import ResponsibleBettingTutorial from './ResponsibleBettingTutorial';
 
 interface UserRegistrationProps {
   isOpen: boolean;
@@ -22,11 +22,13 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [age, setAge] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialAccepted, setTutorialAccepted] = useState(false);
-  const [formData, setFormData] = useState<{username: string; email: string; age: string} | null>(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const [formData, setFormData] = useState<{username: string; email: string; age: string; password: string} | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +60,29 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
       return;
     }
 
-    // Store form data and show tutorial
-    setFormData({ username: username.trim(), email: email.trim(), age });
-    setShowTutorial(true);
-    setIsLoading(false);
+    if (isLogin) {
+      // Handle login
+      try {
+        const user = UserManager.loginUser(username.trim(), password);
+        if (user) {
+          onUserCreated(user);
+          onClose();
+          // Clear form
+          setUsername('');
+          setPassword('');
+        } else {
+          setError('Invalid username or password');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Login failed. Please try again.');
+      }
+      setIsLoading(false);
+    } else {
+      // Store form data and show tutorial for registration
+      setFormData({ username: username.trim(), email: email.trim(), age, password });
+      setShowTutorial(true);
+      setIsLoading(false);
+    }
   };
 
   const handleTutorialAccept = () => {
@@ -165,6 +186,24 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
             />
           </div>
 
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="password"
+              placeholder={isLogin ? "Password" : "Create password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+
           {!isLogin && (
             <div style={{ marginBottom: '16px' }}>
               <input
@@ -239,7 +278,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
                 Creating Account...
               </>
             ) : (
-              '📖 Continue to Guidelines'
+              isLogin ? '🚀 Login' : '📖 Continue to Guidelines'
             )}
           </button>
 
