@@ -7,6 +7,11 @@ import dotenv from "dotenv";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Set NODE_ENV to development if not set
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = "development";
+}
+
 // Load dotenv only in non-production
 if (process.env.NODE_ENV !== "production") {
   const envFile =
