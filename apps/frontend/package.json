@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 5000",
-    "build": "next build",
-    "start": "next start -H 0.0.0.0 -p 5000",
+    "dev": "NODE_ENV=development next dev -H 0.0.0.0 -p 5000",
+    "build": "NODE_ENV=production next build",
+    "start": "NODE_ENV=production next start -H 0.0.0.0 -p 5000",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
   },
