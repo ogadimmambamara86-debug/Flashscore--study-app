@@ -10,8 +10,10 @@ export const connectDatabase = async (): Promise<void> => {
     if (process.env.NODE_ENV === "production") {
       throw new Error("MongoDB connection string is required in production");
     } else {
-      console.log("⚠️ Skipping database connection (dev mode, no URI)");
-      return;
+      console.log("⚠️ Using default MongoDB URI for development");
+      const defaultURI = "mongodb://localhost:27017/sports_central";
+      console.log(`🔄 Attempting connection to: ${defaultURI}`);
+      process.env.MONGODB_URI = defaultURI;
     }
   }
 

@@ -12,12 +12,21 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "development";
 }
 
-// Load dotenv only in non-production
-if (process.env.NODE_ENV !== "production") {
-  const envFile =
-    process.env.NODE_ENV === "production" ? ".env.production" : ".env";
-  dotenv.config({ path: path.join(__dirname, "..", envFile) });
-  console.log(`🛠 Loaded environment from ${envFile}`);
+// Always load environment file in development/local
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+const envPath = path.join(__dirname, envFile);
+
+// Load environment variables
+dotenv.config({ path: envPath });
+console.log(`🛠 Loading environment from ${envFile}`);
+console.log(`🛠 Environment file path: ${envPath}`);
+
+// Check if file exists
+import { existsSync } from 'fs';
+if (existsSync(envPath)) {
+  console.log(`✅ Environment file found`);
+} else {
+  console.log(`⚠️ Environment file not found at ${envPath}`);
 }
 
 // Debugging logs
