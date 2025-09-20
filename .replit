@@ -9,7 +9,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Full Stack NPM"
+runButton = "Frontend Only App"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -131,6 +131,15 @@ mode = "parallel"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd apps/backend && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm run dev"
+
+[[workflows.workflow]]
+name = "Frontend Only App"
+author = 46296136
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

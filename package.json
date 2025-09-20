@@ -1,31 +1,19 @@
+
 {
-  "name": "sports-central-monorepo",
+  "name": "sports-central-frontend",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspace=@sports-central/frontend & npm run dev --workspace=@sports-central/backend",
-    "dev:frontend": "npm run dev --workspace=@sports-central/frontend",
-    "dev:backend": "npm run dev --workspace=@sports-central/backend",
-    "build": "npm run build --workspace=@sports-central/frontend",
-    "start": "npm run start --workspace=@sports-central/frontend & npm run start --workspace=@sports-central/backend",
-    "lint": "npm run lint --workspace=@sports-central/frontend",
-    "type-check": "npm run type-check --workspace=@sports-central/frontend && npm run type-check --workspace=@sports-central/backend",
-    "install-all": "npm install && npm install --workspace=@sports-central/frontend && npm install --workspace=@sports-central/backend"
+    "dev": "cd apps/frontend && npm run dev",
+    "build": "cd apps/frontend && npm run build",
+    "start": "cd apps/frontend && npm start",
+    "lint": "cd apps/frontend && npm run lint",
+    "type-check": "cd apps/frontend && npm run type-check"
   },
   "devDependencies": {
     "@types/node": "^24.5.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "tsx": "^4.20.5",
     "typescript": "^5.9.2"
-  },
-  "dependencies": {
-    "@types/pg": "^8.15.5",
-    "lucide-react": "^0.544.0",
-    "pg": "^8.16.3"
   }
 }
