@@ -20,6 +20,7 @@
     "react-dom": "18.3.1",
     "react-tsparticles": "^2.12.2",
     "tsparticles": "^3.9.1"
+    // 👇 if the other branch had more deps, add them here
   },
   "devDependencies": {
     "@types/node": "^20.19.17",
@@ -27,6 +28,7 @@
     "@types/react-dom": "^18.0.0",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.9.2"
+    // 👇 if the other branch had more devDeps, add them here
   },
   "engines": {
     "node": ">=18.0.0"
