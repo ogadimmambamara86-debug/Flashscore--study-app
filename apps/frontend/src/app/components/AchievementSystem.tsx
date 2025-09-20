@@ -2,8 +2,16 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ClientStorage } from '../utils/clientStorage';
-import PiCoinManager from '../utils/piCoinManager';
-import UserManager, { User } from '../utils/userManager';
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import UserManager from '../../../../../packages/shared/src/libs/utils/userManager';
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  piCoins: number;
+}
 
 interface Achievement {
   id: string;

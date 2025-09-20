@@ -1,7 +1,15 @@
 "use client";
 import React, { useState } from 'react';
-import UserManager, { User } from '../utils/userManager';
-import PiCoinManager from '../utils/piCoinManager';
+import UserManager from '../../../../../packages/shared/src/libs/utils/userManager';
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  piCoins: number;
+}
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
 import ResponsibleBettingTutorial from './ResponsibleBettingTutorial';
 
 interface UserRegistrationProps {

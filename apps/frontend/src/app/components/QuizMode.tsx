@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import PiCoinManager from '../utils/piCoinManager';
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
 import UserManager from '../utils/userManager'; // Assuming UserManager is available
 
 interface Question {

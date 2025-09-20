@@ -1,6 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
-import PiCoinManager, { PiCoinTransaction, PiCoinBalance } from '../utils/piCoinManager';
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+
+interface PiCoinTransaction {
+  id: string;
+  userId: string;
+  amount: number;
+  type: 'quiz_complete' | 'daily_login' | 'prediction_correct' | 'bonus' | 'voting' | 'purchase' | 'exchange';
+  timestamp: Date;
+  description: string;
+}
+
+interface PiCoinBalance {
+  userId: string;
+  balance: number;
+  totalEarned: number;
+  lastUpdated: Date;
+}
 
 interface PiCoinWalletProps {
   isOpen: boolean;
