@@ -27,6 +27,7 @@
       "@api/*": ["src/app/api/*"],
       "@services/*": ["src/app/services/*"],
       "@style/*": ["src/app/style/*"],
+      "@config/*": ["src/app/config/*"],
       "@shared/types/*": ["../../packages/shared/src/libs/types/*"],
       "@shared/utils/*": ["../../packages/shared/src/libs/utils/*"],
       "@shared/models/*": ["../../packages/shared/src/libs/models/*"]
