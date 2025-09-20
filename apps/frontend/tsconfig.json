@@ -1,4 +1,3 @@
-//tsconfig.json
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
@@ -27,7 +26,11 @@
       "@hooks/*": ["src/app/hooks/*"],
       "@controllers/*": ["src/app/controllers/*"],
       "@api/*": ["src/app/api/*"],
-      "@shared/*": ["../../packages/shared/src/*"]
+      "@services/*": ["src/app/services/*"],
+      "@style/*": ["src/app/style/*"],
+      "@shared/types/*": ["../../packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["../../packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["../../packages/shared/src/libs/models/*"]
     },
     "plugins": [
       {
