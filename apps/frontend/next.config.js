@@ -1,4 +1,3 @@
-// apps/frontend/next.config.js
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -29,10 +28,9 @@ const nextConfig = {
       '@api': path.resolve(__dirname, 'src/app/api'),
       '@services': path.resolve(__dirname, 'src/app/services'),
       '@style': path.resolve(__dirname, 'src/app/style'),
-      // Shared library aliases
-      '@shared/types': path.resolve(__dirname, '../../packages/shared/src/libs/types'),
-      '@shared/utils': path.resolve(__dirname, '../../packages/shared/src/libs/utils'),
-      '@shared/models': path.resolve(__dirname, '../../packages/shared/src/libs/models'),
+
+      // Simplified shared alias
+      '@shared': path.resolve(__dirname, '../../packages/shared/src/libs'),
     };
     return config;
   },
