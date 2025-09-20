@@ -9,7 +9,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Project"
+runButton = "Full Stack NPM"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -122,6 +122,19 @@ outputType = "console"
 task = "shell.exec"
 args = "npm run dev:backend"
 waitForPort = 8000
+
+[[workflows.workflow]]
+name = "Full Stack NPM"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm run dev"
 
 [[ports]]
 localPort = 3000
