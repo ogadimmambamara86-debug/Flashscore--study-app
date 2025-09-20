@@ -3,15 +3,13 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-{
   "scripts": {
     "dev": "NODE_ENV=development next dev -H 0.0.0.0 -p 5000",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production next start -H 0.0.0.0 -p 5000",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
-  }
-}
+  },
   "dependencies": {
     "axios": "^1.12.1",
     "cheerio": "^1.1.2",
