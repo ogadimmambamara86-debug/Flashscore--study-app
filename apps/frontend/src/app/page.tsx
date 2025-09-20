@@ -28,12 +28,7 @@ import LiveMatchChat from "@components/LiveMatchChat";
 import FloatingActionButtons from "@components/FloatingActionButtons";
 import { useMobile } from "@hooks/useMobile"; // Assuming you have this hook
 
-// Mock data and UserManager (replace with actual imports/logic)
-const UserManager = {
-  loadCurrentUser: () => {},
-  getCurrentUser: () => ({ username: "TestUser", piCoins: 100, role: "user" }),
-  logout: () => {},
-};
+import UserManager from '../../../packages/shared/src/libs/utils/userManager';
 const predictions = []; // Mock predictions
 
 export default function Home() {

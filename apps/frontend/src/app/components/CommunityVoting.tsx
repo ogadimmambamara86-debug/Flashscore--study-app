@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import PiCoinManager from '../utils/piCoinManager';
-import UserManager, { User } from '../utils/userManager';
+import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import UserManager, { User } from '../../../../../packages/shared/src/libs/utils/userManager';
 
 interface VotingTopic {
   id: string;
