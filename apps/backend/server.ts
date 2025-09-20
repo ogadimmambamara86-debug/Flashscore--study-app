@@ -1,17 +1,13 @@
-// server.ts
+// ----------------- Load Environment First -----------------
 import { fileURLToPath } from "url";
 import path from "path";
 import dotenv from "dotenv";
-import express, { Request, Response, NextFunction } from "express";
-import cors from "cors";
-import { connectDatabase, disconnectDatabase } from "./config/database";
 
-// ----------------- Fix __dirname in ES Modules -----------------
+// Fix __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ----------------- Load Environment -----------------
-// Only load dotenv in local dev. On Render, env vars come from dashboard.
+// Load dotenv only in non-production
 if (process.env.NODE_ENV !== "production") {
   const envFile =
     process.env.NODE_ENV === "production" ? ".env.production" : ".env";
@@ -25,6 +21,11 @@ console.log(
   "🔎 MONGODB_URI:",
   process.env.MONGODB_URI ? "✅ Loaded" : "❌ Not Loaded"
 );
+
+// ----------------- Imports After Env -----------------
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
+import { connectDatabase, disconnectDatabase } from "./config/database";
 
 // ----------------- App Setup -----------------
 const app = express();
