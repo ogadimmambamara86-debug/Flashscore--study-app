@@ -47,7 +47,7 @@ import { connectDatabase, disconnectDatabase } from "./config/database";
 
 // ----------------- App Setup -----------------
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // ----------------- Middleware -----------------
 let corsConfig: cors.CorsOptions;

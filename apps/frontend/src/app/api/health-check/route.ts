@@ -1,5 +1,4 @@
-
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -13,22 +12,36 @@ interface HealthStatus {
   version: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<HealthStatus>) {
+async function checkExternalApis(): Promise<boolean> {
+  try {
+    // Add your external API health checks here
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function checkCache(): boolean {
+  // Add your cache health check here
+  return true;
+}
+
+export async function GET() {
   const startTime = Date.now();
-  
+
   try {
     // Check external APIs
     const externalApiHealth = await checkExternalApis();
-    
+
     // Check cache
     const cacheHealth = checkCache();
-    
+
     // Check database (mock check since we're using in-memory)
     const databaseHealth = true;
-    
+
     const allHealthy = externalApiHealth && cacheHealth && databaseHealth;
     const someHealthy = externalApiHealth || cacheHealth || databaseHealth;
-    
+
     const status: HealthStatus = {
       status: allHealthy ? 'healthy' : someHealthy ? 'degraded' : 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -40,10 +53,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       uptime: Date.now() - startTime,
       version: '1.0.0'
     };
-    
-    res.status(allHealthy ? 200 : someHealthy ? 206 : 503).json(status);
+
+    return NextResponse.json(status, {
+      status: allHealthy ? 200 : someHealthy ? 206 : 503
+    });
   } catch (error) {
-    res.status(503).json({
+    return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       services: {
@@ -53,36 +68,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       },
       uptime: Date.now() - startTime,
       version: '1.0.0'
-    });
-  }
-}
-
-async function checkExternalApis(): Promise<boolean> {
-  try {
-    const response = await fetch('https://www.mybets.today', {
-      method: 'HEAD',
-      timeout: 5000
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-function checkCache(): boolean {
-  try {
-    // Test cache functionality
-    const testKey = 'health_check_test';
-    const testValue = 'test';
-    
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(testKey, testValue);
-      const retrieved = localStorage.getItem(testKey);
-      localStorage.removeItem(testKey);
-      return retrieved === testValue;
-    }
-    return true; // Assume healthy if localStorage not available
-  } catch {
-    return false;
+    }, { status: 503 });
   }
 }

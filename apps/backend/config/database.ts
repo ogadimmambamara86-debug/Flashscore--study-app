@@ -4,11 +4,8 @@ import path from "path";
 
 let pool: Pool | null = null;
 
-// Load environment variables from the correct path
-const envPath = path.join(__dirname, '..', '.env');
-dotenv.config({ path: envPath });
-console.log(`🛠 Loading environment from .env`);
-console.log(`🛠 Environment file path: ${envPath}`);
+// Environment variables are already loaded in server.ts - no need to reload here
+console.log(`🛠 Using environment variables from server.ts`);
 console.log(`🛠 DATABASE_URL: ${process.env.DATABASE_URL ? 'Found' : 'Not found'}`);
 
 export const connectDatabase = async (): Promise<void> => {
@@ -16,8 +13,8 @@ export const connectDatabase = async (): Promise<void> => {
   let mongoUri = process.env.MONGODB_URI;
   let databaseUrl = process.env.DATABASE_URL;
 
-  // Prefer MongoDB if available
-  if (mongoUri) {
+  // Prefer MongoDB if available and valid
+  if (mongoUri && !mongoUri.includes('localhost') && mongoUri.startsWith('mongodb')) {
     console.log("🔄 Using MongoDB from Replit secrets");
     try {
       const mongoose = await import('mongoose');
@@ -39,6 +36,8 @@ export const connectDatabase = async (): Promise<void> => {
       console.error("❌ MongoDB connection failed:", error);
       console.log("🔄 Falling back to PostgreSQL...");
     }
+  } else if (mongoUri) {
+    console.log("⚠️ MongoDB URI appears to be localhost/invalid, skipping to PostgreSQL");
   }
 
   // Fallback to PostgreSQL
