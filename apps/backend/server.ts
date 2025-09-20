@@ -12,7 +12,7 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "development";
 }
 
-// Always load environment file in development/local
+// Load appropriate environment file
 const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
 const envPath = path.join(__dirname, envFile);
 

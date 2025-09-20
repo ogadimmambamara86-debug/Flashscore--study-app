@@ -22,12 +22,12 @@ export const connectDatabase = async (): Promise<void> => {
     try {
       const mongoose = await import('mongoose');
       
-      if (mongoose.connection.readyState === 1) {
+      if (mongoose.default.connection.readyState === 1) {
         console.log("⚡ Using existing MongoDB connection");
         return;
       }
 
-      await mongoose.connect(mongoUri, {
+      await mongoose.default.connect(mongoUri, {
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
