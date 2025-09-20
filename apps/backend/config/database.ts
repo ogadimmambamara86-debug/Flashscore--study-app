@@ -1,70 +1,65 @@
-import mongoose from "mongoose";
+import { Pool, Client } from 'pg';
 import dotenv from "dotenv";
 import path from "path";
 
-let isConnected = false;
+let pool: Pool | null = null;
 
 // Load environment variables from the correct path
 const envPath = path.join(__dirname, '..', '.env');
 dotenv.config({ path: envPath });
 console.log(`🛠 Loading environment from .env`);
 console.log(`🛠 Environment file path: ${envPath}`);
-console.log(`🛠 MONGODB_URI: ${process.env.MONGODB_URI ? 'Found' : 'Not found'}`);
+console.log(`🛠 DATABASE_URL: ${process.env.DATABASE_URL ? 'Found' : 'Not found'}`);
 
 export const connectDatabase = async (): Promise<void> => {
-  let mongoUri = process.env.MONGODB_URI;
+  let databaseUrl = process.env.DATABASE_URL;
 
-  if (!mongoUri) {
+  if (!databaseUrl) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("MongoDB connection string is required in production");
+      throw new Error("PostgreSQL connection string is required in production");
     } else {
-      mongoUri = "mongodb://localhost:27017/sports_central";
-      console.log(`🔄 Using default MongoDB URI: ${mongoUri}`);
+      console.log("⚠️ No DATABASE_URL found. Please set up PostgreSQL database in Replit.");
+      return;
     }
   }
 
-  if (isConnected) {
-    console.log("⚡ Using existing MongoDB connection");
+  if (pool) {
+    console.log("⚡ Using existing PostgreSQL connection pool");
     return;
   }
 
-  const connect = async () => {
-    try {
-      const conn = await mongoose.connect(mongoUri, {
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      });
+  try {
+    // Use connection pooling for better performance
+    const poolUrl = databaseUrl.replace('.us-east-2', '-pooler.us-east-2');
+    
+    pool = new Pool({
+      connectionString: poolUrl,
+      max: 10,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
 
-      isConnected = true;
-      console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-      console.error("❌ Database connection failed:", error);
-      console.log("⏳ Retrying in 5s...");
-      setTimeout(connect, 5000);
-    }
-  };
+    // Test the connection
+    const client = await pool.connect();
+    client.release();
+    
+    console.log(`✅ PostgreSQL Connected successfully`);
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+    pool = null;
+    throw error;
+  }
+};
 
-  mongoose.connection.on("error", (err) => {
-    console.error("❌ MongoDB connection error:", err);
-    isConnected = false;
-  });
-
-  mongoose.connection.on("disconnected", () => {
-    console.log("⚠️ MongoDB disconnected");
-    isConnected = false;
-    connect(); // try to reconnect
-  });
-
-  await connect();
+export const getPool = (): Pool | null => {
+  return pool;
 };
 
 export const disconnectDatabase = async (): Promise<void> => {
-  if (mongoose.connection.readyState !== 0) {
+  if (pool) {
     try {
-      await mongoose.connection.close();
+      await pool.end();
       console.log("🔄 Database disconnected successfully");
-      isConnected = false;
+      pool = null;
     } catch (error) {
       console.error("❌ Error disconnecting from database:", error);
     }
