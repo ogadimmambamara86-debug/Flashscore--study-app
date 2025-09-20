@@ -12,13 +12,41 @@ console.log(`🛠 Environment file path: ${envPath}`);
 console.log(`🛠 DATABASE_URL: ${process.env.DATABASE_URL ? 'Found' : 'Not found'}`);
 
 export const connectDatabase = async (): Promise<void> => {
+  // Try MongoDB first (from Replit secrets), then fallback to PostgreSQL
+  let mongoUri = process.env.MONGODB_URI;
   let databaseUrl = process.env.DATABASE_URL;
 
+  // Prefer MongoDB if available
+  if (mongoUri) {
+    console.log("🔄 Using MongoDB from Replit secrets");
+    try {
+      const mongoose = await import('mongoose');
+      
+      if (mongoose.connection.readyState === 1) {
+        console.log("⚡ Using existing MongoDB connection");
+        return;
+      }
+
+      await mongoose.connect(mongoUri, {
+        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+
+      console.log(`✅ MongoDB Connected successfully`);
+      return;
+    } catch (error) {
+      console.error("❌ MongoDB connection failed:", error);
+      console.log("🔄 Falling back to PostgreSQL...");
+    }
+  }
+
+  // Fallback to PostgreSQL
   if (!databaseUrl) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("PostgreSQL connection string is required in production");
+      throw new Error("Database connection string is required in production");
     } else {
-      console.log("⚠️ No DATABASE_URL found. Please set up PostgreSQL database in Replit.");
+      console.log("⚠️ No DATABASE_URL found. Please set up database in Replit secrets.");
       return;
     }
   }
