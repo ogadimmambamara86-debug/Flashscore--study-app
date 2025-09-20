@@ -1,25 +1,20 @@
-// apps/frontend/src/app/hooks/useMobile.ts
-import { useEffect, useState } from 'react';
 
-export const useMobile = (breakpoint = 768): boolean => {
+"use client";
+import { useState, useEffect } from 'react';
+
+export function useMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < breakpoint);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
     };
 
-    // Initial check
-    checkIsMobile();
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
 
-    // Add event listener
-    window.addEventListener('resize', checkIsMobile);
-
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, [breakpoint]);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return isMobile;
-};
+}

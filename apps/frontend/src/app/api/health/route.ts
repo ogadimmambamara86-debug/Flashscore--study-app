@@ -1,16 +1,33 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'HEAD' && req.method !== 'GET') {
-    res.setHeader('Allow', ['HEAD', 'GET']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+interface HealthStatus {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  timestamp: string;
+  uptime: number;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const healthStatus: HealthStatus = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    };
+
+    return NextResponse.json(healthStatus, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { 
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+      }, 
+      { status: 503 }
+    );
   }
+}
 
-  // Simple health check
-  res.status(200).json({ 
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
+export async function HEAD(request: NextRequest) {
+  return new NextResponse(null, { status: 200 });
 }
