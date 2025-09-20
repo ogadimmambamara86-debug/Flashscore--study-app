@@ -17,17 +17,19 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
+    const path = require('path');
+    
     // Handle path aliases
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@components': new URL('./src/app/components', import.meta.url).pathname,
-      '@hooks': new URL('./src/app/hooks', import.meta.url).pathname,
-      '@controllers': new URL('./src/app/controllers', import.meta.url).pathname,
-      '@api': new URL('./src/app/api', import.meta.url).pathname,
-      '@services': new URL('./src/app/services', import.meta.url).pathname,
-      '@styles': new URL('./src/app/styles', import.meta.url).pathname,
-      '@config': new URL('./src/app/config', import.meta.url).pathname,
-      '@shared': new URL('../../packages/shared/src/libs', import.meta.url).pathname,
+      '@components': path.resolve(__dirname, 'src/app/components'),
+      '@hooks': path.resolve(__dirname, 'src/app/hooks'),
+      '@controllers': path.resolve(__dirname, 'src/app/controllers'),
+      '@api': path.resolve(__dirname, 'src/app/api'),
+      '@services': path.resolve(__dirname, 'src/app/services'),
+      '@styles': path.resolve(__dirname, 'src/app/styles'),
+      '@config': path.resolve(__dirname, 'src/app/config'),
+      '@shared': path.resolve(__dirname, '../../packages/shared/src/libs'),
     };
 
     return config;
