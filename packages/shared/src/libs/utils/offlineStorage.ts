@@ -1,26 +1,30 @@
-export interface StoredError {
-  message: string;
-  stack?: string;
-  timestamp: string;
-}
+export type StoredData = Record<string, any>;
 
-// Save the last error
-export const saveError = (error: StoredError) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('lastError', JSON.stringify(error));
+const STORAGE_KEY_PREFIX = 'myApp_'; // Avoid conflicts with other localStorage keys
+
+/** Save any data locally */
+export const saveOffline = (key: string, value: any) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(value));
+  } catch (err) {
+    console.warn('Failed to save offline data:', err);
   }
 };
 
-// Get the last saved error
-export const getLastError = (): StoredError | null => {
-  if (typeof window === 'undefined') return null;
-  const data = localStorage.getItem('lastError');
-  return data ? JSON.parse(data) : null;
+/** Retrieve stored data */
+export const getOffline = <T = any>(key: string, defaultValue: T): T => {
+  if (typeof window === 'undefined') return defaultValue;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY_PREFIX + key);
+    return data ? JSON.parse(data) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
 };
 
-// Clear saved error
-export const clearError = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('lastError');
-  }
+/** Remove stored data */
+export const removeOffline = (key: string) => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(STORAGE_KEY_PREFIX + key);
 };
