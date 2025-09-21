@@ -1,5 +1,5 @@
 modules = ["nodejs-20"]
-run = ".ts"
+run = "cd apps/frontend && npm run dev"
 
 [nix]
 channel = "stable-25_05"
