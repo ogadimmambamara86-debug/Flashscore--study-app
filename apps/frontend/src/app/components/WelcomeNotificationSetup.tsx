@@ -39,18 +39,25 @@ const WelcomeNotificationSetup: React.FC<WelcomeNotificationSetupProps> = ({ onC
   if (!showWelcome) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 10000
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10000
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onComplete(false);
+        }
+      }}
+    >
       <div style={{
         background: 'rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(20px)',
@@ -60,8 +67,40 @@ const WelcomeNotificationSetup: React.FC<WelcomeNotificationSetupProps> = ({ onC
         maxWidth: '400px',
         width: '90%',
         color: '#fff',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative',
+        touchAction: 'manipulation'
       }}>
+        <button
+          onClick={() => onComplete(false)}
+          style={{
+            position: 'absolute',
+            top: '15px',
+            right: '15px',
+            background: 'rgba(255, 255, 255, 0.2)',
+            border: 'none',
+            color: 'white',
+            width: '30px',
+            height: '30px',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background-color 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+          }}
+          title="Close"
+        >
+          ✕
+        </button>
+        
         <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🔔</div>
         
         <h2 style={{ 

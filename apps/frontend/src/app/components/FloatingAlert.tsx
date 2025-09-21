@@ -48,35 +48,48 @@ const FloatingAlert: React.FC<FloatingAlertProps> = ({ enabled, onToggle }) => {
     };
   }, [enabled]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Touch and mouse event handlers for better mobile support
+  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     setIsDragging(true);
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
     setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
+      x: clientX - position.x,
+      y: clientY - position.y
     });
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
     
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
     setPosition({
-      x: e.clientX - dragOffset.x,
-      y: e.clientY - dragOffset.y
+      x: clientX - dragOffset.x,
+      y: clientY - dragOffset.y
     });
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     setIsDragging(false);
   };
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMove);
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchend', handleEnd);
       
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('touchmove', handleMove);
+        document.removeEventListener('touchend', handleEnd);
       };
     }
   }, [isDragging, dragOffset]);
@@ -121,16 +134,19 @@ const FloatingAlert: React.FC<FloatingAlertProps> = ({ enabled, onToggle }) => {
         style={{
           background: 'rgba(0, 0, 0, 0.8)',
           color: 'white',
-          padding: '8px 12px',
-          borderRadius: '8px 8px 0 0',
+          padding: '12px 16px',
+          borderRadius: '12px 12px 0 0',
           cursor: isDragging ? 'grabbing' : 'grab',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           fontSize: '0.9rem',
-          fontWeight: '600'
+          fontWeight: '600',
+          touchAction: 'none',
+          userSelect: 'none'
         }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleStart}
+        onTouchStart={handleStart}
       >
         <span>🔔 Alerts ({alerts.length})</span>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -199,8 +215,22 @@ const FloatingAlert: React.FC<FloatingAlertProps> = ({ enabled, onToggle }) => {
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '10px',
-                animation: 'slideIn 0.3s ease-out'
+                animation: 'slideIn 0.3s ease-out',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
               }}
+              onClick={() => removeAlert(alert.id)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                removeAlert(alert.id);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+              title="Tap to dismiss"
             >
               <span style={{ fontSize: '1.2rem' }}>
                 {getAlertIcon(alert.type)}

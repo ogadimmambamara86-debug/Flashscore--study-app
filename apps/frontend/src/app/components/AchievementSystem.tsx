@@ -510,22 +510,39 @@ const AchievementSystem: React.FC<AchievementSystemProps> = ({
 
       {/* Achievement Notification */}
       {showNotification && (
-        <div style={{
-          position: 'fixed',
-          top: isMobile ? '20px' : '30px',
-          right: isMobile ? '20px' : '30px',
-          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-          color: 'white',
-          padding: isMobile ? '16px' : '20px',
-          borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(245, 158, 11, 0.4)',
-          zIndex: 1000,
-          maxWidth: isMobile ? '280px' : '350px',
-          animation: 'slideInRight 0.5s ease'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div 
+          style={{
+            position: 'fixed',
+            top: isMobile ? '20px' : '30px',
+            right: isMobile ? '20px' : '30px',
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            color: 'white',
+            padding: isMobile ? '16px' : '20px',
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(245, 158, 11, 0.4)',
+            zIndex: 1000,
+            maxWidth: isMobile ? '280px' : '350px',
+            animation: 'slideInRight 0.5s ease',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease',
+            touchAction: 'manipulation'
+          }}
+          onClick={() => setShowNotification(null)}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            setShowNotification(null);
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.02)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          title="Tap to dismiss"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <span style={{ fontSize: '2rem' }}>{showNotification.icon}</span>
-            <div>
+            <div style={{ flex: 1 }}>
               <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>
                 Achievement Unlocked!
               </h4>
@@ -536,6 +553,30 @@ const AchievementSystem: React.FC<AchievementSystemProps> = ({
                 +π{showNotification.reward.piCoins} Pi Coins
               </p>
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNotification(null);
+              }}
+              style={{
+                position: 'absolute',
+                top: '-8px',
+                right: '-8px',
+                background: 'rgba(0, 0, 0, 0.5)',
+                border: 'none',
+                color: 'white',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
