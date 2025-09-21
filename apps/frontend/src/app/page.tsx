@@ -4,7 +4,9 @@ import Header from "@components/Header";
 import MissionBriefing from "@components/MissionBriefing";
 import ModulesGrid from "@components/ModulesGrid";
 import LatestNews from "@components/LatestNews";
-import PredictionsTable from "@components/PredictionsTable";
+import PredictionsTable from './components/PredictionsTable';
+import ProtectedContent from './components/ProtectedContent';
+import VisitorManager from '../../../packages/shared/src/libs/utils/visitorManager';
 import QuizMode from "@components/QuizMode";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
@@ -77,11 +79,15 @@ export default function Home() {
   const [showBettingAgreement, setShowBettingAgreement] = useState(false);
   const [showWelcomeNotifications, setShowWelcomeNotifications] = useState(true);
 
-  // Load user on component mount
+  // Load user and initialize visitor tracking on component mount
   useEffect(() => {
     UserManager.loadCurrentUser();
     const user = UserManager.getCurrentUser();
     setCurrentUser(user);
+    // Track visitor on page load
+    VisitorManager.trackVisitor(user?.id);
+    // Reset daily limits if needed
+    VisitorManager.resetDailyLimits();
   }, []);
 
   const handleLogout = () => {
@@ -163,7 +169,18 @@ export default function Home() {
           </div>
         );
       case "predictions":
-        return <PredictionsTable predictions={predictions} />;
+        return (
+              <ProtectedContent
+                contentType="predictions"
+                contentId="main_predictions"
+                title="🔮 Premium Sports Predictions"
+                preview="AI-powered predictions with 94.2% accuracy rate. View match analysis, confidence scores, and betting recommendations from our advanced algorithms."
+                onRegister={() => setShowRegistration(true)}
+                onUpgrade={() => setShowPiCoinStore(true)}
+              >
+                <PredictionsTable predictions={predictions} />
+              </ProtectedContent>
+        );
       case "scores":
         return (
           <div className="glass-card p-6">
@@ -288,18 +305,17 @@ export default function Home() {
           {/* AI Analysis Section */}
           <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-8">
             <h2 className="text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2">
-              🤖 AI-Powered Analysis
+              🎯 High-Value Scraping Targets
             </h2>
             <div className="text-gray-300">
               <p className="mb-4">
-                Our advanced AI system analyzes multiple data points to provide accurate predictions:
+                Unlock advanced insights with our premium data and AI-powered predictions:
               </p>
               <ul className="list-disc list-inside space-y-2 text-sm">
-                <li>Team form and historical performance</li>
-                <li>Head-to-head statistics</li>
-                <li>Player injuries and suspensions</li>
-                <li>Weather conditions and venue analysis</li>
-                <li>Betting market movements</li>
+                <li>AI-powered predictions from your analysis engine</li>
+                <li>Live match data and odds from multiple APIs</li>
+                <li>StatArea predictions and confidence scores</li>
+                <li>Enhanced sports statistics and real-time updates</li>
               </ul>
             </div>
           </div>
@@ -310,7 +326,16 @@ export default function Home() {
               {/* Mobile Tab Content */}
               {mobileActiveTab === 'home' && (
                 <>
-                  <PredictionsTable predictions={predictions} />
+                  <ProtectedContent
+                    contentType="predictions"
+                    contentId="main_predictions"
+                    title="🔮 Premium Sports Predictions"
+                    preview="AI-powered predictions with 94.2% accuracy rate. View match analysis, confidence scores, and betting recommendations from our advanced algorithms."
+                    onRegister={() => setShowRegistration(true)}
+                    onUpgrade={() => setShowPiCoinStore(true)}
+                  >
+                    <PredictionsTable predictions={predictions} />
+                  </ProtectedContent>
                   <QuizMode currentUser={currentUser} />
                 </>
               )}
@@ -352,7 +377,16 @@ export default function Home() {
             <>
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "30px", marginBottom: "30px" }}>
                 <div>
-                  <PredictionsTable predictions={predictions} />
+                  <ProtectedContent
+                    contentType="predictions"
+                    contentId="main_predictions"
+                    title="🔮 Premium Sports Predictions"
+                    preview="AI-powered predictions with 94.2% accuracy rate. View match analysis, confidence scores, and betting recommendations from our advanced algorithms."
+                    onRegister={() => setShowRegistration(true)}
+                    onUpgrade={() => setShowPiCoinStore(true)}
+                  >
+                    <PredictionsTable predictions={predictions} />
+                  </ProtectedContent>
                   <InteractiveTools predictions={predictions} />
 
                   {showLiveChat && (

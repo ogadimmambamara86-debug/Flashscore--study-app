@@ -6,8 +6,116 @@ import PredictionController from "@controllers/predictionController";
 
 const predictionController = new PredictionController();
 
+// Placeholder for the actual visitor tracking logic
+// In a real application, this would interact with a database or cache
+// to store and retrieve visitor visit counts.
+async function checkVisitorAccess(visitorId: string, resource: string): Promise<{ allowed: boolean; message: string; upgradeRequired?: boolean; visitsRemaining?: number }> {
+  // Mock visitor data for demonstration
+  const visitorData: { [key: string]: { visits: number } } = {
+    'visitor123': { visits: 3 },
+    'visitor456': { visits: 5 },
+    'anonymous': { visits: 0 }
+  };
+
+  const MAX_GUEST_VISITS = 4;
+  const MAX_USER_VISITS = 10; // Example for regular users
+
+  const currentVisitor = visitorData[visitorId] || { visits: 0 };
+  currentVisitor.visits++; // Increment visit count
+
+  // Simulate updating visitor data (e.g., in a database)
+  visitorData[visitorId] = currentVisitor;
+
+  if (resource === 'predictions') {
+    if (visitorId === 'anonymous') {
+      if (currentVisitor.visits <= MAX_GUEST_VISITS) {
+        return {
+          allowed: true,
+          message: `Welcome! You have ${MAX_GUEST_VISITS - currentVisitor.visits} visits remaining.`,
+          visitsRemaining: MAX_GUEST_VISITS - currentVisitor.visits
+        };
+      } else {
+        return {
+          allowed: false,
+          message: 'Guest access limit reached. Please upgrade or log in for full access.',
+          upgradeRequired: true,
+          visitsRemaining: 0
+        };
+      }
+    } else { // Assume logged-in users or identified visitors
+      if (currentVisitor.visits <= MAX_USER_VISITS) {
+        return {
+          allowed: true,
+          message: `Welcome back! You have ${MAX_USER_VISITS - currentVisitor.visits} visits remaining.`,
+          visitsRemaining: MAX_USER_VISITS - currentVisitor.visits
+        };
+      } else {
+        return {
+          allowed: false,
+          message: 'You have reached your visit limit. Consider upgrading your plan.',
+          upgradeRequired: true,
+          visitsRemaining: 0
+        };
+      }
+    }
+  }
+
+  // Default access if resource is not specified or handled
+  return { allowed: true, message: 'Access granted.' };
+}
+
+
 export async function GET(request: NextRequest) {
   try {
+    // Enhanced bot detection and rate limiting
+    const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+    const userAgent = request.headers.get('user-agent') || '';
+    const visitorId = request.headers.get('x-visitor-id') || 'anonymous';
+
+    // Import security utilities
+    const SecurityUtils = (await import('@/../../packages/shared/src/libs/utils/securityUtils')).default;
+    const EthicalSecurityManager = (await import('@/../../packages/shared/src/libs/utils/ethicalSecurityManager')).default;
+
+    // Advanced rate limiting for this endpoint
+    const rateCheck = EthicalSecurityManager.checkAdvancedRateLimit(
+      clientIP,
+      'predictions_access'
+    );
+
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests - please slow down' },
+        { status: 429 }
+      );
+    }
+
+    // Bot pattern detection
+    if (userAgent.includes('bot') || userAgent.includes('spider') || userAgent.includes('crawler')) {
+      SecurityUtils.logSecurityEvent('bot_access_attempt', {
+        ip: clientIP,
+        userAgent,
+        endpoint: '/api/predictions'
+      });
+
+      // Return limited data for bots
+      return NextResponse.json({
+        message: 'For full access, please use our official app',
+        preview: ['Limited preview data available']
+      }, { status: 200 });
+    }
+
+    // Check visitor access level (server-side visitor tracking)
+    const visitorData = await checkVisitorAccess(visitorId, 'predictions');
+
+    if (!visitorData.allowed) {
+      return NextResponse.json({
+        error: 'Access limit reached',
+        message: visitorData.message,
+        upgradeRequired: visitorData.upgradeRequired,
+        visitsRemaining: visitorData.visitsRemaining
+      }, { status: 403 });
+    }
+
     // Get external predictions (scraped)
     const externalPredictions = await fetchPredictions();
 
@@ -66,7 +174,7 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, ...data } = body;
-    
+
     if (!id) {
       return NextResponse.json(
         { error: "ID is required for update" },
@@ -89,7 +197,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    
+
     if (!id) {
       return NextResponse.json(
         { error: "ID is required for deletion" },
