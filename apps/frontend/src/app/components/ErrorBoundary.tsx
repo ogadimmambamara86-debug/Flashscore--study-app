@@ -28,17 +28,12 @@ class ErrorBoundary extends Component<Props, State> {
     // Log error for debugging
     if (typeof window !== 'undefined') {
       try {
-        const SecurityUtils = require('../utils/securityUtils').default;
-        SecurityUtils.logSecurityEvent('app_error', {
-          message: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack
-        });
-
-        // Also create an error report for debugging
+        // Create an error report for debugging
         console.log('Error Report:', {
           message: error.message,
-          stack: error.stack
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString()
         });
       } catch (logError) {
         console.error('Failed to log error:', logError);
