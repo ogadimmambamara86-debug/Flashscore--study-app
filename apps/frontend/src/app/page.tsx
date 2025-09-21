@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Header from "@components/Header";
 import MissionBriefing from "@components/MissionBriefing";
 import ModulesGrid from "@components/ModulesGrid";
@@ -231,7 +231,9 @@ export default function Home() {
           right: '20px',
           zIndex: 1000
         }}>
-          <SmartNotifications />
+          <Suspense fallback={null}>
+            <SmartNotifications />
+          </Suspense>
         </div>
 
         <main style={{

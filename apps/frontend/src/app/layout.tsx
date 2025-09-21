@@ -34,18 +34,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="light">
+      <head>
+        <link rel="preconnect" href="https://flashstudy-ri0g.onrender.com" />
+        <link rel="dns-prefetch" href="https://flashstudy-ri0g.onrender.com" />
+      </head>
       <body className="relative flex">
-        <BackgroundParticles />
+        <React.Suspense fallback={null}>
+          <BackgroundParticles />
+        </React.Suspense>
         <OfflineManager>
           {/* Sidebar for desktop */}
-          <SidebarNav items={navItems} />
+          <React.Suspense fallback={null}>
+            <SidebarNav items={navItems} />
+          </React.Suspense>
 
           {/* Main content area */}
           <div className="flex-1 min-h-screen flex flex-col">
             {children}
 
             {/* Mobile nav (always visible at bottom on small screens) */}
-            <MobileNav items={navItems} />
+            <React.Suspense fallback={null}>
+              <MobileNav items={navItems} />
+            </React.Suspense>
           </div>
         </OfflineManager>
       </body>
