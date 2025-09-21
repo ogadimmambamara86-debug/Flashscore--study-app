@@ -45,13 +45,11 @@ const AI_CONFIG = {
 
 /**
  * Apply the 5(1's) strategy logic
- * This is a betting strategy that focuses on specific patterns
  */
 const applyFiveOnesStrategy = (matchData: MatchData): { confidence: number; reasoning: string } => {
-  let confidence = 50; // Base confidence
+  let confidence = 50;
   const reasons: string[] = [];
 
-  // Analyze recent form (last 5 matches)
   const homeWins = matchData.homeForm.filter(result => result === 'W').length;
   const awayWins = matchData.awayForm.filter(result => result === 'W').length;
   
@@ -65,7 +63,6 @@ const applyFiveOnesStrategy = (matchData: MatchData): { confidence: number; reas
     reasons.push(`Away team has strong form with ${awayWins}/5 wins`);
   }
 
-  // Goal difference analysis
   const homeGoalDiff = matchData.homeStats.goalsScored - matchData.homeStats.goalsConceded;
   const awayGoalDiff = matchData.awayStats.goalsScored - matchData.awayStats.goalsConceded;
   
@@ -74,7 +71,6 @@ const applyFiveOnesStrategy = (matchData: MatchData): { confidence: number; reas
     reasons.push('Home team has superior goal difference');
   }
 
-  // Head-to-head analysis
   const homeH2HWins = matchData.headToHead.filter(result => result === 'H').length;
   if (homeH2HWins >= 3) {
     confidence += 10;
@@ -93,7 +89,6 @@ const applyFiveOnesStrategy = (matchData: MatchData): { confidence: number; reas
 const fallbackAnalysis = (matchData: MatchData): AIAnalysisResult => {
   const strategy = applyFiveOnesStrategy(matchData);
   
-  // Simple rule-based prediction
   const homeStrength = matchData.homeStats.goalsScored - matchData.homeStats.goalsConceded;
   const awayStrength = matchData.awayStats.goalsScored - matchData.awayStats.goalsConceded;
   
@@ -124,7 +119,6 @@ const fallbackAnalysis = (matchData: MatchData): AIAnalysisResult => {
  * Send match data to AI for analysis
  */
 const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> => {
-  // Input validation
   if (!matchData || !matchData.homeTeam || !matchData.awayTeam) {
     throw new Error('Invalid match data provided');
   }
@@ -134,7 +128,6 @@ const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> =>
 
   while (retries < maxRetries) {
     try {
-      // Create abort controller for timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), AI_CONFIG.TIMEOUT_MS);
 
@@ -146,7 +139,7 @@ const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> =>
         },
         body: JSON.stringify({
           prompt: generateAIPrompt(matchData),
-          temperature: 0.3, // Lower temperature for more consistent analysis
+          temperature: 0.3,
           max_tokens: 500,
         }),
         signal: controller.signal,
@@ -159,31 +152,33 @@ const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> =>
       }
 
       const aiResponse = await response.json();
-      
-      // Parse AI response and apply 5(1's) strategy
-      const analysis = parseAIResponse(aiResponse, matchData);
-      
-      return analysis;
+      return parseAIResponse(aiResponse, matchData);
 
-    } catch (error) {
+    } catch (error: unknown) {
       retries++;
-      console.warn(`AI analysis attempt ${retries} failed:`, error);
+      if (error instanceof Error) {
+        console.warn(`AI analysis attempt ${retries} failed: ${error.message}`);
+      } else {
+        console.warn(`AI analysis attempt ${retries} failed:`, String(error));
+      }
       
       if (retries >= maxRetries) {
         if (AI_CONFIG.FALLBACK_ENABLED) {
           console.log('AI analysis failed, using fallback analysis');
           return fallbackAnalysis(matchData);
         } else {
-          throw new Error(`AI analysis failed after ${maxRetries} attempts: ${error.message}`);
+          throw new Error(
+            `AI analysis failed after ${maxRetries} attempts: ${
+              error instanceof Error ? error.message : 'Unknown error'
+            }`
+          );
         }
       }
       
-      // Wait before retry (exponential backoff)
       await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
     }
   }
 
-  // This should never be reached, but TypeScript needs it
   return fallbackAnalysis(matchData);
 };
 
@@ -227,13 +222,9 @@ Focus on statistical patterns and recent form trends.
  */
 const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResult => {
   try {
-    // Apply 5(1's) strategy logic
     const strategyResult = applyFiveOnesStrategy(matchData);
-    
-    // Parse AI response (this depends on your AI API format)
     const aiText = aiResponse?.choices?.[0]?.message?.content || aiResponse?.text || '';
     
-    // Extract prediction from AI text (simplified parsing)
     let prediction: 'home' | 'draw' | 'away' = 'draw';
     if (aiText.toLowerCase().includes('home win') || aiText.toLowerCase().includes('home team')) {
       prediction = 'home';
@@ -241,7 +232,6 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
       prediction = 'away';
     }
     
-    // Combine AI confidence with strategy confidence
     const combinedConfidence = Math.round((strategyResult.confidence + (aiResponse?.confidence || 50)) / 2);
     
     const riskLevel: 'low' | 'medium' | 'high' = 
@@ -257,8 +247,12 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
       alternativeBets: ['Over 2.5 goals', 'Both teams to score', 'Handicap betting']
     };
     
-  } catch (error) {
-    console.error('Error parsing AI response:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error parsing AI response:', error.message);
+    } else {
+      console.error('Error parsing AI response:', String(error));
+    }
     return fallbackAnalysis(matchData);
   }
 };
@@ -269,14 +263,18 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
 export const analyzeMatch = async (matchData: MatchData): Promise<AIAnalysisResult> => {
   try {
     return await analyzeWithAI(matchData);
-  } catch (error) {
-    console.error('Match analysis failed:', error);
-    
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Match analysis failed:', error.message);
+    } else {
+      console.error('Match analysis failed with unknown error:', String(error));
+    }
+
     if (AI_CONFIG.FALLBACK_ENABLED) {
       return fallbackAnalysis(matchData);
     }
-    
-    throw error;
+
+    throw error instanceof Error ? error : new Error('Unknown analysis error occurred');
   }
 };
 
