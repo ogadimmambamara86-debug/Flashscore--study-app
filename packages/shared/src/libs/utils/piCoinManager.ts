@@ -337,12 +337,24 @@ class PiCoinManager {
             return false;
         }
 
-        // Rate limiting for transactions
-        if (!SecureUtils.checkRateLimit(`transaction_${validUserId}`, this.CONFIG.TRANSACTION_RATE_LIMIT, this.CONFIG.RATE_LIMIT_WINDOW_MS)) {
-            console.warn('Transaction rate limit exceeded for user:', validUserId);
-            SecurityManager.logSecurityEvent('transaction_rate_limit', { userId: validUserId, amount, type });
-            return false;
+        // Simple rate limiting with more lenient approach for legitimate transactions
+        const rateLimitKey = `transaction_${validUserId}_${type}`;
+        const currentTime = Date.now();
+        const lastTransactionKey = `last_${rateLimitKey}`;
+        const lastTransactionTime = ClientStorage.getItem(lastTransactionKey);
+
+        if (lastTransactionTime) {
+            const timeDiff = currentTime - parseInt(lastTransactionTime);
+            const cooldown = type === 'quiz_complete' ? 2000 : 1000; // 2 seconds for quiz completion, 1 second for others
+
+            if (timeDiff < cooldown) {
+                console.warn(`Transaction too frequent for ${type}, wait ${cooldown - timeDiff}ms`);
+                SecurityManager.logSecurityEvent('transaction_rate_limit', { userId: validUserId, amount, type, timeDiff, cooldown });
+                return false;
+            }
         }
+
+        ClientStorage.setItem(lastTransactionKey, currentTime.toString());
 
         // Validate transaction limits
         if (Math.abs(amount) > this.CONFIG.MAX_SINGLE_TRANSACTION) {
@@ -351,7 +363,20 @@ class PiCoinManager {
             return false;
         }
 
+        // Check for duplicate transactions in the last 5 seconds
         const transactions = this.getEncryptedData<PiCoinTransaction[]>(this.TRANSACTION_KEY, []);
+        const recentTransactions = transactions.filter(t => 
+            t.userId === validUserId && 
+            t.type === type && 
+            t.amount === amount &&
+            (Date.now() - new Date(t.timestamp).getTime()) < 5000
+        );
+
+        if (recentTransactions.length > 0) {
+            console.warn('Duplicate transaction detected, skipping:', { userId: validUserId, amount, type });
+            SecurityManager.logSecurityEvent('duplicate_transaction_prevented', { userId: validUserId, amount, type });
+            return false;
+        }
 
         const newTransaction: PiCoinTransaction = {
             id: this.generateTransactionId(),

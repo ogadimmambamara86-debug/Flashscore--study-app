@@ -30,6 +30,11 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
   const [currentBalance, setCurrentBalance] = useState(0);
   const [showBettingAgreement, setShowBettingAgreement] = useState(false); // State for the betting agreement
 
+  // Prevent multiple awards for the same quiz session
+  const [quizSessionId] = useState(() => `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [hasAwardedPiCoins, setHasAwardedPiCoins] = useState(false);
+
+
   // Offline questions cache
   const offlineQuestions: Question[] = [
     {
@@ -169,9 +174,15 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         setSelectedAnswer(null);
         setTimeLeft(30);
       } else {
-        // Award Pi coins for quiz completion
-        const coinsEarned = PiCoinManager.awardQuizCompletion('default', score, questions.length);
-        setPiCoinsEarned(coinsEarned);
+        // Award Pi coins based on performance (only once per session)
+        let earnedCoins = 0;
+        if (!hasAwardedPiCoins && PiCoinManager?.awardQuizCompletion) {
+          earnedCoins = PiCoinManager.awardQuizCompletion('default', score, questions.length);
+          if (earnedCoins > 0) {
+            setHasAwardedPiCoins(true);
+          }
+        }
+        setPiCoinsEarned(earnedCoins);
 
         // Update balance
         const newBalance = PiCoinManager.getBalance('default');
@@ -191,6 +202,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
     setQuizComplete(false);
     setTimeLeft(30);
     setPiCoinsEarned(0);
+    setHasAwardedPiCoins(false); // Reset the flag for new quiz session
   };
 
   const getScoreMessage = () => {

@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ClientStorage } from '../../../../../packages/shared/src/libs/utils/clientStorage';
@@ -220,23 +219,23 @@ const AchievementSystem: React.FC<AchievementSystemProps> = ({
 
     // Get user stats (this would normally come from your user management system)
     const userStats = getUserStats();
-    
+
     const updatedAchievements = achievementList.map(achievement => {
       const current = userStats[achievement.requirement.type] || 0;
       const progress = Math.min((current / achievement.requirement.target) * 100, 100);
-      
+
       // Check if achievement should be unlocked
       if (!achievement.unlocked && current >= achievement.requirement.target) {
         achievement.unlocked = true;
         achievement.unlockedAt = new Date();
-        
+
         // Award Pi Coins
         PiCoinManager.addTransaction('default', achievement.reward.piCoins, 'bonus', `Achievement: ${achievement.title}`);
-        
+
         // Show notification
         setShowNotification(achievement);
         setTimeout(() => setShowNotification(null), 5000);
-        
+
         // Callback
         onAchievementUnlocked?.(achievement);
       }
