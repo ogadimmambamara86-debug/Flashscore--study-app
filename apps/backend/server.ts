@@ -31,22 +31,18 @@ import { connectDatabase, disconnectDatabase } from "./config/database";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ----------------- Middleware -----------------
-let corsConfig: cors.CorsOptions;
-if (process.env.NODE_ENV === "production") {
-  corsConfig = {
-    origin:
-      process.env.FRONTEND_URL || "https://flashscore-study-app.vercel.app",
-    credentials: true,
-  };
-} else {
-  corsConfig = {
-    origin: ["http://localhost:3000"],
-    credentials: true,
-  };
-}
+// ----------------- CORS Setup (Best of Both) -----------------
+const corsOptions: cors.CorsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? [process.env.FRONTEND_URL || "https://flashscore-study-app.vercel.app"]
+      : ["http://localhost:3000"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-app.use(cors(corsConfig));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // ----------------- Routes -----------------
