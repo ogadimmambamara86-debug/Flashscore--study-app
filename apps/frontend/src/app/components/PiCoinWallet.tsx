@@ -35,8 +35,8 @@ const PiCoinWallet: React.FC<PiCoinWalletProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const loadWalletData = () => {
-    const walletBalance = PiCoinManager.getBalance();
-    const walletTransactions = PiCoinManager.getTransactions();
+    const walletBalance = PiCoinManager.getBalance('default');
+    const walletTransactions = PiCoinManager.getTransactions('default');
     setBalance(walletBalance);
     setTransactions(walletTransactions);
   };

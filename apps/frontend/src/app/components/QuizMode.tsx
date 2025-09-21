@@ -89,12 +89,12 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         let userId = UserManager.getCurrentUserId();
         if (!userId) {
           // Create a temporary user if none exists
-          const tempUser = await UserManager.createUser('Guest', 'guest@example.com');
+          const tempUser = UserManager.createUser('Guest', 'guest@example.com');
           userId = tempUser.id;
         }
 
         if (userId && userId !== 'undefined' && userId.length > 0) {
-          await PiCoinManager.awardDailyLogin(userId);
+          PiCoinManager.awardDailyLogin(userId);
         }
       } catch (error) {
         console.error('Daily login error:', error);
@@ -104,7 +104,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
 
     handleDailyLogin();
 
-    const balance = PiCoinManager.getBalance();
+    const balance = PiCoinManager.getBalance('default');
     setCurrentBalance(balance.balance);
 
     // Check if the user has logged in to show the betting agreement
@@ -174,7 +174,7 @@ const QuizMode: React.FC<QuizProps> = ({ isOffline = false }) => {
         setPiCoinsEarned(coinsEarned);
 
         // Update balance
-        const newBalance = PiCoinManager.getBalance();
+        const newBalance = PiCoinManager.getBalance('default');
         setCurrentBalance(newBalance.balance);
 
         setQuizComplete(true);

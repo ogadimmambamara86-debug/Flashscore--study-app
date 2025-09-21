@@ -1,4 +1,16 @@
 import SecurityUtils from './securityUtils';
+// Assume ClientStorage is available for client-side storage operations, similar to localStorage
+// If ClientStorage is not defined, you might need to import or define it.
+// For demonstration, let's assume it's a global object or imported from a utility file.
+// import ClientStorage from './clientStorage'; // Example import
+
+// Mock ClientStorage if it's not globally available or imported elsewhere
+const ClientStorage = typeof window !== 'undefined' ? window.localStorage : {
+  getItem: (key: string) => null,
+  setItem: (key: string, value: string) => {},
+  removeItem: (key: string) => {},
+};
+
 
 interface User {
   id: string;
@@ -13,9 +25,36 @@ interface User {
 }
 
 class UserManager {
-  private static readonly STORAGE_KEY = 'sports_central_users';
-  private static readonly CURRENT_USER_KEY = 'current_user';
-  private static readonly ENCRYPTION_KEY = process.env.USER_ENCRYPTION_KEY || 'development_key_only';
+  private static readonly STORAGE_KEY = 'sports_users';
+  private static readonly CURRENT_USER_KEY = 'current_user_id';
+
+  /**
+   * Load the current user from storage
+   */
+  static loadCurrentUser(): User | null {
+    try {
+      const currentUserId = ClientStorage.getItem(this.CURRENT_USER_KEY);
+      if (!currentUserId) return null;
+
+      const users = this.getAllUsers();
+      return users.find(user => user.id === currentUserId) || null;
+    } catch (error) {
+      console.error('Error loading current user:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get current user ID
+   */
+  static getCurrentUserId(): string | null {
+    try {
+      return ClientStorage.getItem(this.CURRENT_USER_KEY);
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  }
 
   static createUser(username: string, email?: string): User {
     const users = this.getAllUsers();
@@ -152,7 +191,7 @@ class UserManager {
 
     // Generate recovery code
     const recoveryCode = SecurityUtils.generateSecureToken().substring(0, 8).toUpperCase();
-    
+
     // Store recovery data
     const recoveryData = {
       userId: user.id,
@@ -171,20 +210,20 @@ class UserManager {
       username: sanitizedUsername
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: `Recovery code generated: ${recoveryCode}. This code expires in 24 hours.`,
-      recoveryCode 
+      recoveryCode
     };
   }
 
   static recoverAccount(username: string, recoveryCode: string): { success: boolean; message: string; user?: User } {
     const recoveryStorage = localStorage.getItem('account_recovery') || '[]';
     const recoveries = JSON.parse(recoveryStorage);
-    
-    const recovery = recoveries.find((r: any) => 
-      r.code === recoveryCode.toUpperCase() && 
-      !r.used && 
+
+    const recovery = recoveries.find((r: any) =>
+      r.code === recoveryCode.toUpperCase() &&
+      !r.used &&
       r.expires > Date.now()
     );
 
@@ -231,7 +270,7 @@ class UserManager {
       // Get Pi coin data
       const coinData = localStorage.getItem('pi_coin_data') || '{}';
       const transactionData = localStorage.getItem('pi_coin_transactions') || '[]';
-      
+
       let userBalance = {};
       let userTransactions = [];
 
@@ -277,7 +316,7 @@ class UserManager {
     try {
       const backupsStorage = localStorage.getItem('user_backups') || '[]';
       const backups = JSON.parse(backupsStorage);
-      
+
       let backup;
       if (backupId) {
         backup = backups.find((b: any) => b.backupId === backupId);

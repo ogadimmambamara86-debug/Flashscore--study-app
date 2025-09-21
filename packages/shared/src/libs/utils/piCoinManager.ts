@@ -181,12 +181,12 @@ class PiCoinManager {
         if (!userId || typeof userId !== 'string') {
             return null;
         }
-        
+
         const sanitized = SecurityManager.sanitizeInput(userId.trim());
         if (!sanitized || sanitized === 'undefined' || sanitized === 'null') {
             return null;
         }
-        
+
         return sanitized;
     }
 
@@ -234,7 +234,7 @@ class PiCoinManager {
         } catch (error) {
             console.error('Failed to encrypt data:', error);
             SecurityManager.logSecurityEvent('encryption_error', { key, error });
-            
+
             // Fallback to unencrypted storage
             try {
                 ClientStorage.setItem(key, JSON.stringify(data));
@@ -564,7 +564,7 @@ class PiCoinManager {
                     keysToRemove.push(key);
                 }
             }
-            
+
             // Remove old login records (keep only recent ones)
             keysToRemove.forEach(key => {
                 const loginDate = ClientStorage.getItem(key);
