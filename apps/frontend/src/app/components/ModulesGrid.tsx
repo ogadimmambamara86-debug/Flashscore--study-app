@@ -34,36 +34,48 @@ export default function ModulesGrid() {
 
   // Fetch matches from API
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchMatches() {
       try {
         const res = await fetch("/api/sports-proxy");
         if (!res.ok) throw new Error(`API error: ${res.status}`);
         const data: Match[] = await res.json();
 
-        // Map matches to Module format for display
-        const mappedModules: Module[] = data.map((match) => ({
-          id: String(match.id),
-          title: `${match.home} vs ${match.away}`,
-          description: match.prediction,
-          icon: "⚽", // generic football icon, can customize
-          status: "online",
-          metrics: [
-            { label: "Home Team", value: match.home },
-            { label: "Away Team", value: match.away },
-            { label: "Prediction", value: match.prediction },
-          ],
-        }));
+        if (isMounted) {
+          // Map matches to Module format for display
+          const mappedModules: Module[] = data.map((match) => ({
+            id: String(match.id),
+            title: `${match.home} vs ${match.away}`,
+            description: match.prediction,
+            icon: "⚽", // generic football icon, can customize
+            status: "online",
+            metrics: [
+              { label: "Home Team", value: match.home },
+              { label: "Away Team", value: match.away },
+              { label: "Prediction", value: match.prediction },
+            ],
+          }));
 
-        setModules(mappedModules);
+          setModules(mappedModules);
+        }
       } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Failed to fetch modules");
+        if (isMounted) {
+          console.error(err);
+          setError(err.message || "Failed to fetch modules");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchMatches();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getStatusColor = (status: string) => {

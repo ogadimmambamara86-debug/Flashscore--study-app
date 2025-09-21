@@ -11,16 +11,7 @@ const nextConfig = {
   
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', 'react-particles'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    optimizePackageImports: ['lucide-react'],
   },
   
   // Webpack optimizations
