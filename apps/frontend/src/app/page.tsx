@@ -298,7 +298,8 @@ export default function Home() {
                     <ChallengeSystem currentUser={currentUser} />
                   )}
                 </Suspense>
-              )}</old_str>
+              )}
+            </div></old_str>
             </div>
           ) : (
             /* Desktop Layout */
