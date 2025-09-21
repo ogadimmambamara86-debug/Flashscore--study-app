@@ -13,8 +13,7 @@
       "@api/*": ["./src/app/api/*"],
       "@services/*": ["./src/app/services/*"],
       "@styles/*": ["./src/app/styles/*"],
-      "@config/*": ["./src/app/config/*"],
-      "@shared/*": ["../../packages/shared/src/*"]
+      "@config/*": ["./src/app/config/*"]
     }
   },
   "include": [
