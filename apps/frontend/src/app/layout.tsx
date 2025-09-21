@@ -6,7 +6,8 @@ import BackgroundParticles from "@components/BackgroundParticles";
 import OfflineManager from "@components/OfflineManager";
 import MobileNav from "@components/MobileNav";
 import SidebarNav from "@components/SidebarNav";
-import { navItems } from "@config/navItems"; // 👈 shared config
+import ErrorBoundary from "@components/ErrorBoundary"; // Add this import
+import { navItems } from "@config/navItems";
 
 export const metadata: Metadata = {
   title: 'Sports Central - Live Sports Predictions, Scores & Community',
@@ -22,18 +23,20 @@ export default function RootLayout({
     <html lang="en">
       <body className="relative flex">
         <BackgroundParticles />
-        <OfflineManager>
-          {/* Sidebar for desktop */}
-          <SidebarNav items={navItems} />
+        <ErrorBoundary> {/* Wrap everything in ErrorBoundary */}
+          <OfflineManager>
+            {/* Sidebar for desktop */}
+            <SidebarNav items={navItems} />
 
-          {/* Main content area */}
-          <div className="flex-1 min-h-screen flex flex-col">
-            {children}
+            {/* Main content area */}
+            <div className="flex-1 min-h-screen flex flex-col">
+              {children}
 
-            {/* Mobile nav (always visible at bottom on small screens) */}
-            <MobileNav items={navItems} />
-          </div>
-        </OfflineManager>
+              {/* Mobile nav (always visible at bottom on small screens) */}
+              <MobileNav items={navItems} />
+            </div>
+          </OfflineManager>
+        </ErrorBoundary>
       </body>
     </html>
   )
