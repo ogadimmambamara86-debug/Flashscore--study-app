@@ -28,7 +28,7 @@ import LiveMatchChat from "@components/LiveMatchChat";
 import FloatingActionButtons from "@components/FloatingActionButtons";
 import { useMobile } from "@hooks/useMobile"; // Assuming you have this hook
 
-import UserManager from '../../../packages/shared/src/libs/utils/userManager';
+import UserManager from '../../../../packages/shared/src/libs/utils/userManager';
 const predictions = []; // Mock predictions
 
 export default function Home() {

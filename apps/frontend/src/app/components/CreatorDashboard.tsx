@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import MonetizationManager, { CreatorEarnings } from '../utils/monetizationManager';
+import MonetizationManager, { CreatorEarnings } from '../../../../../packages/shared/src/libs/utils/monetizationManager';
 
 interface CreatorDashboardProps {
   isOpen: boolean;

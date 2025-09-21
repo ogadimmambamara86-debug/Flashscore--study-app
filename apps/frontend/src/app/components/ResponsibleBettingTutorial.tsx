@@ -106,7 +106,9 @@ PROFESSIONAL HELP:
 • Visit gambling addiction support groups
 
 Remember: Seeking help is a sign of strength, not weakness. We're here to support your well-being above all else.`
-    }elp",
+    },
+    {
+      title: "Get Help",
       content: `If you need support with responsible gaming:
 
 NATIONAL RESOURCES:
