@@ -33,17 +33,30 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    const connectivityCheck = setInterval(() => {
-      fetch('/api/health', { method: 'HEAD', cache: 'no-cache', mode: 'no-cors' })
-        .then(() => {
-          if (!isOnline) setIsOnline(true);
+    const connectivityCheck = setInterval(async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        await fetch('/api/health', { 
+          method: 'HEAD', 
+          cache: 'no-cache',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!isOnline) {
+          setIsOnline(true);
           setShowOfflineMode(false);
-        })
-        .catch(() => {
-          if (isOnline) setIsOnline(false);
+        }
+      } catch {
+        if (isOnline) {
+          setIsOnline(false);
           setLastOnlineTime(new Date());
           setShowOfflineMode(true);
-        });
+        }
+      }
     }, 30000);
 
     return () => {

@@ -10,6 +10,8 @@
     "type-check": "cd apps/frontend && npm run type-check"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.5.3",
+    "@types/cors": "^2.8.19",
     "@types/node": "^24.5.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",

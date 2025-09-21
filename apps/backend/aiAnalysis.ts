@@ -167,7 +167,7 @@ const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> =>
 
     } catch (error) {
       retries++;
-      console.warn(`AI analysis attempt ${retries} failed:`, error);
+      console.warn(`AI analysis attempt ${retries} failed:`, error instanceof Error ? error.message : String(error));
       
       if (retries >= maxRetries) {
         if (AI_CONFIG.FALLBACK_ENABLED) {
@@ -258,7 +258,7 @@ const parseAIResponse = (aiResponse: any, matchData: MatchData): AIAnalysisResul
     };
     
   } catch (error) {
-    console.error('Error parsing AI response:', error);
+    console.error('Error parsing AI response:', error instanceof Error ? error.message : String(error));
     return fallbackAnalysis(matchData);
   }
 };
@@ -270,7 +270,7 @@ export const analyzeMatch = async (matchData: MatchData): Promise<AIAnalysisResu
   try {
     return await analyzeWithAI(matchData);
   } catch (error) {
-    console.error('Match analysis failed:', error);
+    console.error('Match analysis failed:', error instanceof Error ? error.message : String(error));
     
     if (AI_CONFIG.FALLBACK_ENABLED) {
       return fallbackAnalysis(matchData);

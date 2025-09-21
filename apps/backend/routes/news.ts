@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { NewsController } from "../controllers/News"; // ✅ correct relative import
+import { NewsController } from "../controllers/newsController"; // ✅ correct relative import
 
 const router = Router();
 

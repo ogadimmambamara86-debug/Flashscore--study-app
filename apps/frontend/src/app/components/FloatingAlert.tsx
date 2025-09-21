@@ -14,7 +14,7 @@ interface FloatingAlertProps {
   onToggle: (enabled: boolean) => void;
 }
 
-const FloatingAlert: React.FC<FloatingAlertProps> = ({ enabled, onToggle }) => {
+const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onToggle }) => {
   const [alerts, setAlerts] = useState<AlertMessage[]>([]);
   const [position, setPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
@@ -302,5 +302,7 @@ export const triggerFloatingAlert = (
   });
   window.dispatchEvent(event);
 };
+
+});
 
 export default FloatingAlert;
