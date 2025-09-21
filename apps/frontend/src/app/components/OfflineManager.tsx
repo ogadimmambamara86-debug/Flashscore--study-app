@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { AlertManager } from '@shared/utils/alertUtils';
- { isClient, registerNetworkEvents } from "@shared/utils/offlineUtils";
+import { isClient, registerNetworkEvents } from "@shared/utils/offlineUtils";
 import OfflineBanner from "./OfflineBanner";
 
 interface OfflineManagerProps {
