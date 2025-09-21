@@ -1,632 +1,304 @@
-import SecurityUtils from './securityUtils';
 
-// Define constants for storage keys and security
-const BALANCE_KEY = 'pi_coin_data';
-const TRANSACTIONS_KEY = 'pi_coin_transactions';
-const WITHDRAWALS_KEY = 'pi_withdrawals';
+import CryptoJS from 'crypto-js';
 
-// Enhanced SecurityManager with better error handling
-const SecurityManager = {
-    logSecurityEvent: (event: string, details?: any) => {
-        console.log(`SECURITY_EVENT: ${event}`, details);
-    },
-    sanitizeInput: (input: string): string => {
-        if (typeof input !== 'string') return '';
-        return input.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    },
-    checkRateLimit: (key: string, limit: number, windowMs: number): boolean => {
-        // Placeholder for rate limiting logic
-        return true;
-    }
-};
-
-// Enhanced ClientStorage with better error handling
-const ClientStorage = {
-    getItem: (key: string): string | null => {
-        try {
-            if (!PiCoinManager.isBrowser()) return null;
-            return localStorage.getItem(key);
-        } catch (error) {
-            SecurityManager.logSecurityEvent('storage_get_error', { key, error });
-            console.error(`Error getting item from localStorage: ${key}`, error);
-            return null;
-        }
-    },
-    setItem: (key: string, value: string): void => {
-        try {
-            if (!PiCoinManager.isBrowser()) return;
-            localStorage.setItem(key, value);
-        } catch (error) {
-            SecurityManager.logSecurityEvent('storage_set_error', { key, error });
-            console.error(`Error setting item in localStorage: ${key}`, error);
-        }
-    }
-};
-
-// Improved encryption functions
-const CryptoHelpers = {
-    encrypt: (data: string, key: string): string => {
-        try {
-            const CryptoJS = require('crypto-js');
-            return CryptoJS.AES.encrypt(data, key).toString();
-        } catch (e) {
-            console.warn("CryptoJS not available. Using fallback encryption.");
-            return btoa(data); // Simple base64 encoding as fallback
-        }
-    },
-
-    decrypt: (ciphertext: string, key: string): string => {
-        try {
-            const CryptoJS = require('crypto-js');
-            const bytes = CryptoJS.AES.decrypt(ciphertext, key);
-            return bytes.toString(CryptoJS.enc.Utf8);
-        } catch (e) {
-            console.warn("CryptoJS not available. Using fallback decryption.");
-            return atob(ciphertext); // Simple base64 decoding as fallback
-        }
-    }
-};
-
-// Security utils wrapper with fallbacks
-const SecureUtils = {
-    encrypt: (data: string, key: string): string => {
-        if (SecurityUtils && typeof SecurityUtils.encrypt === 'function') {
-            try {
-                return SecurityUtils.encrypt(data, key);
-            } catch (error) {
-                console.error("SecurityUtils.encrypt failed, falling back:", error);
-            }
-        }
-        return CryptoHelpers.encrypt(data, key);
-    },
-
-    decrypt: (ciphertext: string, key: string): string => {
-        if (SecurityUtils && typeof SecurityUtils.decrypt === 'function') {
-            try {
-                return SecurityUtils.decrypt(ciphertext, key);
-            } catch (error) {
-                console.error("SecurityUtils.decrypt failed, falling back:", error);
-            }
-        }
-        return CryptoHelpers.decrypt(ciphertext, key);
-    },
-
-    checkRateLimit: (key: string, limit: number, windowMs: number): boolean => {
-        if (SecurityUtils && typeof SecurityUtils.checkRateLimit === 'function') {
-            try {
-                return SecurityUtils.checkRateLimit(key, limit, windowMs);
-            } catch (error) {
-                console.error("SecurityUtils.checkRateLimit failed, falling back:", error);
-            }
-        }
-        return SecurityManager.checkRateLimit(key, limit, windowMs);
-    }
-};
-
-interface PiCoinTransaction {
-    id: string;
-    userId: string;
-    amount: number;
-    type: 'quiz_complete' | 'daily_login' | 'prediction_correct' | 'bonus' | 'voting' | 'purchase' | 'exchange';
-    timestamp: Date;
-    description: string;
+export interface PiTransaction {
+  id: string;
+  userId: string;
+  amount: number;
+  type: 'earn' | 'spend' | 'transfer';
+  description: string;
+  timestamp: Date;
+  status: 'pending' | 'completed' | 'failed';
+  metadata?: any;
 }
 
-interface PiCoinBalance {
-    userId: string;
-    balance: number;
-    totalEarned: number;
-    lastUpdated: Date;
+export interface PiWallet {
+  userId: string;
+  balance: number;
+  totalEarned: number;
+  totalSpent: number;
+  transactions: PiTransaction[];
+  level: number;
+  achievements: string[];
 }
 
-interface ExchangeResult {
-    success: boolean;
-    realPi?: number;
-    error?: string;
-    txId?: string;
-}
+export class PiCoinManager {
+  private static instance: PiCoinManager;
+  private wallets: Map<string, PiWallet> = new Map();
+  private transactionRateLimit: Map<string, number[]> = new Map();
+  private readonly RATE_LIMIT_WINDOW = 60000; // 1 minute
+  private readonly MAX_TRANSACTIONS_PER_MINUTE = 10;
 
-class PiCoinManager {
-    private static readonly STORAGE_KEY = BALANCE_KEY;
-    private static readonly TRANSACTION_KEY = TRANSACTIONS_KEY;
-    private static readonly WITHDRAWALS_KEY = WITHDRAWALS_KEY;
-    private static readonly ENCRYPTION_KEY = process.env.PICOIN_ENCRYPTION_KEY || 'development_key_only_change_me';
+  private constructor() {
+    this.loadFromStorage();
+  }
 
-    // Configuration constants
-    private static readonly CONFIG = {
-        MAX_TRANSACTIONS_STORED: 100,
-        MAX_TRANSACTIONS_RETURNED: 20,
-        MAX_SINGLE_TRANSACTION: 10000,
-        TRANSACTION_RATE_LIMIT: 20,
-        RATE_LIMIT_WINDOW_MS: 60000,
-        MIN_EXCHANGE_AMOUNT: 1000,
+  public static getInstance(): PiCoinManager {
+    if (!PiCoinManager.instance) {
+      PiCoinManager.instance = new PiCoinManager();
+    }
+    return PiCoinManager.instance;
+  }
+
+  private loadFromStorage(): void {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('piCoinWallets');
+        if (stored) {
+          const data = JSON.parse(stored);
+          this.wallets = new Map(Object.entries(data));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading Pi Coin data:', error);
+    }
+  }
+
+  private saveToStorage(): void {
+    try {
+      if (typeof window !== 'undefined') {
+        const walletsObj = Object.fromEntries(this.wallets);
+        localStorage.setItem('piCoinWallets', JSON.stringify(walletsObj));
+      }
+    } catch (error) {
+      console.error('Error saving Pi Coin data:', error);
+    }
+  }
+
+  private isRateLimited(userId: string): boolean {
+    const now = Date.now();
+    const userTransactions = this.transactionRateLimit.get(userId) || [];
+    
+    // Remove old transactions outside the window
+    const recentTransactions = userTransactions.filter(
+      timestamp => now - timestamp < this.RATE_LIMIT_WINDOW
+    );
+    
+    this.transactionRateLimit.set(userId, recentTransactions);
+    
+    return recentTransactions.length >= this.MAX_TRANSACTIONS_PER_MINUTE;
+  }
+
+  private addTransactionTimestamp(userId: string): void {
+    const timestamps = this.transactionRateLimit.get(userId) || [];
+    timestamps.push(Date.now());
+    this.transactionRateLimit.set(userId, timestamps);
+  }
+
+  public createWallet(userId: string): PiWallet {
+    if (this.wallets.has(userId)) {
+      return this.wallets.get(userId)!;
+    }
+
+    const wallet: PiWallet = {
+      userId,
+      balance: 50, // Welcome bonus
+      totalEarned: 50,
+      totalSpent: 0,
+      transactions: [{
+        id: this.generateTransactionId(),
+        userId,
+        amount: 50,
+        type: 'earn',
+        description: 'Welcome bonus',
+        timestamp: new Date(),
+        status: 'completed'
+      }],
+      level: 1,
+      achievements: ['new_user']
     };
 
-    // Exchange rates
-    private static readonly EXCHANGE_RATES = {
-        USER_TO_REAL_PI: 200, // 200 Pi coins = 1 real Pi
-        CREATOR_TO_REAL_PI: 100, // Better rate for creators
+    this.wallets.set(userId, wallet);
+    this.saveToStorage();
+    return wallet;
+  }
+
+  public getWallet(userId: string): PiWallet | null {
+    return this.wallets.get(userId) || null;
+  }
+
+  public earnCoins(userId: string, amount: number, description: string, metadata?: any): boolean {
+    if (this.isRateLimited(userId)) {
+      console.log('Transaction rate limit exceeded for user:', userId);
+      return false;
+    }
+
+    const wallet = this.wallets.get(userId);
+    if (!wallet) {
+      return false;
+    }
+
+    const transaction: PiTransaction = {
+      id: this.generateTransactionId(),
+      userId,
+      amount,
+      type: 'earn',
+      description,
+      timestamp: new Date(),
+      status: 'completed',
+      metadata
     };
 
-    // Earning rates
-    static readonly REWARDS = {
-        QUIZ_COMPLETE: 10,
-        QUIZ_PERFECT_SCORE: 25,
-        DAILY_LOGIN: 5,
-        PREDICTION_CORRECT: 15,
-        WEEKLY_STREAK: 50,
-        MONTHLY_BONUS: 100
+    wallet.balance += amount;
+    wallet.totalEarned += amount;
+    wallet.transactions.push(transaction);
+
+    // Level up logic
+    if (wallet.totalEarned >= wallet.level * 100) {
+      wallet.level += 1;
+      wallet.achievements.push(`level_${wallet.level}`);
+    }
+
+    this.addTransactionTimestamp(userId);
+    this.saveToStorage();
+    return true;
+  }
+
+  public spendCoins(userId: string, amount: number, description: string, metadata?: any): boolean {
+    if (this.isRateLimited(userId)) {
+      console.log('Transaction rate limit exceeded for user:', userId);
+      return false;
+    }
+
+    const wallet = this.wallets.get(userId);
+    if (!wallet || wallet.balance < amount) {
+      return false;
+    }
+
+    const transaction: PiTransaction = {
+      id: this.generateTransactionId(),
+      userId,
+      amount,
+      type: 'spend',
+      description,
+      timestamp: new Date(),
+      status: 'completed',
+      metadata
     };
 
-    /**
-     * Check if code is running in browser environment
-     */
-    static isBrowser(): boolean {
-        return typeof window !== 'undefined';
+    wallet.balance -= amount;
+    wallet.totalSpent += amount;
+    wallet.transactions.push(transaction);
+
+    this.addTransactionTimestamp(userId);
+    this.saveToStorage();
+    return true;
+  }
+
+  public transferCoins(fromUserId: string, toUserId: string, amount: number, description: string): boolean {
+    if (this.isRateLimited(fromUserId) || this.isRateLimited(toUserId)) {
+      return false;
     }
 
-    /**
-     * Generate a unique transaction ID
-     */
-    private static generateTransactionId(): string {
-        const timestamp = Date.now();
-        const random = Math.random().toString(36).substr(2, 9);
-        return `tx_${timestamp}_${random}`;
+    const fromWallet = this.wallets.get(fromUserId);
+    const toWallet = this.wallets.get(toUserId);
+
+    if (!fromWallet || !toWallet || fromWallet.balance < amount) {
+      return false;
     }
 
-    /**
-     * Validate and sanitize user ID
-     */
-    private static validateUserId(userId: string): string | null {
-        if (!userId || typeof userId !== 'string') {
-            return null;
-        }
+    const transferId = this.generateTransactionId();
 
-        const sanitized = SecurityManager.sanitizeInput(userId.trim());
-        if (!sanitized || sanitized === 'undefined' || sanitized === 'null') {
-            return null;
-        }
+    // Debit transaction
+    const debitTransaction: PiTransaction = {
+      id: transferId + '_debit',
+      userId: fromUserId,
+      amount,
+      type: 'transfer',
+      description: `Transfer to ${toUserId}: ${description}`,
+      timestamp: new Date(),
+      status: 'completed',
+      metadata: { transferTo: toUserId, transferId }
+    };
 
-        return sanitized;
+    // Credit transaction
+    const creditTransaction: PiTransaction = {
+      id: transferId + '_credit',
+      userId: toUserId,
+      amount,
+      type: 'earn',
+      description: `Transfer from ${fromUserId}: ${description}`,
+      timestamp: new Date(),
+      status: 'completed',
+      metadata: { transferFrom: fromUserId, transferId }
+    };
+
+    fromWallet.balance -= amount;
+    fromWallet.totalSpent += amount;
+    fromWallet.transactions.push(debitTransaction);
+
+    toWallet.balance += amount;
+    toWallet.totalEarned += amount;
+    toWallet.transactions.push(creditTransaction);
+
+    this.addTransactionTimestamp(fromUserId);
+    this.addTransactionTimestamp(toUserId);
+    this.saveToStorage();
+    return true;
+  }
+
+  public getTransactionHistory(userId: string, limit: number = 50): PiTransaction[] {
+    const wallet = this.wallets.get(userId);
+    if (!wallet) return [];
+
+    return wallet.transactions
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
+  }
+
+  public getLeaderboard(limit: number = 10): Array<{userId: string, balance: number, level: number}> {
+    return Array.from(this.wallets.values())
+      .sort((a, b) => b.balance - a.balance)
+      .slice(0, limit)
+      .map(wallet => ({
+        userId: wallet.userId,
+        balance: wallet.balance,
+        level: wallet.level
+      }));
+  }
+
+  private generateTransactionId(): string {
+    const timestamp = Date.now().toString();
+    const random = Math.random().toString(36).substr(2, 9);
+    return CryptoJS.SHA256(timestamp + random).toString().substr(0, 16);
+  }
+
+  public validateTransaction(transactionId: string, userId: string): boolean {
+    const wallet = this.wallets.get(userId);
+    if (!wallet) return false;
+
+    return wallet.transactions.some(t => t.id === transactionId);
+  }
+
+  public getTotalSupply(): number {
+    return Array.from(this.wallets.values())
+      .reduce((total, wallet) => total + wallet.balance, 0);
+  }
+
+  public exportWalletData(userId: string): string | null {
+    const wallet = this.wallets.get(userId);
+    if (!wallet) return null;
+
+    return JSON.stringify(wallet, null, 2);
+  }
+
+  public importWalletData(userId: string, data: string): boolean {
+    try {
+      const walletData = JSON.parse(data) as PiWallet;
+      if (walletData.userId !== userId) return false;
+
+      this.wallets.set(userId, walletData);
+      this.saveToStorage();
+      return true;
+    } catch (error) {
+      console.error('Error importing wallet data:', error);
+      return false;
     }
-
-    /**
-     * Safely parse JSON with error handling
-     */
-    private static safeJsonParse<T>(data: string, defaultValue: T): T {
-        try {
-            const parsed = JSON.parse(data);
-            return parsed;
-        } catch (error) {
-            console.error('JSON parse error:', error);
-            return defaultValue;
-        }
-    }
-
-    /**
-     * Get encrypted data from storage
-     */
-    private static getEncryptedData<T>(key: string, defaultValue: T): T {
-        const data = ClientStorage.getItem(key);
-        if (!data) {
-            return defaultValue;
-        }
-
-        try {
-            const decryptedData = SecureUtils.decrypt(data, this.ENCRYPTION_KEY);
-            return this.safeJsonParse(decryptedData, defaultValue);
-        } catch (error) {
-            console.error('Failed to decrypt data:', error);
-            SecurityManager.logSecurityEvent('decryption_error', { key, error });
-            return defaultValue;
-        }
-    }
-
-    /**
-     * Set encrypted data to storage
-     */
-    private static setEncryptedData(key: string, data: any): boolean {
-        try {
-            const jsonString = JSON.stringify(data);
-            const encryptedData = SecureUtils.encrypt(jsonString, this.ENCRYPTION_KEY);
-            ClientStorage.setItem(key, encryptedData);
-            return true;
-        } catch (error) {
-            console.error('Failed to encrypt data:', error);
-            SecurityManager.logSecurityEvent('encryption_error', { key, error });
-
-            // Fallback to unencrypted storage
-            try {
-                ClientStorage.setItem(key, JSON.stringify(data));
-                console.warn('Data stored unencrypted due to encryption failure.');
-                return true;
-            } catch (fallbackError) {
-                console.error('Failed to store data even unencrypted:', fallbackError);
-                SecurityManager.logSecurityEvent('storage_fallback_error', { key, fallbackError });
-                return false;
-            }
-        }
-    }
-
-    /**
-     * Get user's Pi coin balance
-     */
-    static getBalance(userId: string): PiCoinBalance {
-        if (!this.isBrowser()) {
-            return { userId: 'default', balance: 0, totalEarned: 0, lastUpdated: new Date() };
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Invalid userId provided to getBalance:', userId);
-            return { userId: 'default', balance: 0, totalEarned: 0, lastUpdated: new Date() };
-        }
-
-        const balances = this.getEncryptedData<Record<string, PiCoinBalance>>(this.STORAGE_KEY, {});
-        return balances[validUserId] || { 
-            userId: validUserId, 
-            balance: 0, 
-            totalEarned: 0, 
-            lastUpdated: new Date() 
-        };
-    }
-
-    /**
-     * Update user's Pi coin balance
-     */
-    static updateBalance(userId: string, amount: number): boolean {
-        if (!this.isBrowser()) {
-            return false;
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Update balance attempted with invalid user ID, skipping...');
-            SecurityManager.logSecurityEvent('balance_update_invalid_user', { amount });
-            return false;
-        }
-
-        if (typeof amount !== 'number' || !isFinite(amount)) {
-            console.error('Invalid amount provided to updateBalance:', amount);
-            SecurityManager.logSecurityEvent('balance_update_invalid_amount', { userId: validUserId, amount });
-            return false;
-        }
-
-        const balances = this.getEncryptedData<Record<string, PiCoinBalance>>(this.STORAGE_KEY, {});
-        const currentBalance = balances[validUserId] || {
-            userId: validUserId,
-            balance: 0,
-            totalEarned: 0,
-            lastUpdated: new Date()
-        };
-
-        balances[validUserId] = {
-            ...currentBalance,
-            balance: currentBalance.balance + amount,
-            totalEarned: amount > 0 ? currentBalance.totalEarned + amount : currentBalance.totalEarned,
-            lastUpdated: new Date()
-        };
-
-        return this.setEncryptedData(this.STORAGE_KEY, balances);
-    }
-
-    /**
-     * Add a new transaction
-     */
-    static addTransaction(
-        userId: string,
-        amount: number,
-        type: PiCoinTransaction['type'],
-        description: string = ''
-    ): boolean {
-        if (!this.isBrowser()) {
-            return false;
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            SecurityManager.logSecurityEvent('invalid_transaction_user', { amount, type, userId });
-            console.error('Invalid user ID provided to addTransaction:', userId);
-            return false;
-        }
-
-        // Validate transaction amount
-        if (typeof amount !== 'number' || !isFinite(amount)) {
-            console.error('Invalid transaction amount provided:', amount);
-            SecurityManager.logSecurityEvent('invalid_transaction_amount', { userId: validUserId, amount, type });
-            return false;
-        }
-
-        // Simple rate limiting with more lenient approach for legitimate transactions
-        const rateLimitKey = `transaction_${validUserId}_${type}`;
-        const currentTime = Date.now();
-        const lastTransactionKey = `last_${rateLimitKey}`;
-        const lastTransactionTime = ClientStorage.getItem(lastTransactionKey);
-
-        if (lastTransactionTime) {
-            const timeDiff = currentTime - parseInt(lastTransactionTime);
-            const cooldown = type === 'quiz_complete' ? 2000 : 1000; // 2 seconds for quiz completion, 1 second for others
-
-            if (timeDiff < cooldown) {
-                console.warn(`Transaction too frequent for ${type}, wait ${cooldown - timeDiff}ms`);
-                SecurityManager.logSecurityEvent('transaction_rate_limit', { userId: validUserId, amount, type, timeDiff, cooldown });
-                return false;
-            }
-        }
-
-        ClientStorage.setItem(lastTransactionKey, currentTime.toString());
-
-        // Validate transaction limits
-        if (Math.abs(amount) > this.CONFIG.MAX_SINGLE_TRANSACTION) {
-            console.error(`Transaction amount exceeds limit (${this.CONFIG.MAX_SINGLE_TRANSACTION}) for user:`, validUserId);
-            SecurityManager.logSecurityEvent('transaction_limit_exceeded', { userId: validUserId, amount, type });
-            return false;
-        }
-
-        // Check for duplicate transactions in the last 5 seconds
-        const transactions = this.getEncryptedData<PiCoinTransaction[]>(this.TRANSACTION_KEY, []);
-        const recentTransactions = transactions.filter(t => 
-            t.userId === validUserId && 
-            t.type === type && 
-            t.amount === amount &&
-            (Date.now() - new Date(t.timestamp).getTime()) < 5000
-        );
-
-        if (recentTransactions.length > 0) {
-            console.warn('Duplicate transaction detected, skipping:', { userId: validUserId, amount, type });
-            SecurityManager.logSecurityEvent('duplicate_transaction_prevented', { userId: validUserId, amount, type });
-            return false;
-        }
-
-        const newTransaction: PiCoinTransaction = {
-            id: this.generateTransactionId(),
-            userId: validUserId,
-            amount,
-            type,
-            description: SecurityManager.sanitizeInput(description),
-            timestamp: new Date()
-        };
-
-        transactions.unshift(newTransaction);
-
-        // Keep only last N transactions
-        if (transactions.length > this.CONFIG.MAX_TRANSACTIONS_STORED) {
-            transactions.splice(this.CONFIG.MAX_TRANSACTIONS_STORED);
-        }
-
-        const success = this.setEncryptedData(this.TRANSACTION_KEY, transactions);
-        if (success) {
-            this.updateBalance(validUserId, amount);
-        }
-
-        return success;
-    }
-
-    /**
-     * Get user's transaction history
-     */
-    static getTransactions(userId: string): PiCoinTransaction[] {
-        if (!this.isBrowser()) {
-            return [];
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Get transactions attempted with invalid user ID, returning empty array.');
-            SecurityManager.logSecurityEvent('get_transactions_invalid_user', { userId });
-            return [];
-        }
-
-        const transactions = this.getEncryptedData<PiCoinTransaction[]>(this.TRANSACTION_KEY, []);
-
-        return transactions
-            .filter((t: PiCoinTransaction) => t.userId === validUserId)
-            .slice(0, this.CONFIG.MAX_TRANSACTIONS_RETURNED);
-    }
-
-    /**
-     * Award Pi coins for quiz completion
-     */
-    static awardQuizCompletion(userId: string, score: number, totalQuestions: number): number {
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Award quiz completion attempted with invalid user ID, skipping.');
-            SecurityManager.logSecurityEvent('award_quiz_invalid_user', { score, totalQuestions });
-            return 0;
-        }
-
-        const percentage = (score / totalQuestions) * 100;
-        let amount = this.REWARDS.QUIZ_COMPLETE;
-        let description = `Quiz completed: ${score}/${totalQuestions}`;
-
-        if (percentage === 100) {
-            amount = this.REWARDS.QUIZ_PERFECT_SCORE;
-            description = `Perfect quiz score! ${score}/${totalQuestions}`;
-        }
-
-        const success = this.addTransaction(validUserId, amount, 'quiz_complete', description);
-        return success ? amount : 0;
-    }
-
-    /**
-     * Award welcome bonus for new users
-     */
-    static awardWelcomeBonus(userId: string): number {
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Award welcome bonus attempted with invalid user ID, skipping.');
-            SecurityManager.logSecurityEvent('award_welcome_bonus_invalid_user', { userId });
-            return 0;
-        }
-
-        const welcomeAmount = 100; // Welcome bonus amount
-        const success = this.addTransaction(validUserId, welcomeAmount, 'bonus', 'Welcome bonus for new user');
-        return success ? welcomeAmount : 0;
-    }
-
-    /**
-     * Award daily login bonus
-     */
-    static awardDailyLogin(userId: string): number {
-        if (!this.isBrowser()) {
-            return 0;
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Award daily login attempted with invalid user ID, skipping.');
-            SecurityManager.logSecurityEvent('award_daily_login_invalid_user', { userId });
-            return 0;
-        }
-
-        const lastLoginKey = `last_login_${validUserId}`;
-        const lastLogin = ClientStorage.getItem(lastLoginKey);
-        const today = new Date().toDateString();
-
-        if (lastLogin !== today) {
-            ClientStorage.setItem(lastLoginKey, today);
-            const success = this.addTransaction(validUserId, this.REWARDS.DAILY_LOGIN, 'daily_login', 'Daily login bonus');
-            return success ? this.REWARDS.DAILY_LOGIN : 0;
-        }
-
-        return 0;
-    }
-
-    /**
-     * Format Pi coins for display
-     */
-    static formatPiCoins(amount: number): string {
-        const validAmount = typeof amount === 'number' && isFinite(amount) ? amount : 0;
-        return `π ${validAmount.toLocaleString()}`;
-    }
-
-    /**
-     * Purchase Pi Coins with real money/Pi
-     */
-    static purchasePiCoins(
-        userId: string, 
-        amount: number, 
-        paymentMethod: 'pi_network' | 'credit_card', 
-        creatorId?: string
-    ): boolean {
-        if (!this.isBrowser()) {
-            return false;
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Purchase Pi coins attempted with invalid user ID, skipping.');
-            SecurityManager.logSecurityEvent('purchase_pi_coins_invalid_user', { amount, paymentMethod, creatorId });
-            return false;
-        }
-
-        if (typeof amount !== 'number' || !isFinite(amount) || amount <= 0) {
-            console.error('Invalid amount for purchasing Pi coins:', amount);
-            SecurityManager.logSecurityEvent('purchase_pi_coins_invalid_amount', { userId: validUserId, amount, paymentMethod });
-            return false;
-        }
-
-        try {
-            const success = this.addTransaction(validUserId, amount, 'purchase', `Purchased ${amount} Pi coins via ${paymentMethod}`);
-
-            if (success && creatorId) {
-                // Record commission for creator
-                import('./monetizationManager').then(({ default: MonetizationManager }) => {
-                    MonetizationManager.recordUserPurchase(validUserId, amount);
-                }).catch(error => {
-                    console.error('Failed to record creator commission:', error);
-                });
-            }
-
-            return success;
-        } catch (error) {
-            console.error('Purchase failed:', error);
-            SecurityManager.logSecurityEvent('purchase_pi_coins_error', { userId: validUserId, amount, paymentMethod });
-            return false;
-        }
-    }
-
-    /**
-     * Exchange Pi coins for real Pi
-     */
-    static exchangeToRealPi(userId: string, piCoins: number, piWalletAddress: string): ExchangeResult {
-        if (!this.isBrowser()) {
-            return { success: false, error: 'Not available outside browser environment' };
-        }
-
-        const validUserId = this.validateUserId(userId);
-        if (!validUserId) {
-            console.warn('Exchange to real Pi attempted with invalid user ID, skipping.');
-            SecurityManager.logSecurityEvent('exchange_invalid_user', { piCoins, piWalletAddress });
-            return { success: false, error: 'Invalid user ID provided.' };
-        }
-
-        const balance = this.getBalance(validUserId);
-
-        if (piCoins < this.CONFIG.MIN_EXCHANGE_AMOUNT) {
-            console.error(`Minimum exchange is ${this.CONFIG.MIN_EXCHANGE_AMOUNT} Pi coins, requested: ${piCoins}`);
-            SecurityManager.logSecurityEvent('exchange_min_amount_error', { userId: validUserId, piCoins });
-            return { success: false, error: `Minimum exchange is ${this.CONFIG.MIN_EXCHANGE_AMOUNT} Pi coins` };
-        }
-
-        if (balance.balance < piCoins) {
-            return { success: false, error: 'Insufficient Pi coin balance' };
-        }
-
-        const realPi = piCoins / this.EXCHANGE_RATES.USER_TO_REAL_PI;
-        const txId = this.generateTransactionId();
-
-        // Deduct Pi coins
-        const success = this.addTransaction(validUserId, -piCoins, 'exchange', `Exchanged ${piCoins} Pi coins for ${realPi} real Pi`);
-
-        if (success) {
-            // In production, integrate with Pi Network API to transfer real Pi
-            SecurityManager.logSecurityEvent('successful_exchange', { userId: validUserId, piCoins, realPi, txId });
-            return { success: true, realPi, txId };
-        }
-
-        return { success: false, error: 'Exchange transaction failed' };
-    }
-
-    /**
-     * Clean up old data (call periodically)
-     */
-    static cleanup(): void {
-        if (!this.isBrowser()) {
-            return;
-        }
-
-        try {
-            // Clean up old login records
-            const keysToRemove: string[] = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key?.startsWith('last_login_')) {
-                    keysToRemove.push(key);
-                }
-            }
-
-            // Remove old login records (keep only recent ones)
-            keysToRemove.forEach(key => {
-                const loginDate = ClientStorage.getItem(key);
-                if (loginDate) {
-                    const daysDiff = (new Date().getTime() - new Date(loginDate).getTime()) / (1000 * 3600 * 24);
-                    if (daysDiff > 30) { // Remove login records older than 30 days
-                        localStorage.removeItem(key);
-                    }
-                }
-            });
-
-            SecurityManager.logSecurityEvent('cleanup_completed', { keysRemoved: keysToRemove.length });
-        } catch (error) {
-            console.error('Cleanup failed:', error);
-            SecurityManager.logSecurityEvent('cleanup_error', { error });
-        }
-    }
+  }
 }
 
-// Export singleton instance
-export const piCoinManager = new PiCoinManager();
+// Export default instance for convenience
+export default PiCoinManager.getInstance();
 
-// Default export
-export default PiCoinManager;
+// Export the class for direct instantiation if needed
+export { PiCoinManager as PiCoinManagerClass };
