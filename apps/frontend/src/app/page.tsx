@@ -10,7 +10,11 @@ import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
 import UnifiedSoccerHub from '@components/UnifiedSoccerHub';
 
-// Lazy load heavy components
+// Lazy load heavy components with loading fallbacks
+const SkeletonLoader = ({ height = "h-32" }: { height?: string }) => (
+  <div className={`animate-pulse bg-gray-800/50 ${height} rounded-lg`}></div>
+);
+
 const InteractiveTools = lazy(() => import("@components/InteractiveTools"));
 const CommunityVoting = lazy(() => import("@components/CommunityVoting"));
 const Forum = lazy(() => import("@components/Forum"));
@@ -262,7 +266,7 @@ export default function Home() {
           {!isMobile && <ModulesGrid />}
 
           {/* Content Personalization */}
-          <Suspense fallback={<div className="animate-pulse bg-gray-800 h-32 rounded-lg"></div>}>
+          <Suspense fallback={<SkeletonLoader height="h-32" />}>
             <ContentPersonalization
               currentUser={currentUser}
               onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}
@@ -305,7 +309,7 @@ export default function Home() {
               )}
 
               {mobileActiveTab === 'achievements' && (
-                <Suspense fallback={<div className="animate-pulse bg-gray-800 h-40 rounded-lg"></div>}>
+                <Suspense fallback={<SkeletonLoader height="h-40" />}>
                   <AchievementSystem
                     currentUser={currentUser}
                     onAchievementUnlocked={handleAchievementUnlocked}
