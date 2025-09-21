@@ -37,6 +37,8 @@ import UserManager from '../../../../packages/shared/src/libs/utils/userManager'
 // For demonstration, let's assume a basic User type:
 // type User = { id: string; name: string; role?: string; email?: string; };
 
+import SearchDirectory from './components/SearchDirectory';
+
 const predictions = []; // Mock predictions
 
 export default function Home() {
@@ -117,6 +119,7 @@ export default function Home() {
       { id: "news", label: "📰 News", icon: "📰" },
       { id: "quiz", label: "🎯 Quiz", icon: "🎯" },
       { id: "tools", label: "🛠️ Tools", icon: "🛠️" },
+      { id: "search", label: "🔍 Search", icon: "🔍" }, // Added Search tab
     ];
 
     if (currentUser) {
@@ -163,12 +166,22 @@ export default function Home() {
         return <QuizMode currentUser={currentUser} />;
       case "tools":
         return <InteractiveTools predictions={predictions} />;
+      case "search": // Added case for Search tab
+        return <SearchDirectory />;
       case "voting":
         return currentUser ? <CommunityVoting currentUser={currentUser} /> : <div className="text-center text-white">Please log in to access community voting.</div>;
       case "forum":
         return currentUser ? <Forum currentUser={currentUser} /> : <div className="text-center text-white">Please log in to access the forum.</div>;
       case "wallet":
         return currentUser ? <PiCoinWallet /> : <div className="text-center text-white">Please log in to access your wallet.</div>;
+
+          {activeTab === 'wallet' && (
+            <PiCoinWallet />
+          )}
+
+          {activeTab === 'search' && (
+            <SearchDirectory />
+          )}
       case "store":
         return currentUser ? <PiCoinStore /> : <div className="text-center text-white">Please log in to access the store.</div>;
       case "leaderboard":

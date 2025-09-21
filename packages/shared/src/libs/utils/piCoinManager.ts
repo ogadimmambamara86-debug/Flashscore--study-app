@@ -297,8 +297,9 @@ export class PiCoinManager {
   }
 }
 
-// Export default instance for convenience
-export default PiCoinManager.getInstance();
+// Create and export default instance
+const piCoinManagerInstance = PiCoinManager.getInstance();
+export default piCoinManagerInstance;
 
 // Export the class for direct instantiation if needed
 export { PiCoinManager as PiCoinManagerClass };
