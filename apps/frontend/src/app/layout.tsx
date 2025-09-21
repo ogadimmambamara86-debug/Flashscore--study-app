@@ -1,6 +1,6 @@
 // apps/frontend/src/app/layout.tsx
 import type { Metadata } from 'next'
-import '@styles/globals.css'
+import './styles/globals.css'
 import React from "react";
 import BackgroundParticles from "@components/BackgroundParticles";
 import OfflineManager from "@components/OfflineManager";
@@ -9,6 +9,7 @@ import SidebarNav from "@components/SidebarNav";
 import { navItems } from "@config/navItems"; // 👈 shared config
 import { Inter } from 'next/font/google';
 import NextAuthSessionProvider from './providers/SessionProvider'; // Import the SessionProvider
+import AppErrorBoundary from './components/AppErrorBoundary' // Import the Error Boundary component
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,25 +38,27 @@ export default function RootLayout({
       </head>
       <body className="relative flex">
         <NextAuthSessionProvider> {/* Wrap children with SessionProvider */}
-          <React.Suspense fallback={null}>
-            <BackgroundParticles />
-          </React.Suspense>
-          <OfflineManager>
-            {/* Sidebar for desktop */}
+          <AppErrorBoundary> {/* Wrap children with the Error Boundary */}
             <React.Suspense fallback={null}>
-              <SidebarNav items={navItems} />
+              <BackgroundParticles />
             </React.Suspense>
-
-            {/* Main content area */}
-            <div className="flex-1 min-h-screen flex flex-col">
-              {children}
-
-              {/* Mobile nav (always visible at bottom on small screens) */}
+            <OfflineManager>
+              {/* Sidebar for desktop */}
               <React.Suspense fallback={null}>
-                <MobileNav items={navItems} />
+                <SidebarNav items={navItems} />
               </React.Suspense>
-            </div>
-          </OfflineManager>
+
+              {/* Main content area */}
+              <div className="flex-1 min-h-screen flex flex-col">
+                {children}
+
+                {/* Mobile nav (always visible at bottom on small screens) */}
+                <React.Suspense fallback={null}>
+                  <MobileNav items={navItems} />
+                </React.Suspense>
+              </div>
+            </OfflineManager>
+          </AppErrorBoundary>
         </NextAuthSessionProvider>
       </body>
     </html>

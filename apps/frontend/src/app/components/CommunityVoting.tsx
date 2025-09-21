@@ -193,7 +193,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
 
   const hasUserVoted = (topic: VotingTopic) => {
     if (!currentUser) return false;
-    return topic.options.some(option => 
+    return topic.options.some(option =>
       option.votes.some(vote => vote.userId === currentUser.id)
     );
   };

@@ -1,4 +1,3 @@
-
 import CryptoJS from 'crypto-js';
 
 export interface PiTransaction {
@@ -68,14 +67,14 @@ export class PiCoinManager {
   private isRateLimited(userId: string): boolean {
     const now = Date.now();
     const userTransactions = this.transactionRateLimit.get(userId) || [];
-    
+
     // Remove old transactions outside the window
     const recentTransactions = userTransactions.filter(
       timestamp => now - timestamp < this.RATE_LIMIT_WINDOW
     );
-    
+
     this.transactionRateLimit.set(userId, recentTransactions);
-    
+
     return recentTransactions.length >= this.MAX_TRANSACTIONS_PER_MINUTE;
   }
 

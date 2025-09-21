@@ -289,7 +289,7 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
       `}</style>
     </div>
   );
-};
+}
 
 // Utility function to trigger floating alerts
 export const triggerFloatingAlert = (
