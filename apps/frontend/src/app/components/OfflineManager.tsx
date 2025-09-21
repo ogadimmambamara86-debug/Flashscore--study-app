@@ -1,67 +1,65 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-
-// Use shared utils alias
+import React, { useState, useEffect } from "react";
 import { AlertManager } from "@src/alertUtils";
+import { isClient, registerNetworkEvents } from "@src/utils/offlineUtils";
+import OfflineBanner from "./OfflineBanner";
+
 interface OfflineManagerProps {
   children: React.ReactNode;
 }
 
 const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
   const [isOnline, setIsOnline] = useState(true);
-  const [showOfflineMode, setShowOfflineMode] = useState(false);
   const [lastOnlineTime, setLastOnlineTime] = useState<Date | null>(null);
 
   useEffect(() => {
+    if (!isClient) return;
+
     setIsOnline(navigator.onLine);
 
     const handleOnline = () => {
       setIsOnline(true);
-      setShowOfflineMode(false);
-      console.log('✅ Back online!');
-      AlertManager.showOnlineMode(); // now directly imported
+      console.log("✅ Back online!");
+      AlertManager.showOnlineMode();
     };
 
     const handleOffline = () => {
       setIsOnline(false);
       setLastOnlineTime(new Date());
-      setShowOfflineMode(true);
-      console.log('📱 Offline mode activated');
-      AlertManager.showOfflineMode(); // now directly imported
+      console.log("📱 Offline mode activated");
+      AlertManager.showOfflineMode();
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    const cleanup = registerNetworkEvents(handleOnline, handleOffline);
 
+    // Optional connectivity check
     const connectivityCheck = setInterval(() => {
-      fetch('/api/health', { method: 'HEAD', cache: 'no-cache', mode: 'no-cors' })
+      fetch("/api/health", { method: "HEAD", cache: "no-cache" })
         .then(() => {
-          if (!isOnline) setIsOnline(true);
-          setShowOfflineMode(false);
+          if (!isOnline) {
+            setIsOnline(true);
+            AlertManager.showOnlineMode();
+          }
         })
         .catch(() => {
-          if (isOnline) setIsOnline(false);
-          setLastOnlineTime(new Date());
-          setShowOfflineMode(true);
+          if (isOnline) {
+            setIsOnline(false);
+            setLastOnlineTime(new Date());
+            AlertManager.showOfflineMode();
+          }
         });
-    }, 30000);
+    }, 60000);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      cleanup();
       clearInterval(connectivityCheck);
     };
-  }, []); // removed isOnline from deps to avoid loops
+  }, [isOnline]);
 
-  // Rest of your component remains unchanged
   return (
     <>
       {children}
-      {!isOnline && (
-        <div>
-          {/* Offline notification JSX here */}
-        </div>
-      )}
+      {!isOnline && <OfflineBanner lastOnlineTime={lastOnlineTime} />}
     </>
   );
 };
