@@ -8,6 +8,7 @@ import PredictionsTable from "@components/PredictionsTable";
 import QuizMode from "@components/QuizMode";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
+import UnifiedSoccerHub from '@components/UnifiedSoccerHub';
 
 // Lazy load heavy components
 const InteractiveTools = lazy(() => import("@components/InteractiveTools"));
@@ -257,6 +258,28 @@ export default function Home() {
 
           <LatestNews />
 
+          {/* Unified Soccer Hub - Mobile Optimized */}
+        <UnifiedSoccerHub />
+
+          {/* AI Analysis Section */}
+          <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-8">
+            <h2 className="text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+              🤖 AI-Powered Analysis
+            </h2>
+            <div className="text-gray-300">
+              <p className="mb-4">
+                Our advanced AI system analyzes multiple data points to provide accurate predictions:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-sm">
+                <li>Team form and historical performance</li>
+                <li>Head-to-head statistics</li>
+                <li>Player injuries and suspensions</li>
+                <li>Weather conditions and venue analysis</li>
+                <li>Betting market movements</li>
+              </ul>
+            </div>
+          </div>
+
           {/* Mobile-First Layout */}
           {isMobile ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -299,7 +322,6 @@ export default function Home() {
                   )}
                 </Suspense>
               )}
-            </div></old_str>
             </div>
           ) : (
             /* Desktop Layout */
