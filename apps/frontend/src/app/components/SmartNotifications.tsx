@@ -236,10 +236,27 @@ const SmartNotifications: React.FC = () => {
             color: '#fff',
             cursor: 'pointer',
             fontSize: '1.2rem',
-            position: 'relative'
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '48px',
+            height: '48px'
           }}
         >
-          🔔
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ color: 'currentColor' }}
+          >
+            <path 
+              d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" 
+              fill="currentColor"
+            />
+          </svg>
           {unreadCount > 0 && (
             <span style={{
               position: 'absolute',
@@ -288,8 +305,20 @@ const SmartNotifications: React.FC = () => {
               paddingBottom: '12px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
-              <h3 style={{ color: '#fff', margin: 0, fontSize: '1.2rem' }}>
-                🔔 Notifications
+              <h3 style={{ color: '#fff', margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" 
+                    fill="currentColor"
+                  />
+                </svg>
+                Notifications
               </h3>
               <div style={{ display: 'flex', gap: '8px' }}>
                 {unreadCount > 0 && (
@@ -329,7 +358,21 @@ const SmartNotifications: React.FC = () => {
                   color: '#9ca3af',
                   padding: '40px 20px'
                 }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📭</div>
+                  <div style={{ fontSize: '2rem', marginBottom: '12px' }}>
+                    <svg 
+                      width="48" 
+                      height="48" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ opacity: 0.5 }}
+                    >
+                      <path 
+                        d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-7.32V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.15.03-.29.08-.42.12-.1.03-.2.07-.3.11h-.01L18 14.68z" 
+                        fill="#9ca3af"
+                      />
+                    </svg>
+                  </div>
                   <p>No notifications yet</p>
                 </div>
               ) : (
@@ -423,8 +466,27 @@ const SmartNotifications: React.FC = () => {
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>
-                {settings.pushEnabled ? '🔔 Push enabled' : '🔕 Push disabled'}
+              <span style={{ color: '#9ca3af', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg 
+                  width="12" 
+                  height="12" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {settings.pushEnabled ? (
+                    <path 
+                      d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" 
+                      fill="#22c55e"
+                    />
+                  ) : (
+                    <path 
+                      d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-7.32V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.15.03-.29.08-.42.12-.1.03-.2.07-.3.11h-.01L18 14.68z" 
+                      fill="#ef4444"
+                    />
+                  )}
+                </svg>
+                {settings.pushEnabled ? 'Push enabled' : 'Push disabled'}
               </span>
               <button
                 onClick={clearAllNotifications}
@@ -470,7 +532,28 @@ const SmartNotifications: React.FC = () => {
             opacity: settings.pushEnabled ? 1 : 0.8
           }}
         >
-          {settings.pushEnabled ? '🔔 Notifications Active' : '🔕 Turn On Notifications'}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg 
+              width="14" 
+              height="14" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {settings.pushEnabled ? (
+                <path 
+                  d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" 
+                  fill="currentColor"
+                />
+              ) : (
+                <path 
+                  d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-7.32V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.15.03-.29.08-.42.12-.1.03-.2.07-.3.11h-.01L18 14.68z" 
+                  fill="currentColor"
+                />
+              )}
+            </svg>
+            {settings.pushEnabled ? 'Notifications Active' : 'Turn On Notifications'}
+          </span>
         </button>
       </div>
     </>
