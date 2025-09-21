@@ -22,6 +22,7 @@ import BettingAgreement from "@components/BettingAgreement";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import ThemeToggle from "@components/ThemeToggle";
 import SmartNotifications from "@components/SmartNotifications";
+import WelcomeNotificationSetup from "./components/WelcomeNotificationSetup";
 import ContentPersonalization from "@components/ContentPersonalization";
 import AchievementSystem from "@components/AchievementSystem";
 import LiveMatchChat from "@components/LiveMatchChat";
@@ -29,6 +30,11 @@ import FloatingActionButtons from "@components/FloatingActionButtons";
 import { useMobile } from "@hooks/useMobile"; // Assuming you have this hook
 
 import UserManager from '../../../../packages/shared/src/libs/utils/userManager';
+// Assuming User type is defined elsewhere, e.g., in '@types/user' or similar
+// If not, you might need to define it or use 'any' for type safety.
+// For demonstration, let's assume a basic User type:
+// type User = { id: string; name: string; role?: string; email?: string; };
+
 const predictions = []; // Mock predictions
 
 export default function Home() {
@@ -54,6 +60,7 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showBettingTutorial, setShowBettingTutorial] = useState(false);
   const [showBettingAgreement, setShowBettingAgreement] = useState(false);
+  const [showWelcomeNotifications, setShowWelcomeNotifications] = useState(true);
 
   // Load user on component mount
   useEffect(() => {
@@ -89,6 +96,14 @@ export default function Home() {
     setCurrentUser(userData);
     localStorage.setItem('currentUser', JSON.stringify(userData));
     setShowLogin(false);
+  };
+
+  const handleWelcomeNotificationComplete = (enabled: boolean) => {
+    setShowWelcomeNotifications(false);
+    if (enabled) {
+      // User enabled notifications - SmartNotifications component will handle the settings
+      console.log('📱 Notifications enabled during welcome setup');
+    }
   };
 
   // Navigation items with user-specific visibility
@@ -373,6 +388,13 @@ export default function Home() {
       {showBettingAgreement && (
         <BettingAgreement
           onClose={() => setShowBettingAgreement(false)}
+        />
+      )}
+
+      {/* Welcome message for new users */}
+      {!currentUser && showWelcomeNotifications && (
+        <WelcomeNotificationSetup
+          onComplete={handleWelcomeNotificationComplete}
         />
       )}
 

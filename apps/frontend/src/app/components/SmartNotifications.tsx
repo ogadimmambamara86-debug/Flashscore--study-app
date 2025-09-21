@@ -32,11 +32,11 @@ interface NotificationSettings {
 const SmartNotifications: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [settings, setSettings] = useState<NotificationSettings>({
-    matchUpdates: true,
-    achievements: true,
-    socialActivity: true,
-    predictionReminders: true,
-    dailyDigest: true,
+    matchUpdates: false,
+    achievements: false,
+    socialActivity: false,
+    predictionReminders: false,
+    dailyDigest: false,
     pushEnabled: false,
     quietHours: {
       enabled: false,
@@ -57,12 +57,15 @@ const SmartNotifications: React.FC = () => {
   useEffect(() => {
     loadNotifications();
     loadSettings();
-    requestNotificationPermission();
     
-    // Check for new notifications every 5 minutes
-    const interval = setInterval(checkForNewNotifications, 5 * 60 * 1000);
+    // Check for new notifications every 5 minutes (only if enabled)
+    const interval = setInterval(() => {
+      if (settings.pushEnabled) {
+        checkForNewNotifications();
+      }
+    }, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [settings.pushEnabled]);
 
   const loadNotifications = () => {
     const saved = ClientStorage.getItem('smart_notifications', []);
@@ -82,7 +85,19 @@ const SmartNotifications: React.FC = () => {
   const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission === 'default') {
       const permission = await Notification.requestPermission();
-      setSettings(prev => ({ ...prev, pushEnabled: permission === 'granted' }));
+      if (permission === 'granted') {
+        // Enable all notification types when user grants permission
+        const enabledSettings = {
+          ...settings,
+          pushEnabled: true,
+          matchUpdates: true,
+          achievements: true,
+          socialActivity: true,
+          predictionReminders: true,
+          dailyDigest: true
+        };
+        saveSettings(enabledSettings);
+      }
     }
   };
 
@@ -445,16 +460,17 @@ const SmartNotifications: React.FC = () => {
           style={{
             background: settings.pushEnabled 
               ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
-              : 'linear-gradient(135deg, #f59e0b, #d97706)',
+              : 'linear-gradient(135deg, #6b7280, #4b5563)',
             color: 'white',
             border: 'none',
             padding: '8px 16px',
             borderRadius: '8px',
             fontSize: '0.8rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            opacity: settings.pushEnabled ? 1 : 0.8
           }}
         >
-          {settings.pushEnabled ? '🔔 Notifications On' : '🔕 Enable Notifications'}
+          {settings.pushEnabled ? '🔔 Notifications Active' : '🔕 Turn On Notifications'}
         </button>
       </div>
     </>
