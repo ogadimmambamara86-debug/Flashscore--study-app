@@ -26,45 +26,179 @@ interface Match {
   prediction: string;
 }
 
+// Loading skeleton component for ModulesGrid
+const ModulesGridSkeleton = () => {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex items-center justify-between animate-slideDown">
+        <div className="h-8 w-80 bg-gray-700/50 rounded animate-pulse"></div>
+        <div className="h-5 w-24 bg-gray-700/50 rounded animate-pulse"></div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="bg-black/80 border border-gray-600/50 rounded-lg p-6 backdrop-blur-sm"
+            style={{ animationDelay: `${index * 150}ms` }}
+          >
+            {/* Header skeleton */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-700/50 rounded animate-pulse"></div>
+                <div>
+                  <div className="h-5 w-32 bg-gray-700/50 rounded mb-2 animate-pulse"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-gray-700/50 rounded-full animate-pulse"></div>
+                    <div className="h-3 w-20 bg-gray-700/50 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Description skeleton */}
+            <div className="mb-4">
+              <div className="h-4 w-full bg-gray-700/50 rounded mb-2 animate-pulse"></div>
+              <div className="h-4 w-3/4 bg-gray-700/50 rounded animate-pulse"></div>
+            </div>
+
+            {/* Metrics skeleton */}
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-gray-700/50 rounded animate-pulse"></div>
+              {Array.from({ length: 3 }).map((_, metricIndex) => (
+                <div key={metricIndex} className="flex items-center justify-between">
+                  <div className="h-3 w-20 bg-gray-700/50 rounded animate-pulse"></div>
+                  <div className="h-3 w-16 bg-gray-700/50 rounded animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Error component
+const ModulesGridError = ({ error, onRetry }: { error: string; onRetry: () => void }) => {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
+          Mission Control Modules
+        </h2>
+        <div className="text-sm text-red-400 font-mono">CONNECTION ERROR</div>
+      </div>
+
+      <div className="bg-black/80 border border-red-600/50 rounded-lg p-8 text-center backdrop-blur-sm">
+        <div className="text-4xl mb-4">⚠️</div>
+        <h3 className="text-red-400 font-semibold text-lg mb-2">System Offline</h3>
+        <p className="text-gray-400 text-sm mb-6">
+          Unable to connect to mission control servers: {error}
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button 
+            onClick={onRetry}
+            className="px-6 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm rounded border border-red-600/50 transition-all duration-300 hover:scale-105"
+          >
+            Retry Connection
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-gray-600/20 hover:bg-gray-600/30 text-gray-400 text-sm rounded border border-gray-600/50 transition-all duration-300 hover:scale-105"
+          >
+            Full Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ModulesGrid() {
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Fetch matches from API
-  useEffect(() => {
-    async function fetchMatches() {
-      try {
-        const res = await fetch("/api/sports-proxy");
-        if (!res.ok) throw new Error(`API error: ${res.status}`);
-        const data: Match[] = await res.json();
-
-        // Map matches to Module format for display
-        const mappedModules: Module[] = data.map((match) => ({
-          id: String(match.id),
-          title: `${match.home} vs ${match.away}`,
-          description: match.prediction,
-          icon: "⚽", // generic football icon, can customize
-          status: "online",
-          metrics: [
-            { label: "Home Team", value: match.home },
-            { label: "Away Team", value: match.away },
-            { label: "Prediction", value: match.prediction },
-          ],
-        }));
-
-        setModules(mappedModules);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Failed to fetch modules");
-      } finally {
-        setLoading(false);
+  // Fetch matches from API with retry logic
+  const fetchMatches = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      
+      const res = await fetch("/api/sports-proxy", {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
       }
-    }
+      
+      const data: Match[] = await res.json();
 
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received from server');
+      }
+
+      // Map matches to Module format for display
+      const mappedModules: Module[] = data.map((match) => ({
+        id: String(match.id),
+        title: `${match.home} vs ${match.away}`,
+        description: match.prediction || 'Prediction analysis in progress...',
+        icon: "⚽",
+        status: "online",
+        metrics: [
+          { label: "Home Team", value: match.home },
+          { label: "Away Team", value: match.away },
+          { label: "Prediction", value: match.prediction || 'TBD' },
+        ],
+      }));
+
+      setModules(mappedModules);
+      setRetryCount(0); // Reset retry count on success
+    } catch (err: any) {
+      console.error('Failed to fetch modules:', err);
+      let errorMessage = 'Unknown error occurred';
+      
+      if (err.name === 'AbortError') {
+        errorMessage = 'Request timeout - server not responding';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      
+      // Auto-retry logic (max 3 times with exponential backoff)
+      if (retryCount < 3) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          fetchMatches();
+        }, delay);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchMatches();
-  }, []);
+  }, []); // Remove retryCount dependency to prevent infinite loops
+
+  const handleRetry = () => {
+    setRetryCount(0);
+    fetchMatches();
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -103,8 +237,15 @@ export default function ModulesGrid() {
     }
   };
 
-  if (loading) return <div className="text-white">Loading modules...</div>;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
+  // Show loading skeleton
+  if (loading && modules.length === 0) {
+    return <ModulesGridSkeleton />;
+  }
+
+  // Show error state
+  if (error && modules.length === 0) {
+    return <ModulesGridError error={error} onRetry={handleRetry} />;
+  }
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -112,8 +253,19 @@ export default function ModulesGrid() {
         <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
           Mission Control Modules
         </h2>
-        <div className="text-sm text-gray-400 font-mono">
-          {modules.filter((m) => m.status === "online").length}/{modules.length} ONLINE
+        <div className="flex items-center gap-4">
+          {error && (
+            <button
+              onClick={handleRetry}
+              className="text-xs text-yellow-400 hover:text-yellow-300 font-mono"
+              title="Retry failed connection"
+            >
+              🔄 RETRY
+            </button>
+          )}
+          <div className="text-sm text-gray-400 font-mono">
+            {modules.filter((m) => m.status === "online").length}/{modules.length} ONLINE
+          </div>
         </div>
       </div>
 
@@ -192,6 +344,15 @@ export default function ModulesGrid() {
           </div>
         ))}
       </div>
+
+      {/* Loading indicator for background updates */}
+      {loading && modules.length > 0 && (
+        <div className="text-center">
+          <span className="text-gray-400 text-xs font-mono animate-pulse">
+            🔄 Updating mission data...
+          </span>
+        </div>
+      )}
     </div>
   );
 }
