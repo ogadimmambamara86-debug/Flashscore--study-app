@@ -2,11 +2,6 @@
 
 A modern **monorepo** built with Next.js and Express, providing **AI-powered sports predictions**, live scores, interactive quizzes, and community features with **Pi coin rewards**.
 
-Sports Central - Live Sports Predictions & Community
-
-A modern monorepo built with Next.js and Express, providing AI-powered sports predictions, live scores, interactive quizzes, and community features with Pi coin rewards.
-
-
 ---
 
 ✨ Features
