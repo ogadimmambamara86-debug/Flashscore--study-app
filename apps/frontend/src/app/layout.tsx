@@ -11,6 +11,8 @@ import { Inter } from 'next/font/google';
 import NextAuthSessionProvider from './providers/SessionProvider'; // Import the SessionProvider
 import ProductionErrorBoundary from './components/ProductionErrorBoundary' // Import production Error Boundary
 import PrivacyNotice from './components/PrivacyNotice' // Import the PrivacyNotice component
+import MobileInstallPrompter from './components/MobileInstallPrompter';
+import PWAServiceWorker from './components/PWAServiceWorker';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +38,14 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://flashstudy-ri0g.onrender.com" />
         <link rel="dns-prefetch" href="https://flashstudy-ri0g.onrender.com" />
+        <title>{metadata.title as string}</title>
+        <meta name="description" content={metadata.description as string} />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#00ff88" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="SportsApp" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="relative flex">
         <NextAuthSessionProvider> {/* Wrap children with SessionProvider */}
@@ -59,6 +69,8 @@ export default function RootLayout({
                 </React.Suspense>
               </div>
             </OfflineManager>
+            <MobileInstallPrompter />
+            <PWAServiceWorker />
           </ProductionErrorBoundary>
         </NextAuthSessionProvider>
         <PrivacyNotice />
