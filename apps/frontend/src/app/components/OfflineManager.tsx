@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Use shared utils alias
-import { AlertManager } from "@shared/alertUtils";
+import { AlertManager } from "@src/alertUtils";
 interface OfflineManagerProps {
   children: React.ReactNode;
 }
