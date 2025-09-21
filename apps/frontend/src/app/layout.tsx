@@ -13,6 +13,7 @@ import ProductionErrorBoundary from './components/ProductionErrorBoundary' // Im
 import PrivacyNotice from './components/PrivacyNotice' // Import the PrivacyNotice component
 import MobileInstallPrompter from './components/MobileInstallPrompter';
 import PWAServiceWorker from './components/PWAServiceWorker';
+import iOSInterface from './components/iOSInterface';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -47,30 +48,32 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="SportsApp" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className="relative flex">
-        <NextAuthSessionProvider> {/* Wrap children with SessionProvider */}
-          <ProductionErrorBoundary> {/* Wrap children with production Error Boundary */}
-            <React.Suspense fallback={null}>
-              <BackgroundParticles />
-            </React.Suspense>
-            <OfflineManager>
-              {/* Sidebar for desktop */}
+      <body className="relative flex sports">
+        <NextAuthSessionProvider>
+          <ProductionErrorBoundary>
+            <iOSInterface showStatusBar={true} enableHapticFeedback={true}>
               <React.Suspense fallback={null}>
-                <SidebarNav items={navItems} />
+                <BackgroundParticles />
               </React.Suspense>
-
-              {/* Main content area */}
-              <div className="flex-1 min-h-screen flex flex-col">
-                {children}
-
-                {/* Mobile nav (always visible at bottom on small screens) */}
+              <OfflineManager>
+                {/* Sidebar for desktop */}
                 <React.Suspense fallback={null}>
-                  <MobileNav items={navItems} />
+                  <SidebarNav items={navItems} />
                 </React.Suspense>
-              </div>
-            </OfflineManager>
-            <MobileInstallPrompter />
-            <PWAServiceWorker />
+
+                {/* Main content area */}
+                <div className="flex-1 min-h-screen flex flex-col">
+                  {children}
+
+                  {/* Mobile nav (always visible at bottom on small screens) */}
+                  <React.Suspense fallback={null}>
+                    <MobileNav items={navItems} />
+                  </React.Suspense>
+                </div>
+              </OfflineManager>
+              <MobileInstallPrompter />
+              <PWAServiceWorker />
+            </iOSInterface>
           </ProductionErrorBoundary>
         </NextAuthSessionProvider>
         <PrivacyNotice />

@@ -1,14 +1,50 @@
-/* === SPORTS CENTRAL THEME (default) === */
+/* === iOS 17 DESIGN SYSTEM === */
+:root {
+  /* iOS 17 Color Palette */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-indigo: #5856D6;
+  --ios-orange: #FF9500;
+  --ios-pink: #FF2D92;
+  --ios-purple: #AF52DE;
+  --ios-red: #FF3B30;
+  --ios-teal: #5AC8FA;
+  --ios-yellow: #FFCC00;
+  
+  /* iOS 17 System Colors */
+  --ios-system-background: #000000;
+  --ios-secondary-background: #1C1C1E;
+  --ios-tertiary-background: #2C2C2E;
+  --ios-quaternary-background: #3A3A3C;
+  --ios-grouped-background: #1C1C1E;
+  --ios-secondary-grouped-background: #2C2C2E;
+  
+  /* iOS 17 Labels */
+  --ios-label: #FFFFFF;
+  --ios-secondary-label: #EBEBF5;
+  --ios-tertiary-label: #EBEBF5;
+  --ios-quaternary-label: #EBEBF5;
+  
+  /* iOS 17 Materials */
+  --ios-blur-effect: blur(20px);
+  --ios-vibrancy-effect: saturate(1.8) blur(20px);
+  
+  /* iOS 17 Shadows */
+  --ios-shadow-small: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --ios-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --ios-shadow-large: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* === SPORTS CENTRAL THEME (iOS 17 Enhanced) === */
 body.sports {
   background: 
-    linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-    linear-gradient(225deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    linear-gradient(315deg, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at center, rgba(0, 10, 30, 1) 0%, rgba(0, 0, 0, 1) 100%);
+    linear-gradient(180deg, var(--ios-system-background) 0%, var(--ios-secondary-background) 100%);
   background-attachment: fixed;
   min-height: 100vh;
-  color: #e0faff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ios-label);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body.sports .particle {
@@ -93,17 +129,209 @@ body {
   min-height: 100vh;
 }
 
-/* Modern Glassmorphism Cards */
-.glass-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+/* iOS 17 Material Cards */
+.glass-card, .ios-card {
+  background: var(--ios-secondary-background);
+  backdrop-filter: var(--ios-vibrancy-effect);
+  -webkit-backdrop-filter: var(--ios-vibrancy-effect);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--ios-shadow-medium);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* iOS 17 Interactive States */
+.ios-card:hover {
+  background: var(--ios-tertiary-background);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--ios-shadow-large);
+}
+
+.ios-card:active {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* iOS 17 Button System */
+.ios-button {
+  background: var(--ios-blue);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.ios-button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.ios-button:active {
+  transform: scale(0.95);
+}
+
+.ios-button-secondary {
+  background: var(--ios-tertiary-background);
+  color: var(--ios-blue);
+}
+
+.ios-button-destructive {
+  background: var(--ios-red);
+}
+
+.ios-button-large {
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: 16px;
+}
+
+/* iOS 17 List Styles */
+.ios-list {
+  background: var(--ios-secondary-background);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.ios-list-item {
+  padding: 16px 20px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.ios-list-item:last-child {
+  border-bottom: none;
+}
+
+.ios-list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ios-list-item:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* iOS 17 Navigation Bar */
+.ios-nav-bar {
+  background: var(--ios-system-background);
+  backdrop-filter: var(--ios-blur-effect);
+  -webkit-backdrop-filter: var(--ios-blur-effect);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.ios-nav-title {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 41px;
+  color: var(--ios-label);
+  margin: 0;
+}
+
+.ios-nav-title-large {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* iOS 17 Tab Bar */
+.ios-tab-bar {
+  background: var(--ios-system-background);
+  backdrop-filter: var(--ios-blur-effect);
+  -webkit-backdrop-filter: var(--ios-blur-effect);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 0 34px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.ios-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  color: var(--ios-tertiary-label);
+  transition: color 0.2s ease;
+}
+
+.ios-tab-item.active {
+  color: var(--ios-blue);
+}
+
+.ios-tab-icon {
+  font-size: 24px;
+  margin-bottom: 2px;
+}
+
+.ios-tab-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* iOS 17 Control Center Style */
+.ios-control-panel {
+  background: var(--ios-secondary-background);
+  backdrop-filter: var(--ios-vibrancy-effect);
+  -webkit-backdrop-filter: var(--ios-vibrancy-effect);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--ios-shadow-large);
+}
+
+/* iOS 17 Toggle Switch */
+.ios-toggle {
+  width: 51px;
+  height: 31px;
+  background: var(--ios-quaternary-background);
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ios-toggle.active {
+  background: var(--ios-green);
+}
+
+.ios-toggle::after {
+  content: '';
+  width: 27px;
+  height: 27px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ios-toggle.active::after {
+  transform: translateX(20px);
+}
+
+/* iOS 17 Haptic Feedback Simulation */
+@keyframes ios-haptic {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.ios-haptic-feedback {
+  animation: ios-haptic 0.1s ease-in-out;
 }
 
 .glass-card:hover {

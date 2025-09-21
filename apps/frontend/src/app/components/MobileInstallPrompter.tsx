@@ -97,9 +97,13 @@ export default function MobileInstallPrompter() {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end justify-center z-[9999] p-4">
-      {/* iOS Specific Instructions */}
+      {/* iOS 17 Specific Instructions */}
       {isIOS && (
-        <div className="bg-gradient-to-br from-gray-900 to-black rounded-t-3xl w-full max-w-md border border-gray-700 shadow-2xl animate-slide-up">
+        <div className="ios-card rounded-t-3xl w-full max-w-md shadow-2xl animate-slide-up" style={{
+          background: 'var(--ios-secondary-background)',
+          backdropFilter: 'var(--ios-vibrancy-effect)',
+          WebkitBackdropFilter: 'var(--ios-vibrancy-effect)'
+        }}>
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -180,13 +184,14 @@ export default function MobileInstallPrompter() {
             <div className="flex gap-3">
               <button
                 onClick={handleLater}
-                className="flex-1 py-3 px-4 border border-gray-600 text-gray-300 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                className="ios-button ios-button-secondary flex-1"
               >
                 Maybe Later
               </button>
               <button
                 onClick={handleDismiss}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-700 transition-all"
+                className="ios-button flex-1"
+                style={{ background: 'var(--ios-blue)' }}
               >
                 Got It!
               </button>
