@@ -88,6 +88,42 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Prevent horizontal scroll issues */
+  html, body {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Fix layout containers */
+.flex-1 {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improve scrolling performance */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 /* Update existing styles to use CSS variables */
