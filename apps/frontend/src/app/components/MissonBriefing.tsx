@@ -130,10 +130,10 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({ isLoading = false }) 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4 animate-slideInLeft delay-200">
           <div className="border-l-4 border-cyan-500 pl-4">
-            <h3 className="text-cyan-300 font-semibold mb-2">🚀 SPACEX MISSION PARAMETERS</h3>
+            <h3 className="text-cyan-300 font-semibold mb-2">🏆 SPORTS CENTRAL PARAMETERS</h3>
             <ul className="text-gray-300 text-sm space-y-1">
-              <li className="animate-fadeIn delay-300">• Real-time launch tracking & betting odds</li>
-              <li className="animate-fadeIn delay-400">• Mission success probability analysis</li>
+              <li className="animate-fadeIn delay-300">• Real-time sports tracking & betting odds</li>
+              <li className="animate-fadeIn delay-400">• Game outcome probability analysis</li>
               <li className="animate-fadeIn delay-500">• Historical performance data integration</li>
               <li className="animate-fadeIn delay-600">• Automated risk assessment protocols</li>
             </ul>
@@ -186,7 +186,7 @@ const MissionBriefing: React.FC<MissionBriefingProps> = ({ isLoading = false }) 
       <div className="mt-6 pt-4 border-t border-gray-700 animate-fadeIn delay-500">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span className="animate-slideInLeft delay-600">
-            Houston, we have confirmation. All systems are GO for betting operations.
+            Sports Central, we have confirmation. All systems are GO for betting operations.
           </span>
           <div className="flex items-center gap-2">
             <button 

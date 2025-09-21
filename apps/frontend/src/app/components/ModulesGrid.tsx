@@ -110,7 +110,7 @@ export default function ModulesGrid() {
     <div className="space-y-6 animate-fadeIn">
       <div className="flex items-center justify-between animate-slideDown">
         <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
-          Mission Control Modules
+          Sports Central Modules
         </h2>
         <div className="text-sm text-gray-400 font-mono">
           {modules.filter((m) => m.status === "online").length}/{modules.length} ONLINE

@@ -1,16 +1,19 @@
-/* === SpaceX THEME (default) === */
-body.spacex {
+/* === SPORTS CENTRAL THEME (default) === */
+body.sports {
   background: radial-gradient(ellipse at center,
     rgba(0, 10, 30, 1) 0%,
     rgba(0, 0, 0, 1) 100%);
   background-attachment: fixed;
   min-height: 100vh;
   color: #e0faff;
+  font-family: 'Meta Algo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-body.spacex .particle {
+body.sports .particle {
   background: radial-gradient(circle, #00d4ff, transparent);
   animation: float 6s ease-in-out infinite;
+}</body.sports {
+  font-family: 'Meta Algo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* === Nature / Glassmorphism THEME === */
@@ -27,6 +30,14 @@ body.nature {
 
 body.nature .particle {
   background: radial-gradient(circle, #22c55e, transparent);
+}
+
+/* Import Meta Algo font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Global font family - using Inter as Meta Algo alternative since Meta Algo requires licensing */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Keep existing particles, buttons, glass-card, etc. */
