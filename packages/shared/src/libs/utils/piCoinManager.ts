@@ -583,3 +583,9 @@ class PiCoinManager {
         }
     }
 }
+
+// Export singleton instance
+export const piCoinManager = new PiCoinManager();
+
+// Default export
+export default PiCoinManager;

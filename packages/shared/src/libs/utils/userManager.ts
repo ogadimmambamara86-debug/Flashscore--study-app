@@ -440,5 +440,8 @@ class UserManager {
   }
 }
 
+// Export singleton instance
+export const userManager = new UserManager();
+
+// Default export
 export default UserManager;
-export type { User };

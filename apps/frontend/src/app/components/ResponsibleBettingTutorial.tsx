@@ -19,7 +19,7 @@ const ResponsibleBettingTutorial: React.FC<ResponsibleBettingTutorialProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const timer = setInterval(() => {
       setTimeSpent(prev => prev + 1);
     }, 1000);
@@ -129,7 +129,7 @@ REMEMBER: Seeking help is a sign of strength, not weakness. Our community suppor
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     const scrollPercentage = (element.scrollTop + element.clientHeight) / element.scrollHeight;
-    
+
     if (scrollPercentage >= 0.9) {
       setScrollPositions(prev => ({ ...prev, [currentSection]: true }));
     }
@@ -193,7 +193,7 @@ REMEMBER: Seeking help is a sign of strength, not weakness. Our community suppor
           }}>
             Please read through all sections before proceeding
           </p>
-          
+
           {/* Progress Bar */}
           <div style={{
             marginTop: '16px',
@@ -275,7 +275,7 @@ REMEMBER: Seeking help is a sign of strength, not weakness. Our community suppor
                 <span style={{ color: '#10b981', fontSize: '1.2rem' }}>✓</span>
               )}
             </h3>
-            
+
             <div style={{
               color: '#374151',
               fontSize: '1.1rem',

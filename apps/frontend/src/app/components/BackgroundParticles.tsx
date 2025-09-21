@@ -1,14 +1,14 @@
 "use client";
 
-import React from "react";
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
+import React, { useCallback } from "react";
+import Particles from "react-particles";
+import { Engine } from "tsparticles-engine";
+import { loadSlim } from "tsparticles-slim";
 
 const BackgroundParticles: React.FC = () => {
-  const particlesInit = async (main: any) => {
-    // you can load the full tsparticles package
-    await loadFull(main);
-  };
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadSlim(engine);
+  }, []);
 
   return (
     <Particles
