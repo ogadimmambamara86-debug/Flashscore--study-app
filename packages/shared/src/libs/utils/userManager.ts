@@ -28,6 +28,63 @@ class UserManager {
   private static readonly STORAGE_KEY = 'sports_users';
   private static readonly CURRENT_USER_KEY = 'current_user_id';
 
+  private static isBrowser(): boolean {
+    return typeof window !== 'undefined';
+  }
+
+  /**
+   * Load current user from storage
+   */
+  static loadCurrentUser(): User | null {
+    if (!this.isBrowser()) return null;
+
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) return null;
+
+    const users = this.getUsers();
+    return users.find(user => user.id === currentUserId) || null;
+  }
+
+  /**
+   * Get current user ID
+   */
+  static getCurrentUserId(): string | null {
+    if (!this.isBrowser()) return null;
+    return localStorage.getItem('currentUserId');
+  }
+
+  /**
+   * Get current user
+   */
+  static getCurrentUser(): User | null {
+    return this.loadCurrentUser();
+  }
+
+  /**
+   * Cleanup old session data
+   */
+  static cleanup(): void {
+    // In a real application, you might want to clean up expired sessions,
+    // invalid tokens, or old user data. For this example, we'll keep it simple.
+    if (this.isBrowser()) {
+      const users = this.getUsers();
+      const now = new Date();
+
+      // Remove users who haven't logged in for a long time (e.g., 1 year)
+      const activeUsers = users.filter(user => {
+        if (!user.lastLogin) return false;
+        const lastLoginDate = new Date(user.lastLogin);
+        return now.getTime() - lastLoginDate.getTime() < (365 * 24 * 60 * 60 * 1000);
+      });
+
+      // Update storage if users were removed
+      if (activeUsers.length < users.length) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(activeUsers));
+        console.log(`Cleaned up ${users.length - activeUsers.length} inactive users.`);
+      }
+    }
+  }
+
   /**
    * Load the current user from storage
    */

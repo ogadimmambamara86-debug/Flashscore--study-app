@@ -424,6 +424,22 @@ class PiCoinManager {
     }
 
     /**
+     * Award welcome bonus for new users
+     */
+    static awardWelcomeBonus(userId: string): number {
+        const validUserId = this.validateUserId(userId);
+        if (!validUserId) {
+            console.warn('Award welcome bonus attempted with invalid user ID, skipping.');
+            SecurityManager.logSecurityEvent('award_welcome_bonus_invalid_user', { userId });
+            return 0;
+        }
+
+        const welcomeAmount = 100; // Welcome bonus amount
+        const success = this.addTransaction(validUserId, welcomeAmount, 'bonus', 'Welcome bonus for new user');
+        return success ? welcomeAmount : 0;
+    }
+
+    /**
      * Award daily login bonus
      */
     static awardDailyLogin(userId: string): number {
