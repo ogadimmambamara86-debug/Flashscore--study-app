@@ -12,7 +12,7 @@
       "@controllers/*": ["./src/app/controllers/*"],
       "@api/*": ["./src/app/api/*"],
       "@services/*": ["./src/app/services/*"],
-      "@style/*": ["./src/app/style/*"],
+      "@styles/*": ["./src/app/style/*"],   // 👈 renamed to match imports
       "@config/*": ["./src/app/config/*"],
       "@shared/*": ["../../packages/shared/src/*"]
     }
