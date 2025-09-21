@@ -13,6 +13,59 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'react-particles'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { isServer, dev }) => {
+    // Handle path aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Frontend aliases
+      "@components": path.resolve(__dirname, "src/app/components"),
+      "@hooks": path.resolve(__dirname, "src/app/hooks"),
+      "@controllers": path.resolve(__dirname, "src/app/controllers"),
+      "@api": path.resolve(__dirname, "src/app/api"),
+      "@services": path.resolve(__dirname, "src/app/services"),
+      "@styles": path.resolve(__dirname, "src/app/styles"),
+      "@config": path.resolve(__dirname, "src/app/config"),
+      "@shared": path.resolve(__dirname, "../../packages/shared/src/libs"),
+    };
+
+    if (!dev) {
+      // Production optimizations
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            minChunks: 1,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+          },
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            chunks: 'all',
+            priority: 20,
+          },
+        },
+      };
+    }
+
+    return config;
   },
   
   // Enable compression
@@ -32,23 +85,7 @@ const nextConfig = {
     ];
   },
 
-  webpack: (config, { isServer }) => {
-    // Handle path aliases
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // Frontend aliases
-      "@components": path.resolve(__dirname, "src/app/components"),
-      "@hooks": path.resolve(__dirname, "src/app/hooks"),
-      "@controllers": path.resolve(__dirname, "src/app/controllers"),
-      "@api": path.resolve(__dirname, "src/app/api"),
-      "@services": path.resolve(__dirname, "src/app/services"),
-      "@styles": path.resolve(__dirname, "src/app/styles"),
-      "@config": path.resolve(__dirname, "src/app/config"),
-      "@shared": path.resolve(__dirname, "../../packages/shared/src/libs"),
-    };
-
-    return config;
-  },
+  
 };
 
 export default nextConfig;

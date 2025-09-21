@@ -1,33 +1,34 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import Header from "@components/Header";
 import MissionBriefing from "@components/MissionBriefing";
 import ModulesGrid from "@components/ModulesGrid";
 import LatestNews from "@components/LatestNews";
 import PredictionsTable from "@components/PredictionsTable";
 import QuizMode from "@components/QuizMode";
-import InteractiveTools from "@components/InteractiveTools";
-import CommunityVoting from "@components/CommunityVoting";
-import Forum from "@components/Forum";
-import PiCoinWallet from "@components/PiCoinWallet";
-import PiCoinStore from "@components/PiCoinStore";
-import AuthorsLeaderboard from "@components/AuthorsLeaderboard";
-import SecurityDashboard from "@components/SecurityDashboard";
-import ChallengeSystem from "@components/ChallengeSystem";
-import CreatorDashboard from "@components/CreatorDashboard";
-import UserRegistration from "@components/UserRegistration";
-import LoginModal from "@components/LoginModal";
-import ResponsibleBettingTutorial from "@components/ResponsibleBettingTutorial";
-import BettingAgreement from "@components/BettingAgreement";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
-import ThemeToggle from "@components/ThemeToggle";
-import SmartNotifications from "@components/SmartNotifications";
-import WelcomeNotificationSetup from "./components/WelcomeNotificationSetup";
-import ContentPersonalization from "@components/ContentPersonalization";
-import AchievementSystem from "@components/AchievementSystem";
-import LiveMatchChat from "@components/LiveMatchChat";
-import FloatingActionButtons from "@components/FloatingActionButtons";
-import { useMobile } from "@hooks/useMobile"; // Assuming you have this hook
+import { useMobile } from "@hooks/useMobile";
+
+// Lazy load heavy components
+const InteractiveTools = lazy(() => import("@components/InteractiveTools"));
+const CommunityVoting = lazy(() => import("@components/CommunityVoting"));
+const Forum = lazy(() => import("@components/Forum"));
+const PiCoinWallet = lazy(() => import("@components/PiCoinWallet"));
+const PiCoinStore = lazy(() => import("@components/PiCoinStore"));
+const AuthorsLeaderboard = lazy(() => import("@components/AuthorsLeaderboard"));
+const SecurityDashboard = lazy(() => import("@components/SecurityDashboard"));
+const ChallengeSystem = lazy(() => import("@components/ChallengeSystem"));
+const CreatorDashboard = lazy(() => import("@components/CreatorDashboard"));
+const UserRegistration = lazy(() => import("@components/UserRegistration"));
+const LoginModal = lazy(() => import("@components/LoginModal"));
+const ResponsibleBettingTutorial = lazy(() => import("@components/ResponsibleBettingTutorial"));
+const BettingAgreement = lazy(() => import("@components/BettingAgreement"));
+const SmartNotifications = lazy(() => import("@components/SmartNotifications"));
+const WelcomeNotificationSetup = lazy(() => import("./components/WelcomeNotificationSetup"));
+const ContentPersonalization = lazy(() => import("@components/ContentPersonalization"));
+const AchievementSystem = lazy(() => import("@components/AchievementSystem"));
+const LiveMatchChat = lazy(() => import("@components/LiveMatchChat"));
+const FloatingActionButtons = lazy(() => import("@components/FloatingActionButtons")); // Assuming you have this hook
 
 import UserManager from '../../../../packages/shared/src/libs/utils/userManager';
 // Assuming User type is defined elsewhere, e.g., in '@types/user' or similar
@@ -247,10 +248,12 @@ export default function Home() {
           {!isMobile && <ModulesGrid />}
 
           {/* Content Personalization */}
-          <ContentPersonalization
-            currentUser={currentUser}
-            onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}
-          />
+          <Suspense fallback={<div className="animate-pulse bg-gray-800 h-32 rounded-lg"></div>}>
+            <ContentPersonalization
+              currentUser={currentUser}
+              onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}
+            />
+          </Suspense>
 
           <LatestNews />
 
@@ -266,10 +269,12 @@ export default function Home() {
               )}
 
               {mobileActiveTab === 'achievements' && (
-                <AchievementSystem
-                  currentUser={currentUser}
-                  onAchievementUnlocked={handleAchievementUnlocked}
-                />
+                <Suspense fallback={<div className="animate-pulse bg-gray-800 h-40 rounded-lg"></div>}>
+                  <AchievementSystem
+                    currentUser={currentUser}
+                    onAchievementUnlocked={handleAchievementUnlocked}
+                  />
+                </Suspense>
               )}
 
               {mobileActiveTab === 'chat' && (
@@ -280,20 +285,20 @@ export default function Home() {
               )}
 
               {mobileActiveTab === 'community' && (
-                <>
+                <Suspense fallback={<div className="animate-pulse bg-gray-800 h-48 rounded-lg"></div>}>
                   <CommunityVoting currentUser={currentUser} />
                   <Forum currentUser={currentUser} />
-                </>
+                </Suspense>
               )}
 
               {mobileActiveTab === 'tools' && (
-                <>
+                <Suspense fallback={<div className="animate-pulse bg-gray-800 h-48 rounded-lg"></div>}>
                   <InteractiveTools predictions={predictions} />
                   {showChallenges && (
                     <ChallengeSystem currentUser={currentUser} />
                   )}
-                </>
-              )}
+                </Suspense>
+              )}</old_str>
             </div>
           ) : (
             /* Desktop Layout */
