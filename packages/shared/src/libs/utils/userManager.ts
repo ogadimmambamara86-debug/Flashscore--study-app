@@ -501,4 +501,5 @@ class UserManager {
 export const userManager = new UserManager();
 
 // Default export
+export { UserManager };
 export default UserManager;

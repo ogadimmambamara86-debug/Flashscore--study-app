@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
-import UserManager, { User } from '../../../../../packages/shared/src/libs/utils/userManager';
+import { PiCoinManager } from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import { UserManager, User } from '../../../../../packages/shared/src/libs/utils/userManager';
 
 interface VotingTopic {
   id: string;
@@ -146,7 +146,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
     );
 
     saveVotingTopics(updatedTopics);
-    
+
     // Update user balance
     const newBalance = PiCoinManager.getBalance(currentUser.id);
     setUserBalance(newBalance.balance);
@@ -225,7 +225,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
             </p>
           )}
         </div>
-        
+
         {currentUser && (
           <button
             onClick={() => setShowCreateTopic(!showCreateTopic)}
@@ -256,7 +256,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}>
           <h3 style={{ color: '#8b5cf6', marginBottom: '20px' }}>Create New Voting Topic</h3>
-          
+
           <div style={{ display: 'grid', gap: '16px' }}>
             <input
               type="text"
@@ -272,7 +272,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 fontSize: '16px'
               }}
             />
-            
+
             <textarea
               placeholder="Description (optional)"
               value={newTopic.description}
@@ -288,7 +288,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 resize: 'vertical'
               }}
             />
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <select
                 value={newTopic.category}
@@ -307,7 +307,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 <option value="features">⚙️ Features</option>
                 <option value="predictions">🔮 Predictions</option>
               </select>
-              
+
               <input
                 type="number"
                 placeholder="Cost per vote (π coins)"
@@ -322,7 +322,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                   fontSize: '16px'
                 }}
               />
-              
+
               <input
                 type="number"
                 placeholder="Duration (days)"
@@ -338,7 +338,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 }}
               />
             </div>
-            
+
             <div>
               <h4 style={{ color: '#fff', marginBottom: '12px' }}>Voting Options</h4>
               {newTopic.options.map((option, index) => (
@@ -376,7 +376,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 + Add Option
               </button>
             </div>
-            
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setShowCreateTopic(false)}
@@ -452,7 +452,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                     {getCategoryIcon(topic.category)} {topic.category}
                   </span>
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
                   <span style={{ color: '#ffd700', fontWeight: '600' }}>
                     π{topic.votingCost} per vote
@@ -474,7 +474,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                 {topic.options.map(option => {
                   const percentage = getVotePercentage(option, topic);
                   const userHasVoted = hasUserVoted(topic);
-                  
+
                   return (
                     <div
                       key={option.id}
@@ -496,7 +496,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                           </span>
                         </div>
                       </div>
-                      
+
                       {/* Progress Bar */}
                       <div style={{
                         width: '100%',
@@ -513,7 +513,7 @@ const CommunityVoting: React.FC<CommunityVotingProps> = ({ currentUser }) => {
                           transition: 'width 0.3s ease'
                         }} />
                       </div>
-                      
+
                       {/* Vote Button */}
                       {currentUser && topic.status === 'active' && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
