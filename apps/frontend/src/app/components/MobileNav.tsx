@@ -2,6 +2,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useMobile } from '@hooks/useMobile';
+import { navItems } from '@config/navItems';
 
 const MobileNav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,10 +67,16 @@ const MobileNav: React.FC = () => {
             }}
           >
             <nav className="flex flex-col space-y-2">
-              <a href="/scores" className="text-gray-800 hover:text-blue-600 py-2">Scores</a>
-              <a href="/predictions" className="text-gray-800 hover:text-blue-600 py-2">Predictions</a>
-              <a href="/forum" className="text-gray-800 hover:text-blue-600 py-2">Forum</a>
-              <a href="/profile" className="text-gray-800 hover:text-blue-600 py-2">Profile</a>
+              {navItems.map((item) => (
+                <a 
+                  key={item.id}
+                  href={item.href} 
+                  className="text-gray-800 dark:text-gray-200 hover:text-blue-600 py-2 flex items-center gap-2"
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label.replace(/^🔮|📊|📰|🎯|🛠️|🏠/, '').trim()}</span>
+                </a>
+              ))}
             </nav>
           </div>
         </>
