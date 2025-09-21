@@ -1,7 +1,9 @@
+
 "use client";
 import React, { useState } from 'react';
+import { signIn, getSession } from 'next-auth/react';
 import UserManager from '../../../../../packages/shared/src/libs/utils/userManager';
-import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import { PiCoinManager } from '../../../../../packages/shared/src/libs/utils/piCoinManager';
 import ResponsibleBettingTutorial from './ResponsibleBettingTutorial';
 
 interface User {
@@ -26,9 +28,41 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialAccepted, setTutorialAccepted] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
-  const [formData, setFormData] = useState<{username: string; email: string; age: string; password: string} | null>(null);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+
+  const handleSocialSignIn = async (provider: string) => {
+    setSocialLoading(provider);
+    setError('');
+    
+    try {
+      const result = await signIn(provider, { 
+        callbackUrl: '/',
+        redirect: false 
+      });
+      
+      if (result?.error) {
+        setError(`${provider} authentication failed. Please try again.`);
+      } else if (result?.ok) {
+        const session = await getSession();
+        if (session?.user) {
+          const user: User = {
+            id: session.user.id || '',
+            username: session.user.name || session.user.email?.split('@')[0] || '',
+            email: session.user.email || '',
+            role: 'user',
+            piCoins: 100
+          };
+          onUserCreated(user);
+          onClose();
+        }
+      }
+    } catch (err: any) {
+      setError(`Failed to sign in with ${provider}. Please try again.`);
+    } finally {
+      setSocialLoading(null);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,13 +70,13 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
     setIsLoading(true);
 
     // Validation
-    if (!username.trim() || !email.trim() || !age.trim()) {
-      setError('Please fill in all fields');
+    if (!username.trim() || !email.trim() || !password.trim()) {
+      setError('Please fill in all required fields');
       setIsLoading(false);
       return;
     }
 
-    if (parseInt(age) < 13) {
+    if (!isLogin && (!age.trim() || parseInt(age) < 13)) {
       setError('You must be at least 13 years old to use this platform');
       setIsLoading(false);
       return;
@@ -54,60 +88,84 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
       return;
     }
 
-    if (username.length < 3) {
-      setError('Username must be at least 3 characters long');
-      setIsLoading(false);
-      return;
-    }
-
     if (isLogin) {
-      // Handle login
-      try {
-        const user = UserManager.loginUser(username.trim(), password);
-        if (user) {
-          onUserCreated(user);
-          onClose();
-          // Clear form
-          setUsername('');
-          setPassword('');
-        } else {
-          setError('Invalid username or password');
+      // Handle traditional login
+      signIn('credentials', {
+        email: email.trim(),
+        password: password,
+        redirect: false
+      }).then((result) => {
+        if (result?.error) {
+          setError('Invalid email or password');
+        } else if (result?.ok) {
+          getSession().then((session) => {
+            if (session?.user) {
+              const user: User = {
+                id: session.user.id || '',
+                username: session.user.name || username.trim(),
+                email: session.user.email || email.trim(),
+                role: 'user',
+                piCoins: 0
+              };
+              onUserCreated(user);
+              onClose();
+            }
+          });
         }
-      } catch (err: any) {
-        setError(err.message || 'Login failed. Please try again.');
-      }
-      setIsLoading(false);
+        setIsLoading(false);
+      });
     } else {
-      // Store form data and show tutorial for registration
-      setFormData({ username: username.trim(), email: email.trim(), age, password });
+      // Show tutorial for registration
       setShowTutorial(true);
       setIsLoading(false);
     }
   };
 
-  const handleTutorialAccept = () => {
-    if (!formData) return;
-
+  const handleTutorialAccept = async () => {
     setIsLoading(true);
     try {
-      // Create user
-      const newUser = UserManager.createUser(formData.username, formData.email, parseInt(formData.age));
+      // Register user with credentials
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.trim(),
+          email: email.trim(),
+          password: password,
+          age: parseInt(age)
+        })
+      });
 
-      // Award welcome bonus
-      PiCoinManager.awardWelcomeBonus(newUser.id);
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Auto sign in after registration
+        const result = await signIn('credentials', {
+          email: email.trim(),
+          password: password,
+          redirect: false
+        });
 
-      onUserCreated(newUser);
-      onClose();
-
-      // Clear form
-      setUsername('');
-      setEmail('');
-      setAge('');
-      setFormData(null);
-      setTutorialAccepted(false);
-      setShowTutorial(false);
+        if (result?.ok) {
+          const session = await getSession();
+          if (session?.user) {
+            const user: User = {
+              id: session.user.id || '',
+              username: username.trim(),
+              email: email.trim(),
+              role: 'user',
+              piCoins: 100
+            };
+            onUserCreated(user);
+            onClose();
+          }
+        }
+      } else {
+        setError(data.message || 'Registration failed');
+        setShowTutorial(false);
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to create account. Please try again.');
+      setError('Registration failed. Please try again.');
       setShowTutorial(false);
     } finally {
       setIsLoading(false);
@@ -116,7 +174,6 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
 
   const handleTutorialDecline = () => {
     setShowTutorial(false);
-    setFormData(null);
     setError('You must accept the Responsible Betting Guidelines to create an account');
   };
 
@@ -142,8 +199,10 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
         padding: '32px',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-        maxWidth: '400px',
-        width: '90%'
+        maxWidth: '450px',
+        width: '90%',
+        maxHeight: '90vh',
+        overflowY: 'auto'
       }}>
         <h2 style={{
           color: '#fff',
@@ -151,7 +210,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
           marginBottom: '24px',
           fontSize: '1.8rem'
         }}>
-          {isLogin ? '🔑 Login' : '🎉 Join Sports Central'}
+          {isLogin ? '🔑 Welcome Back' : '🎉 Join Sports Central'}
         </h2>
 
         {error && (
@@ -167,11 +226,106 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
           </div>
         )}
 
+        {/* Social Authentication Buttons */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ 
+            textAlign: 'center', 
+            color: '#ccc', 
+            marginBottom: '16px',
+            fontSize: '14px'
+          }}>
+            Continue with social accounts
+          </div>
+          
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            <button
+              onClick={() => handleSocialSignIn('google')}
+              disabled={socialLoading !== null}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: socialLoading === 'google' 
+                  ? 'rgba(219, 68, 55, 0.5)' 
+                  : 'linear-gradient(135deg, #db4437, #d33a2c)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: socialLoading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              {socialLoading === 'google' ? '...' : '🔍 Google'}
+            </button>
+            
+            <button
+              onClick={() => handleSocialSignIn('facebook')}
+              disabled={socialLoading !== null}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: socialLoading === 'facebook' 
+                  ? 'rgba(59, 89, 152, 0.5)' 
+                  : 'linear-gradient(135deg, #3b5998, #2d4373)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: socialLoading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              {socialLoading === 'facebook' ? '...' : '📘 Facebook'}
+            </button>
+            
+            <button
+              onClick={() => handleSocialSignIn('twitter')}
+              disabled={socialLoading !== null}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: socialLoading === 'twitter' 
+                  ? 'rgba(29, 161, 242, 0.5)' 
+                  : 'linear-gradient(135deg, #1da1f2, #0d8bd9)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: socialLoading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              {socialLoading === 'twitter' ? '...' : '🐦 X'}
+            </button>
+          </div>
+
+          <div style={{
+            textAlign: 'center',
+            color: '#888',
+            fontSize: '12px',
+            margin: '16px 0'
+          }}>
+            or continue with email
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
             <input
               type="text"
-              placeholder="Enter username"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={{
@@ -188,8 +342,26 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
 
           <div style={{ marginBottom: '16px' }}>
             <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                fontSize: '16px'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <input
               type="password"
-              placeholder={isLogin ? "Password" : "Create password"}
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{
@@ -204,25 +376,6 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
             />
           </div>
 
-          {!isLogin && (
-            <div style={{ marginBottom: '16px' }}>
-              <input
-                type="email"
-                placeholder="Email (optional)"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: '#fff',
-                  fontSize: '16px'
-                }}
-              />
-            </div>
-          )}
           {!isLogin && (
             <div style={{ marginBottom: '16px' }}>
               <input
@@ -258,31 +411,13 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
               fontSize: '1.1rem',
               fontWeight: '700',
               cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
+              marginBottom: '12px'
             }}
           >
-            {isLoading ? (
-              <>
-                <div style={{
-                  width: '20px',
-                  height: '20px',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
-                  borderTop: '2px solid white',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                Creating Account...
-              </>
-            ) : (
-              isLogin ? '🚀 Login' : '📖 Continue to Guidelines'
-            )}
+            {isLoading ? 'Processing...' : (isLogin ? '🚀 Sign In' : '📖 Continue')}
           </button>
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: '12px' }}>
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
@@ -295,7 +430,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
                 fontSize: '14px'
               }}
             >
-              {isLogin ? 'Need an account? Sign up' : 'Already have an account? Login'}
+              {isLogin ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
             </button>
           </div>
 
@@ -309,8 +444,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
               color: '#ccc',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '8px',
-              cursor: 'pointer',
-              marginTop: '12px'
+              cursor: 'pointer'
             }}
           >
             Cancel
@@ -318,7 +452,7 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ isOpen, onClose, on
         </form>
       </div>
 
-      {showTutorial && formData && (
+      {showTutorial && (
         <ResponsibleBettingTutorial
           isOpen={true}
           onAccept={handleTutorialAccept}

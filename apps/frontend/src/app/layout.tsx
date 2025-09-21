@@ -8,6 +8,7 @@ import MobileNav from "@components/MobileNav";
 import SidebarNav from "@components/SidebarNav";
 import { navItems } from "@config/navItems"; // 👈 shared config
 import { Inter } from 'next/font/google';
+import NextAuthSessionProvider from './providers/SessionProvider'; // Import the SessionProvider
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -35,25 +36,27 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://flashstudy-ri0g.onrender.com" />
       </head>
       <body className="relative flex">
-        <React.Suspense fallback={null}>
-          <BackgroundParticles />
-        </React.Suspense>
-        <OfflineManager>
-          {/* Sidebar for desktop */}
+        <NextAuthSessionProvider> {/* Wrap children with SessionProvider */}
           <React.Suspense fallback={null}>
-            <SidebarNav items={navItems} />
+            <BackgroundParticles />
           </React.Suspense>
-
-          {/* Main content area */}
-          <div className="flex-1 min-h-screen flex flex-col">
-            {children}
-
-            {/* Mobile nav (always visible at bottom on small screens) */}
+          <OfflineManager>
+            {/* Sidebar for desktop */}
             <React.Suspense fallback={null}>
-              <MobileNav items={navItems} />
+              <SidebarNav items={navItems} />
             </React.Suspense>
-          </div>
-        </OfflineManager>
+
+            {/* Main content area */}
+            <div className="flex-1 min-h-screen flex flex-col">
+              {children}
+
+              {/* Mobile nav (always visible at bottom on small screens) */}
+              <React.Suspense fallback={null}>
+                <MobileNav items={navItems} />
+              </React.Suspense>
+            </div>
+          </OfflineManager>
+        </NextAuthSessionProvider>
       </body>
     </html>
   )

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ClientStorage } from '../../../../../packages/shared/src/libs/utils/clientStorage';
-import PiCoinManager from '../../../../../packages/shared/src/libs/utils/piCoinManager';
+import { PiCoinManager } from '../../../../../packages/shared/src/libs/utils/piCoinManager';
 import { UserManager } from '../../../../../packages/shared/src/libs/utils/userManager';
 
 interface User {
