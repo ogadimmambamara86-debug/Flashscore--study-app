@@ -153,22 +153,53 @@ body {
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-/* Mobile optimization */
+/* Enhanced Mobile optimization */
 @media (max-width: 768px) {
   body {
-    overflow-x: auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
     -webkit-overflow-scrolling: touch;
+    /* Improve touch responsiveness */
+    touch-action: manipulation;
   }
   
   * {
+    /* Hardware acceleration for smoother animations */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
+    /* Optimize for mobile rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   /* Prevent horizontal scroll issues */
   html, body {
-    max-width: 100%;
-    overflow-x: auto;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  /* Optimize button sizes for touch */
+  button, .btn {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Reduce animations on mobile for performance */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Optimize scrolling performance */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Enable momentum scrolling */
+    overscroll-behavior: contain;
   }
 }
 

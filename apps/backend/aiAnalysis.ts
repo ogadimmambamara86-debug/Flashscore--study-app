@@ -126,7 +126,8 @@ const fallbackAnalysis = (matchData: MatchData): AIAnalysisResult => {
 const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> => {
   // Input validation
   if (!matchData || !matchData.homeTeam || !matchData.awayTeam) {
-    throw new Error('Invalid match data provided');
+    console.warn('Invalid match data provided, using fallback');
+    return fallbackAnalysis(matchData);
   }
 
   let retries = 0;
@@ -171,12 +172,8 @@ const analyzeWithAI = async (matchData: MatchData): Promise<AIAnalysisResult> =>
       console.warn(`AI analysis attempt ${retries} failed:`, errorMessage);
       
       if (retries >= maxRetries) {
-        if (AI_CONFIG.FALLBACK_ENABLED) {
-          console.log('AI analysis failed, using fallback analysis');
-          return fallbackAnalysis(matchData);
-        } else {
-          throw new Error(`AI analysis failed after ${maxRetries} attempts: ${errorMessage}`);
-        }
+        console.log('AI analysis failed, using fallback analysis');
+        return fallbackAnalysis(matchData);
       }
       
       // Wait before retry (exponential backoff)

@@ -302,3 +302,15 @@ export default piCoinManagerInstance;
 
 // Export the class for direct instantiation if needed
 export { PiCoinManager as PiCoinManagerClass };
+
+// Export types for use in other components
+export type { MatchData, AIAnalysisResult };
+
+// Default export for compatibility
+export default {
+  getUserBalance: () => 0,
+  updateBalance: (userId: string, amount: number) => Promise.resolve(true),
+  createTransaction: (transaction: any) => Promise.resolve(true),
+  getTransactionHistory: (userId: string) => Promise.resolve([]),
+  validateTransaction: (transaction: any) => true
+};

@@ -10,30 +10,37 @@ import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
 import UnifiedSoccerHub from '@components/UnifiedSoccerHub';
 
-// Lazy load heavy components with loading fallbacks
+// Enhanced Loading Components for better UX
 const SkeletonLoader = ({ height = "h-32" }: { height?: string }) => (
   <div className={`animate-pulse bg-gray-800/50 ${height} rounded-lg`}></div>
 );
 
-const InteractiveTools = lazy(() => import("@components/InteractiveTools"));
-const CommunityVoting = lazy(() => import("@components/CommunityVoting"));
-const Forum = lazy(() => import("@components/Forum"));
-const PiCoinWallet = lazy(() => import("@components/PiCoinWallet"));
-const PiCoinStore = lazy(() => import("@components/PiCoinStore"));
-const AuthorsLeaderboard = lazy(() => import("@components/AuthorsLeaderboard"));
-const SecurityDashboard = lazy(() => import("@components/SecurityDashboard"));
-const ChallengeSystem = lazy(() => import("@components/ChallengeSystem"));
-const CreatorDashboard = lazy(() => import("@components/CreatorDashboard"));
-const UserRegistration = lazy(() => import("@components/UserRegistration"));
-const LoginModal = lazy(() => import("@components/LoginModal"));
-const ResponsibleBettingTutorial = lazy(() => import("@components/ResponsibleBettingTutorial"));
-const BettingAgreement = lazy(() => import("@components/BettingAgreement"));
-const SmartNotifications = lazy(() => import("@components/SmartNotifications"));
-const WelcomeNotificationSetup = lazy(() => import("./components/WelcomeNotificationSetup"));
-const ContentPersonalization = lazy(() => import("@components/ContentPersonalization"));
-const AchievementSystem = lazy(() => import("@components/AchievementSystem"));
-const LiveMatchChat = lazy(() => import("@components/LiveMatchChat"));
-const FloatingActionButtons = lazy(() => import("@components/FloatingActionButtons")); // Assuming you have this hook
+const ComponentLoader = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-[200px] flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+  </div>
+);
+
+// Lazy load heavy components with better error boundaries
+const InteractiveTools = lazy(() => import("@components/InteractiveTools").catch(() => ({ default: () => <div>Tools unavailable</div> })));
+const CommunityVoting = lazy(() => import("@components/CommunityVoting").catch(() => ({ default: () => <div>Voting unavailable</div> })));
+const Forum = lazy(() => import("@components/Forum").catch(() => ({ default: () => <div>Forum unavailable</div> })));
+const PiCoinWallet = lazy(() => import("@components/PiCoinWallet").catch(() => ({ default: () => <div>Wallet unavailable</div> })));
+const PiCoinStore = lazy(() => import("@components/PiCoinStore").catch(() => ({ default: () => <div>Store unavailable</div> })));
+const AuthorsLeaderboard = lazy(() => import("@components/AuthorsLeaderboard").catch(() => ({ default: () => <div>Leaderboard unavailable</div> })));
+const SecurityDashboard = lazy(() => import("@components/SecurityDashboard").catch(() => ({ default: () => <div>Security unavailable</div> })));
+const ChallengeSystem = lazy(() => import("@components/ChallengeSystem").catch(() => ({ default: () => <div>Challenges unavailable</div> })));
+const CreatorDashboard = lazy(() => import("@components/CreatorDashboard").catch(() => ({ default: () => <div>Creator tools unavailable</div> })));
+const UserRegistration = lazy(() => import("@components/UserRegistration").catch(() => ({ default: () => <div>Registration unavailable</div> })));
+const LoginModal = lazy(() => import("@components/LoginModal").catch(() => ({ default: () => <div>Login unavailable</div> })));
+const ResponsibleBettingTutorial = lazy(() => import("@components/ResponsibleBettingTutorial").catch(() => ({ default: () => <div>Tutorial unavailable</div> })));
+const BettingAgreement = lazy(() => import("@components/BettingAgreement").catch(() => ({ default: () => <div>Agreement unavailable</div> })));
+const SmartNotifications = lazy(() => import("@components/SmartNotifications").catch(() => ({ default: () => <div>Notifications unavailable</div> })));
+const WelcomeNotificationSetup = lazy(() => import("./components/WelcomeNotificationSetup").catch(() => ({ default: () => <div>Welcome setup unavailable</div> })));
+const ContentPersonalization = lazy(() => import("@components/ContentPersonalization").catch(() => ({ default: () => <div>Personalization unavailable</div> })));
+const AchievementSystem = lazy(() => import("@components/AchievementSystem").catch(() => ({ default: () => <div>Achievements unavailable</div> })));
+const LiveMatchChat = lazy(() => import("@components/LiveMatchChat").catch(() => ({ default: () => <div>Live chat unavailable</div> })));
+const FloatingActionButtons = lazy(() => import("@components/FloatingActionButtons").catch(() => ({ default: () => <div>Actions unavailable</div> }))); // Assuming you have this hook
 
 import UserManager from '../../../../packages/shared/src/libs/utils/userManager';
 // Assuming User type is defined elsewhere, e.g., in '@types/user' or similar
@@ -266,7 +273,7 @@ export default function Home() {
           {!isMobile && <ModulesGrid />}
 
           {/* Content Personalization */}
-          <Suspense fallback={<SkeletonLoader height="h-32" />}>
+          <Suspense fallback={<ComponentLoader><SkeletonLoader height="h-32" /></ComponentLoader>}>
             <ContentPersonalization
               currentUser={currentUser}
               onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}

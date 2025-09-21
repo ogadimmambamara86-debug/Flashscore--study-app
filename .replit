@@ -9,7 +9,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Frontend Only App Clean"
+runButton = "Frontend Development Clean"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -153,6 +153,33 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd apps/frontend && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Production Frontend"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm ci --only=production && npm run build && npm run start"
+
+[[workflows.workflow]]
+name = "Frontend Development Clean"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && rm -rf node_modules .next && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Frontend Development Clean"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && rm -rf node_modules .next && npm install && npm run dev"
 
 [[ports]]
 localPort = 3000

@@ -9,7 +9,7 @@ import SidebarNav from "@components/SidebarNav";
 import { navItems } from "@config/navItems"; // 👈 shared config
 import { Inter } from 'next/font/google';
 import NextAuthSessionProvider from './providers/SessionProvider'; // Import the SessionProvider
-import AppErrorBoundary from './components/AppErrorBoundary' // Import the Error Boundary component
+import ProductionErrorBoundary from './components/ProductionErrorBoundary' // Import production Error Boundary
 import PrivacyNotice from './components/PrivacyNotice' // Import the PrivacyNotice component
 
 const inter = Inter({ subsets: ['latin'] });
@@ -39,7 +39,7 @@ export default function RootLayout({
       </head>
       <body className="relative flex">
         <NextAuthSessionProvider> {/* Wrap children with SessionProvider */}
-          <AppErrorBoundary> {/* Wrap children with the Error Boundary */}
+          <ProductionErrorBoundary> {/* Wrap children with production Error Boundary */}
             <React.Suspense fallback={null}>
               <BackgroundParticles />
             </React.Suspense>
@@ -59,7 +59,7 @@ export default function RootLayout({
                 </React.Suspense>
               </div>
             </OfflineManager>
-          </AppErrorBoundary>
+          </ProductionErrorBoundary>
         </NextAuthSessionProvider>
         <PrivacyNotice />
       </body>
