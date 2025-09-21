@@ -21,7 +21,7 @@ export interface PiWallet {
   achievements: string[];
 }
 
-export export default class PiCoinManager {
+export default class PiCoinManager {
   private static instance: PiCoinManager;
   private wallets: Map<string, PiWallet> = new Map();
   private transactionRateLimit: Map<string, number[]> = new Map();

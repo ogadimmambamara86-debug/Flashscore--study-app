@@ -297,6 +297,10 @@ export const triggerFloatingAlert = (
   type: 'info' | 'success' | 'warning' | 'error' = 'info',
   persistent: boolean = false
 ) => {
+  // Implementation here
+  console.log(`Alert: ${message} (${type})`);
+}
+) => {
   const event = new CustomEvent('floatingAlert', {
     detail: { message, type, persistent }
   });
