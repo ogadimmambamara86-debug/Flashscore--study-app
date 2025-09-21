@@ -10,6 +10,7 @@ import { navItems } from "@config/navItems"; // 👈 shared config
 import { Inter } from 'next/font/google';
 import NextAuthSessionProvider from './providers/SessionProvider'; // Import the SessionProvider
 import AppErrorBoundary from './components/AppErrorBoundary' // Import the Error Boundary component
+import PrivacyNotice from './components/PrivacyNotice' // Import the PrivacyNotice component
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -60,6 +61,7 @@ export default function RootLayout({
             </OfflineManager>
           </AppErrorBoundary>
         </NextAuthSessionProvider>
+        <PrivacyNotice />
       </body>
     </html>
   )
