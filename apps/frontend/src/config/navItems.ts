@@ -56,3 +56,12 @@ export const navItems: NavItem[] = [
     description: 'Latest sports news'
   }
 ];
+export const navItems = [
+  { id: "dashboard", label: "🏠 Dashboard", icon: "🏠" },
+  { id: "predictions", label: "🔮 Predictions", icon: "🔮" },
+  { id: "scores", label: "📊 Live Scores", icon: "📊" },
+  { id: "news", label: "📰 News", icon: "📰" },
+  { id: "quiz", label: "🎯 Quiz", icon: "🎯" },
+  { id: "tools", label: "🛠️ Tools", icon: "🛠️" },
+  { id: "search", label: "🔍 Search", icon: "🔍" },
+];

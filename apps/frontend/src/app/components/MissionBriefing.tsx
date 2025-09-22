@@ -67,3 +67,12 @@ const MissionBriefing = () => {
         fontWeight: "bold",
         marginTop: "0.25rem",
         transform: fade ? "translateY(-10px)" : "translateY(0px)",
+        transition: "transform 0.5s, opacity 0.5s"
+      }}>
+        {currentMetric.value}
+      </div>
+    </div>
+  );
+};
+
+export default MissionBriefing;

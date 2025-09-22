@@ -89,4 +89,4 @@ export default function ModulesGrid() {
 metrics: [
   { label: "Home Team", value: match.home },
   { label: "Away Team", value: match.away },
-  { label: "Prediction", value: match.prediction ||Change to: { label: "Prediction", value: match.prediction || "TBD" },
+  { label: "Prediction", value: match.prediction || "TBD" },
