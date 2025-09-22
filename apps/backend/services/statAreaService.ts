@@ -56,8 +56,21 @@ export class StatAreaService {
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
       },
-      timeout: 15000
-    });
+// Use the same AbortController pattern as Fix 1
+const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+try {
+  const response = await fetch(url, {
+    ...options,
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
+  return response;
+} catch (error) {
+  clearTimeout(timeoutId);
+  throw error;
+}
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status} for ${url}`);
