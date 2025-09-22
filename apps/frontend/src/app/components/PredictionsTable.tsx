@@ -49,8 +49,8 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
             const predictionId = prediction.id || `pred-${index}`;
             const match = prediction.match || prediction.title || 'Unknown Match';
             const predictionText = prediction.prediction || prediction.content || 'No prediction available';
-            const confidence = typeof prediction.confidence === 'string' 
-              ? prediction.confidence 
+            const confidence = typeof prediction.confidence === 'string'
+              ? prediction.confidence
               : `${prediction.confidence || 0}%`;
             const status = prediction.status || 'pending';
 
@@ -83,7 +83,7 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
                       )}
                       <span
                         style={{
-                          background: status === 'won' || status === 'completed' ? '#22c55e' : 
+                          background: status === 'won' || status === 'completed' ? '#22c55e' :
                                     status === 'lost' ? '#ef4444' : '#f59e0b',
                           color: 'white',
                           padding: '4px 12px',

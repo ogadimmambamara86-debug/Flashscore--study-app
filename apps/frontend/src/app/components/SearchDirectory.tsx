@@ -620,3 +620,5 @@ const SearchDirectory: React.FC = () => {
     </div>
   );
 };
+
+export default SearchDirectory;
