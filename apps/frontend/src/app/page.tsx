@@ -4,13 +4,13 @@ import Header from "@components/Header";
 import MissionBriefing from "@components/MissionBriefing";
 import ModulesGrid from "@components/ModulesGrid";
 import LatestNews from "@components/LatestNews";
-import PredictionsTable from './components/PredictionsTable';
-import ProtectedContent from './components/ProtectedContent';
+import PredictionsTable from '@/components/PredictionsTable';
+import ProtectedContent from '@/components/ProtectedContent';
 import QuizMode from "@components/QuizMode";
 import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
 import UnifiedSoccerHub from '@components/UnifiedSoccerHub';
-import SearchDirectory from './components/SearchDirectory';
+import SearchDirectory from '@/components/SearchDirectory';
 
 // Enhanced Loading Components for better UX
 const SkeletonLoader = ({ height = "h-32" }: { height?: string }) => (
