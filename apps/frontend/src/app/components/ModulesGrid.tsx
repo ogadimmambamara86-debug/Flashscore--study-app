@@ -24,6 +24,7 @@ interface Match {
   home: string;
   away: string;
   prediction: string;
+  confidence?: string; // Added confidence property
 }
 
 // Loading skeleton component
@@ -89,6 +90,7 @@ export default function ModulesGrid() {
           { label: "Home Team", value: match.home },
           { label: "Away Team", value: match.away },
           { label: "Prediction", value: match.prediction || "TBD" },
+          { label: "Confidence", value: match.confidence || "N/A" }
         ],
       }));
 
