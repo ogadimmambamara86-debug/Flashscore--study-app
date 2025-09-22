@@ -646,3 +646,44 @@ const SearchDirectory: React.FC = () => {
 };
 
 export default SearchDirectory;
+'use client';
+
+import React, { useState } from 'react';
+
+interface SearchDirectoryProps {
+  onSearch?: (query: string) => void;
+}
+
+const SearchDirectory: React.FC<SearchDirectoryProps> = ({ onSearch }) => {
+  const [query, setQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch?.(query);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-bold mb-4">Search Directory</h2>
+      <form onSubmit={handleSearch} className="space-y-4">
+        <div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search for teams, players, or matches..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default SearchDirectory;
