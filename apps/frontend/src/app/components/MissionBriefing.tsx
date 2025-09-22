@@ -73,11 +73,8 @@ const MissionBriefing = () => {
     </div>
   );
 };
-        transition: "transform 0.5s, opacity 0.5s"
-      }}>
-        {currentMetric.value}
-      </div>
-    </div>
+
+export default MissionBriefing;
   );
 };
 

@@ -65,3 +65,12 @@ export const navItems = [
   { id: "tools", label: "🛠️ Tools", icon: "🛠️" },
   { id: "search", label: "🔍 Search", icon: "🔍" },
 ];
+export const navItems = [
+  { name: 'Dashboard', href: '/', icon: '🏠' },
+  { name: 'Predictions', href: '/predictions', icon: '🔮' },
+  { name: 'Live Scores', href: '/scores', icon: '⚽' },
+  { name: 'Community', href: '/community', icon: '👥' },
+  { name: 'Quiz', href: '/quiz', icon: '🧠' },
+  { name: 'Store', href: '/store', icon: '🛒' },
+  { name: 'Profile', href: '/profile', icon: '👤' },
+];

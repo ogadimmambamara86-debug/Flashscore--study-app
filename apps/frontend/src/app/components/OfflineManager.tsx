@@ -55,14 +55,6 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
     } catch (error) {
       console.error("❌ Error syncing offline data:", error);
     }
-  }, [pendingActions]);
-
-  return null;
-};");
-      }
-    } catch (error) {
-      console.error("❌ Failed to sync offline actions:", error);
-    }
   };
 
   useEffect(() => {

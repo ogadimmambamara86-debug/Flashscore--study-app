@@ -93,7 +93,7 @@ export default function ModulesGrid() {
       }));
 
       setModules(mappedModules);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mappedModules));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.JSON.stringify(mappedModules));
       setRetryCount(0); // Reset retry count on successful fetch
     } catch (err: any) {
       console.error("Failed to fetch matches:", err);
