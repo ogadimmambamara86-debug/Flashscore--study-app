@@ -9,9 +9,17 @@ console.log(`🛠 Using environment variables from server.ts`);
 console.log(`🛠 DATABASE_URL: ${process.env.DATABASE_URL ? 'Found' : 'Not found'}`);
 
 export const connectDatabase = async (): Promise<void> => {
+  console.log("🔄 Initializing database connection...");
+  
   // Try MongoDB first (from Replit secrets), then fallback to PostgreSQL
   let mongoUri = process.env.MONGODB_URI;
   let databaseUrl = process.env.DATABASE_URL;
+
+  // Database continuity check
+  if (!mongoUri && !databaseUrl) {
+    console.log("⚠️ No database configuration found. Using in-memory fallback.");
+    return;
+  }
 
   // Prefer MongoDB if available and valid
   if (mongoUri && !mongoUri.includes('localhost') && mongoUri.startsWith('mongodb')) {
@@ -26,11 +34,13 @@ export const connectDatabase = async (): Promise<void> => {
 
       await mongoose.default.connect(mongoUri, {
         maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 10000,
         socketTimeoutMS: 45000,
+        retryWrites: true,
+        retryReads: true
       });
 
-      console.log(`✅ MongoDB Connected successfully`);
+      console.log(`✅ MongoDB Connected successfully - Database continuity established`);
       return;
     } catch (error) {
       console.error("❌ MongoDB connection failed:", error);
@@ -61,15 +71,29 @@ export const connectDatabase = async (): Promise<void> => {
     
     pool = new Pool({
       connectionString: poolUrl,
-      max: 10,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
 
-    // Test the connection
-    const client = await pool.connect();
-    client.release();
+    // Test the connection with retry
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const client = await pool.connect();
+        await client.query('SELECT NOW()');
+        client.release();
+        break;
+      } catch (error) {
+        retries--;
+        if (retries === 0) throw error;
+        console.log(`🔄 Retrying database connection... (${3 - retries}/3)`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
     
-    console.log(`✅ PostgreSQL Connected successfully`);
+    console.log(`✅ PostgreSQL Connected successfully - Database continuity established`);
   } catch (error) {
     console.error("❌ Database connection failed:", error);
     pool = null;

@@ -55,3 +55,36 @@ export default function ProtectedContent({
 
   return <>{children}</>;
 }
+"use client";
+
+import React from 'react';
+
+interface ProtectedContentProps {
+  children: React.ReactNode;
+  requiredLevel?: number;
+  currentUser?: any;
+}
+
+export default function ProtectedContent({ 
+  children, 
+  requiredLevel = 1, 
+  currentUser 
+}: ProtectedContentProps) {
+  const hasAccess = currentUser && (currentUser.level >= requiredLevel);
+
+  if (!hasAccess) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 text-center">
+        <h3 className="text-xl font-bold text-white mb-2">Premium Content</h3>
+        <p className="text-gray-300 mb-4">
+          You need level {requiredLevel} access to view this content.
+        </p>
+        <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white">
+          Upgrade Account
+        </button>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

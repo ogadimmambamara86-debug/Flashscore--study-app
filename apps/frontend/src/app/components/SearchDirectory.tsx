@@ -622,3 +622,81 @@ const SearchDirectory: React.FC = () => {
 };
 
 export default SearchDirectory;
+"use client";
+
+import React, { useState } from 'react';
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: string;
+  description: string;
+}
+
+export default function SearchDirectory() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+
+  const mockResults: SearchResult[] = [
+    {
+      id: '1',
+      title: 'Premier League Predictions',
+      type: 'Category',
+      description: 'Latest predictions for Premier League matches'
+    },
+    {
+      id: '2',
+      title: 'Liverpool vs Arsenal',
+      type: 'Match',
+      description: 'Upcoming match prediction and analysis'
+    }
+  ];
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (term.length > 2) {
+      setResults(mockResults.filter(result => 
+        result.title.toLowerCase().includes(term.toLowerCase()) ||
+        result.description.toLowerCase().includes(term.toLowerCase())
+      ));
+    } else {
+      setResults([]);
+    }
+  };
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold text-white mb-4">Search Directory</h2>
+      
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search matches, predictions, teams..."
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      {results.length > 0 && (
+        <div className="space-y-3">
+          {results.map((result) => (
+            <div key={result.id} className="bg-gray-700 rounded p-4 hover:bg-gray-600 transition-colors cursor-pointer">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-white">{result.title}</h3>
+                <span className="text-xs bg-blue-600 px-2 py-1 rounded text-white">
+                  {result.type}
+                </span>
+              </div>
+              <p className="text-gray-300 text-sm mt-1">{result.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {searchTerm.length > 2 && results.length === 0 && (
+        <p className="text-gray-400 text-center py-4">No results found</p>
+      )}
+    </div>
+  );
+}

@@ -113,3 +113,67 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
 };
 
 export default PredictionsTable;
+"use client";
+
+import React from 'react';
+
+interface Prediction {
+  id: string;
+  match: string;
+  prediction: string;
+  confidence: number;
+  status: string;
+}
+
+export default function PredictionsTable() {
+  const [predictions] = React.useState<Prediction[]>([
+    {
+      id: '1',
+      match: 'Manchester United vs Liverpool',
+      prediction: 'Over 2.5 Goals',
+      confidence: 85,
+      status: 'Active'
+    },
+    {
+      id: '2',
+      match: 'Barcelona vs Real Madrid',
+      prediction: 'Both Teams To Score',
+      confidence: 78,
+      status: 'Completed'
+    }
+  ]);
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold text-white mb-4">Latest Predictions</h2>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-gray-300">
+          <thead>
+            <tr className="border-b border-gray-600">
+              <th className="text-left py-2">Match</th>
+              <th className="text-left py-2">Prediction</th>
+              <th className="text-left py-2">Confidence</th>
+              <th className="text-left py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {predictions.map((prediction) => (
+              <tr key={prediction.id} className="border-b border-gray-700">
+                <td className="py-3">{prediction.match}</td>
+                <td className="py-3">{prediction.prediction}</td>
+                <td className="py-3">{prediction.confidence}%</td>
+                <td className="py-3">
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    prediction.status === 'Active' ? 'bg-green-600' : 'bg-gray-600'
+                  }`}>
+                    {prediction.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
