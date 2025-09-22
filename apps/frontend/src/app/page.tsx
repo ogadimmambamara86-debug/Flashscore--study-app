@@ -92,6 +92,49 @@ const UserManager = {
   }
 };
 
+// MagajiCo AI Management System - Inspired by Tech Titans
+const MagajiCo = {
+  // Elon Musk: Bold Vision & Disruption
+  disruptiveStrategy: (market: string, action: string) => {
+    console.log(`Elon Musk Mode: Disrupting ${market} with ${action}. Aiming for exponential growth.`);
+    return { efficiency: 0.9, strategy: 5, rating: 9 };
+  },
+  // Jeff Bezos: Customer Obsession & Long-Term Focus
+  customerCentricity: (customerNeed: string, solution: string) => {
+    console.log(`Jeff Bezos Mode: Obsessed with ${customerNeed}. Solution: ${solution}. Focus on Day 1.`);
+    return { efficiency: 0.85, strategy: 4, rating: 8 };
+  },
+  // Jack Ma: Agility & Perseverance
+  agileAdaptability: (challenge: string, response: string) => {
+    console.log(`Jack Ma Mode: Facing ${challenge} with ${response}. Unwavering perseverance.`);
+    return { efficiency: 0.8, strategy: 4, rating: 7 };
+  },
+  // Bill Gates: Data-Driven Decisions & Efficiency
+  dataDrivenEfficiency: (dataset: string, insight: string) => {
+    console.log(`Bill Gates Mode: Leveraging ${dataset}. Insight: ${insight}. Optimizing for efficiency.`);
+    return { efficiency: 0.95, strategy: 3, rating: 9 };
+  },
+  // Mark Zuckerberg: Connecting People & Iterative Improvement
+  socialConnectivity: (community: string, feature: string) => {
+    console.log(`Mark Zuckerberg Mode: Connecting ${community} through ${feature}. Iterating rapidly.`);
+    return { efficiency: 0.75, strategy: 3, rating: 7 };
+  },
+  // MagajiCo's unique blend: Power Efficiency + Strategy Rating
+  ratePerformance: (power: number, efficiency: number, strategy: number): { rating: number, commentary: string } => {
+    const combinedScore = (power * 0.5) + (efficiency * 0.3) + (strategy * 0.2);
+    let commentary = "";
+
+    if (combinedScore >= 8) {
+      commentary = "Exceptional performance! A true leader's touch.";
+    } else if (combinedScore >= 6) {
+      commentary = "Strong performance, well-executed strategy.";
+    } else {
+      commentary = "Needs improvement, focus on refining strategy and efficiency.";
+    }
+    return { rating: Math.round(combinedScore * 10) / 10, commentary };
+  }
+};
+
 const predictions = []; // Mock predictions
 
 export default function Home() {
@@ -128,6 +171,20 @@ export default function Home() {
     VisitorManager.trackVisitor(user?.id);
     // Reset daily limits if needed
     VisitorManager.resetDailyLimits();
+
+    // Simulate MagajiCo AI analysis and rating
+    const muskRating = MagajiCo.disruptiveStrategy("Sports Betting Market", "AI Prediction Integration");
+    const bezosRating = MagajiCo.customerCentricity("User Prediction Accuracy", "Advanced Filtering & Clear Vision");
+    const maRating = MagajiCo.agileAdaptability("Human Error in Betting", "Implementing Robust Filters");
+    const gatesRating = MagajiCo.dataDrivenEfficiency("Historical Match Data", "Predicting Upsets");
+    const zuckRating = MagajiCo.socialConnectivity("User Community", "Sharing Prediction Strategies");
+
+    const combinedPowerEfficiency = (muskRating.efficiency + gatesRating.efficiency) / 2;
+    const combinedStrategy = (muskRating.strategy + bezosRating.strategy + maRating.strategy + gatesRating.strategy + zuckRating.strategy) / 5;
+
+    const magajiCoRating = MagajiCo.ratePerformance(10, combinedPowerEfficiency, combinedStrategy); // Assuming max power for simulation
+    console.log("MagajiCo AI System Rating:", magajiCoRating);
+
   }, []);
 
   const handleLogout = () => {

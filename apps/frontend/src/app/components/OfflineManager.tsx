@@ -57,7 +57,39 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
     }
   };
 
-  return null; // This component doesn't render anything
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (pendingActions.length > 0) {
+        syncOfflineActions();
+      }
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setLastOnlineTime(new Date());
+    };
+
+    if (isClient) {
+      const loadedActions = loadPendingActions();
+      setPendingActions(loadedActions);
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
+  }, []);
+
+  return (
+    <>
+      {children}
+      {!isOnline && <OfflineBanner lastOnlineTime={lastOnlineTime} />}
+    </>
+  );
 };
 
 export default OfflineManager;
