@@ -25,4 +25,51 @@ describe('analyzeMatch retry logic', () => {
 
     const result = await analyzeMatch(sampleMatchData);
 
-    // Should have tried exactly MAX_RE
+    // Should have tried exactly MAX_RETRIES times
+    expect(fetchCallCount).toBe(MAX_RETRIES);
+    
+    // Should return fallback analysis when all retries fail
+    expect(result).toBeDefined();
+    expect(result.prediction).toBeDefined();
+    expect(result.confidence).toBeDefined();
+    expect(result.reasoning).toBeDefined();
+  });
+
+  it('should succeed on retry if network recovers', async () => {
+    let fetchCallCount = 0;
+    const mockResponse = {
+      ok: true,
+      json: () => Promise.resolve({
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              prediction: 'home',
+              confidence: 0.75,
+              reasoning: 'Test reasoning'
+            })
+          }
+        }]
+      })
+    };
+
+    // Mock fetch to fail first time, succeed second time
+    global.fetch = jest.fn(() => {
+      fetchCallCount++;
+      if (fetchCallCount === 1) {
+        return Promise.reject(new Error('Network error'));
+      }
+      return Promise.resolve(mockResponse as Response);
+    });
+
+    const result = await analyzeMatch(sampleMatchData);
+
+    // Should have made 2 attempts (1 failure + 1 success)
+    expect(fetchCallCount).toBe(2);
+    expect(result.prediction).toBe('home');
+    expect(result.confidence).toBe(0.75);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+});
