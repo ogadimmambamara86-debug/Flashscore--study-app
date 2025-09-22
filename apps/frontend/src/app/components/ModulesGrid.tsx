@@ -85,7 +85,10 @@ export default function ModulesGrid() {
         description: match.prediction || "Prediction analysis in progress...",
         icon: "⚽",
         status: "online",
-        metrics: [
-          { label: "Home Team", value: match.home },
-          { label: "Away Team", value: match.away },
-          { label: "Prediction", value: match.prediction ||
+        // Around line 88-95 in ModulesGrid.tsx
+metrics: [
+  { label: "Home Team", value: match.home },
+  { label: "Away Team", value: match.away },
+  { label: "Prediction", value: match.prediction || "TBD" }, // Fixed: added fallback value
+  // ... rest of your metrics
+]
