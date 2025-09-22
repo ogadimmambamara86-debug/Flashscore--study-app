@@ -728,3 +728,108 @@ const SearchDirectory: React.FC = () => {
 };
 
 export default SearchDirectory;
+"use client";
+
+import React, { useState } from 'react';
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: 'match' | 'news' | 'prediction';
+  description: string;
+  url: string;
+}
+
+export default function SearchDirectory() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+
+  const mockResults: SearchResult[] = [
+    {
+      id: '1',
+      title: 'Arsenal vs Chelsea - Match Preview',
+      type: 'match',
+      description: 'Comprehensive preview of the upcoming London derby',
+      url: '/matches/arsenal-vs-chelsea'
+    },
+    {
+      id: '2',
+      title: 'Barcelona Transfer News',
+      type: 'news',
+      description: 'Latest updates on Barcelona summer transfers',
+      url: '/news/barcelona-transfers'
+    },
+    {
+      id: '3',
+      title: 'Premier League Top Scorer Prediction',
+      type: 'prediction',
+      description: 'AI-powered prediction for this season top scorer',
+      url: '/predictions/premier-league-top-scorer'
+    }
+  ];
+
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    if (searchQuery.length > 2) {
+      const filtered = mockResults.filter(result =>
+        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        result.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setResults(filtered);
+    } else {
+      setResults([]);
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'match': return '⚽';
+      case 'news': return '📰';
+      case 'prediction': return '🔮';
+      default: return '📄';
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-4">🔍 Search Directory</h2>
+      
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search matches, news, predictions..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
+
+      {results.length > 0 && (
+        <div className="space-y-3">
+          {results.map((result) => (
+            <div key={result.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{getTypeIcon(result.type)}</span>
+                <h3 className="font-semibold text-lg">{result.title}</h3>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  {result.type}
+                </span>
+              </div>
+              <p className="text-gray-600 mb-2">{result.description}</p>
+              <a href={result.url} className="text-blue-600 hover:text-blue-800 text-sm">
+                View Details →
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {query.length > 2 && results.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <p>No results found for "{query}"</p>
+          <p className="text-sm">Try different keywords or check spelling</p>
+        </div>
+      )}
+    </div>
+  );
+}

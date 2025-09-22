@@ -261,3 +261,42 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent;
+"use client";
+
+import React from 'react';
+
+interface ProtectedContentProps {
+  children: React.ReactNode;
+  requiredRole?: string;
+  fallback?: React.ReactNode;
+}
+
+export default function ProtectedContent({ 
+  children, 
+  requiredRole = 'user',
+  fallback 
+}: ProtectedContentProps) {
+  // Mock authentication check
+  const isAuthenticated = true;
+  const userRole = 'user';
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-yellow-800">🔒 Authentication Required</h3>
+        <p className="text-yellow-700">Please log in to access this content.</p>
+      </div>
+    );
+  }
+
+  if (requiredRole && userRole !== requiredRole) {
+    return fallback || (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-red-800">🚫 Access Denied</h3>
+        <p className="text-red-700">You don't have permission to view this content.</p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
