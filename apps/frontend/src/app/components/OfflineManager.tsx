@@ -1,82 +1,53 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { AlertManager } from "@shared/utils/alertUtils";
+import { isClient, registerNetworkEvents } from "@shared/utils/offlineUtils";
+import OfflineBanner from "./OfflineBanner";
 
-// Use shared utils alias
-import { AlertManager } from "../../../../../packages/shared/src/libs/utils/alertUtils";
 interface OfflineManagerProps {
   children: React.ReactNode;
 }
 
+interface OfflineAction {
+  id: string;
+  type: string;
+  payload: any;
+  timestamp: number;
+}
+
+const OFFLINE_STORAGE_KEY = "offlineActions";
+
 const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
   const [isOnline, setIsOnline] = useState(true);
-  const [showOfflineMode, setShowOfflineMode] = useState(false);
   const [lastOnlineTime, setLastOnlineTime] = useState<Date | null>(null);
+  const [pendingActions, setPendingActions] = useState<OfflineAction[]>([]);
 
-  useEffect(() => {
-    setIsOnline(navigator.onLine);
+  // Load and save offline actions
+  const loadPendingActions = () => (isClient ? JSON.parse(localStorage.getItem(OFFLINE_STORAGE_KEY) || "[]") : []);
+  const savePendingActions = (actions: OfflineAction[]) => isClient && localStorage.setItem(OFFLINE_STORAGE_KEY, JSON.stringify(actions));
 
-    const handleOnline = () => {
-      setIsOnline(true);
-      setShowOfflineMode(false);
-      console.log('✅ Back online!');
-      AlertManager.showOnlineMode(); // now directly imported
-    };
+  const addOfflineAction = (action: OfflineAction) => {
+    const updated = [...pendingActions, action];
+    setPendingActions(updated);
+    savePendingActions(updated);
+  };
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      setLastOnlineTime(new Date());
-      setShowOfflineMode(true);
-      console.log('📱 Offline mode activated');
-      AlertManager.showOfflineMode(); // now directly imported
-    };
+  // Merge offline actions with server state
+  const syncOfflineActions = async () => {
+    if (!pendingActions.length || !isOnline) return;
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    try {
+      const response = await fetch("/api/syncActions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pendingActions),
+      });
+      const { mergedData, failedIds }: { mergedData: any; failedIds: string[] } = await response.json();
 
-    const connectivityCheck = setInterval(async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
-        await fetch('/api/health', { 
-          method: 'HEAD', 
-          cache: 'no-cache',
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!isOnline) {
-          setIsOnline(true);
-          setShowOfflineMode(false);
-        }
-      } catch {
-        if (isOnline) {
-          setIsOnline(false);
-          setLastOnlineTime(new Date());
-          setShowOfflineMode(true);
-        }
-      }
-    }, 30000);
+      // Update local state and remove successfully merged actions
+      const remaining = pendingActions.filter(a => failedIds.includes(a.id));
+      setPendingActions(remaining);
+      savePendingActions(remaining);
 
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      clearInterval(connectivityCheck);
-    };
-  }, []); // removed isOnline from deps to avoid loops
-
-  // Rest of your component remains unchanged
-  return (
-    <>
-      {children}
-      {!isOnline && (
-        <div>
-          {/* Offline notification JSX here */}
-        </div>
-      )}
-    </>
-  );
-};
-
-export default OfflineManager;
+      if (mergedData) {
+        console.log("✅ Offline actions merged successfully

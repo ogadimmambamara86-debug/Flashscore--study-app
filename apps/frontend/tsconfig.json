@@ -5,11 +5,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "baseUrl": ".",
     "paths": {
       "@components/*": ["src/app/components/*"],
       "@hooks/*": ["src/app/hooks/*"],
@@ -18,6 +14,13 @@
       "@services/*": ["src/app/services/*"],
       "@styles/*": ["src/app/styles/*"],
       "@config/*": ["src/app/config/*"]
+      "@components/*": ["./src/app/components/*"],
+      "@hooks/*": ["./src/app/hooks/*"],
+      "@controllers/*": ["./src/app/controllers/*"],
+      "@api/*": ["./src/app/api/*"],
+      "@services/*": ["./src/app/services/*"],
+      "@styles/*": ["./src/app/styles/*"],
+      "@config/*": ["./src/app/config/*"],
     }
   },
   "include": [

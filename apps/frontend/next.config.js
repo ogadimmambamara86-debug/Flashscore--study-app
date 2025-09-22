@@ -1,55 +1,32 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
+import { NextConfig } from "next";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    allowedDevOrigins: ['replit.dev', 'replit.co']
-  },
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
-    formats: ['image/webp', 'image/avif'],
-  },
-  compress: true,
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  
-  // Performance optimizations
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-  
-  // Webpack optimizations
-  webpack: (config, { isServer, dev }) => {
-    // Handle path aliases
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // Frontend aliases
-      "@components": path.resolve(__dirname, "src/app/components"),
-      "@hooks": path.resolve(__dirname, "src/app/hooks"),
-      "@controllers": path.resolve(__dirname, "src/app/controllers"),
-      "@api": path.resolve(__dirname, "src/app/api"),
-      "@services": path.resolve(__dirname, "src/app/services"),
-      "@styles": path.resolve(__dirname, "src/app/styles"),
-      "@config": path.resolve(__dirname, "src/app/config"),
-      "@shared": path.resolve(__dirname, "../../packages/shared/src/libs"),
-    };
+  compress: true,
 
-    if (!dev) {
-      // Production optimizations
+  images: {
+    formats: ["image/webp", "image/avif"],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://flashstudy-ri0g.onrender.com/api/:path*",
+      },
+    ];
+  },
+
+  webpack: (config) => {
+    // Chunk optimization
+    if (config.optimization?.splitChunks) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           default: {
             minChunks: 1,
@@ -58,41 +35,45 @@ const nextConfig = {
           },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
+            name: "vendors",
             priority: -10,
-            chunks: 'all',
+            chunks: "all",
           },
           react: {
             test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            chunks: 'all',
+            name: "react",
+            chunks: "all",
             priority: 20,
           },
         },
       };
     }
 
+    // Aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@components": path.resolve(__dirname, "src/app/components"),
+      "@hooks": path.resolve(__dirname, "src/app/hooks"),
+      "@controllers": path.resolve(__dirname, "src/app/controllers"),
+      "@api": path.resolve(__dirname, "src/app/api"),
+      "@services": path.resolve(__dirname, "src/app/services"),
+      "@styles": path.resolve(__dirname, "src/app/styles"),
+      "@shared/types": path.resolve(
+        __dirname,
+        "../../packages/shared/src/libs/types"
+      ),
+      "@shared/utils": path.resolve(
+        __dirname,
+        "../../packages/shared/src/libs/utils"
+      ),
+      "@shared/models": path.resolve(
+        __dirname,
+        "../../packages/shared/src/libs/models"
+      ),
+    };
+
     return config;
   },
-  
-  // Enable compression
-  compress: true,
-  
-  // Optimize images
-  images: {
-    formats: ['image/webp', 'image/avif'],
-  },
-
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://flashstudy-ri0g.onrender.com/api/:path*',
-      },
-    ];
-  },
-
-  
 };
 
 export default nextConfig;

@@ -1,153 +1,85 @@
 "use client";
-import React, { Component, ErrorInfo, ReactNode } from 'react';
 
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+import React from "react";
+import { Inter } from "next/font/google";
+import ErrorBoundary from "@components/ErrorBoundary";
+import OfflineManager from "@components/OfflineManager";
+import BackgroundParticles from "@components/BackgroundParticles";
+import SidebarNav from "@components/SidebarNav";
+import MobileNav from "@components/MobileNav";
+import ModulesGrid from "@components/ModulesGrid";
+import { navItems } from "@config/navItems";
+import NextAuthSessionProvider from "./providers/SessionProvider";
+import ProductionErrorBoundary from "./components/ProductionErrorBoundary";
+import PrivacyNotice from "./components/PrivacyNotice";
+import MobileInstallPrompter from "./components/MobileInstallPrompter";
+import PWAServiceWorker from "./components/PWAServiceWorker";
+import iOSInterface from "./components/iOSInterface";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Sports Central - Live Sports Predictions, Scores & Community",
+  description:
+    "Free AI-powered sports predictions for NFL, NBA, MLB, Soccer. Live scores, interactive quizzes, community forum, and earn Pi coins. Join 1000+ sports fans!",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="light">
+      <head>
+        <link rel="preconnect" href="https://flashstudy-ri0g.onrender.com" />
+        <link rel="dns-prefetch" href="https://flashstudy-ri0g.onrender.com" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#00ff88" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="SportsApp" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
+
+      <body className="relative flex sports">
+        <NextAuthSessionProvider>
+          <ProductionErrorBoundary>
+            <iOSInterface showStatusBar={true} enableHapticFeedback={true}>
+              <React.Suspense fallback={null}>
+                <BackgroundParticles />
+              </React.Suspense>
+
+              <ErrorBoundary>
+                <OfflineManager>
+                  {/* Sidebar for desktop */}
+                  <React.Suspense fallback={null}>
+                    <SidebarNav items={navItems} />
+                  </React.Suspense>
+
+                  {/* Main content area */}
+                  <div className="flex-1 min-h-screen flex flex-col">
+                    <ModulesGrid />
+                    {children}
+
+                    {/* Mobile nav (always visible at bottom on small screens) */}
+                    <React.Suspense fallback={null}>
+                      <MobileNav items={navItems} />
+                    </React.Suspense>
+                  </div>
+                </OfflineManager>
+              </ErrorBoundary>
+
+              <MobileInstallPrompter />
+              <PWAServiceWorker />
+            </iOSInterface>
+          </ProductionErrorBoundary>
+        </NextAuthSessionProvider>
+        <PrivacyNotice />
+      </body>
+    </html>
+  );
 }
-
-interface State {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-
-    // Log error for debugging
-    if (typeof window !== 'undefined') {
-      try {
-        // Create an error report for debugging
-        console.log('Error Report:', {
-          message: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          timestamp: new Date().toISOString()
-        });
-      } catch (logError) {
-        console.error('Failed to log error:', logError);
-      }
-    }
-  }
-
-  private reportError = (error: Error, errorInfo: ErrorInfo) => {
-    // Log error details for debugging
-    const errorReport = {
-      message: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href
-    };
-
-    console.error('Error Report:', errorReport);
-
-    // In production, you might send this to an error tracking service
-    // Example: Sentry.captureException(error, { extra: errorReport });
-  };
-
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: null });
-  };
-
-  render() {
-    if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
-      return (
-        <div style={{
-          padding: '40px 20px',
-          textAlign: 'center',
-          backgroundColor: '#fee',
-          border: '2px solid #fcc',
-          borderRadius: '12px',
-          margin: '20px',
-          fontFamily: 'Arial, sans-serif'
-        }}>
-          <div style={{ fontSize: '3rem', marginBottom: '20px' }}>⚠️</div>
-          <h2 style={{ color: '#c33', marginBottom: '16px' }}>
-            Oops! Something went wrong
-          </h2>
-          <p style={{ color: '#666', marginBottom: '20px', maxWidth: '500px', margin: '0 auto 20px' }}>
-            We encountered an unexpected error. Our team has been notified and is working on a fix.
-          </p>
-
-          <details style={{ 
-            textAlign: 'left', 
-            maxWidth: '600px', 
-            margin: '20px auto',
-            backgroundColor: '#fff',
-            padding: '15px',
-            borderRadius: '8px',
-            border: '1px solid #ddd'
-          }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
-              Technical Details
-            </summary>
-            <pre style={{ 
-              fontSize: '12px', 
-              overflow: 'auto', 
-              backgroundColor: '#f5f5f5',
-              padding: '10px',
-              borderRadius: '4px',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {this.state.error?.message}
-              {'\n\n'}
-              {this.state.error?.stack}
-            </pre>
-          </details>
-
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button 
-              onClick={this.handleRetry}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
-            >
-              Try Again
-            </button>
-            <button 
-              onClick={() => window.location.reload()}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-export default ErrorBoundary;
