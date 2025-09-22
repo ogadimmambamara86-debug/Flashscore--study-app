@@ -155,7 +155,6 @@ const ProtectedContent_1: React.FC<Props> = ({ children, requireAuth = false }) 
 };
 
 export default ProtectedContent_1;
-'use client';
 
 import React from 'react';
 
@@ -165,10 +164,10 @@ interface ProtectedContentProps {
   fallback?: React.ReactNode;
 }
 
-const ProtectedContent_2: React.FC<ProtectedContentProps> = ({ 
-  children, 
+const ProtectedContent_2: React.FC<ProtectedContentProps> = ({
+  children,
   requireAuth = false,
-  fallback 
+  fallback
 }) => {
   // Simple implementation - can be enhanced with actual auth logic
   const isAuthenticated = true; // Replace with actual auth check
@@ -185,7 +184,6 @@ const ProtectedContent_2: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent_2;
-'use client';
 
 import React from 'react';
 
@@ -258,7 +256,6 @@ const ProtectedContent_3: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent_3;
-'use client';
 
 import React from 'react';
 
@@ -268,10 +265,10 @@ interface ProtectedContentProps {
   fallback?: React.ReactNode;
 }
 
-export default function ProtectedContent({ 
-  children, 
+export default function ProtectedContent({
+  children,
   requiredRole = 'user',
-  fallback 
+  fallback
 }: ProtectedContentProps) {
   // Mock authentication check
   const isAuthenticated = true;
