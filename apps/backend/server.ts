@@ -4,7 +4,8 @@ import path from "path";
 import dotenv from "dotenv";
 
 // Fix __dirname in ES Modules
-const __filename = fileURLToPath(import.meta.url);
+import path from 'path';
+const __dirname = path.dirname(__filename);
 const __dirname = path.dirname(__filename);
 
 // Set NODE_ENV to development if not set
