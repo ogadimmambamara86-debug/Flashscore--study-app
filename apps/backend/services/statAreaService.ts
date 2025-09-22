@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 
@@ -34,8 +33,11 @@ export class StatAreaService {
 
     for (const endpoint of endpoints) {
       try {
+        console.log(`Fetching predictions from: ${endpoint}`);
         const predictions = await this.fetchPredictionsFromEndpoint(endpoint);
         allPredictions.push(...predictions);
+        // Add delay between requests to be respectful
+        await this.delay(1000);
       } catch (error) {
         console.warn(`Failed to fetch from ${endpoint}:`, error);
       }
@@ -48,36 +50,33 @@ export class StatAreaService {
   private async fetchPredictionsFromEndpoint(endpoint: string): Promise<StatAreaPrediction[]> {
     const url = `${this.baseUrl}${endpoint}`;
     
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': this.userAgent,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-// Use the same AbortController pattern as Fix 1
-const controller = new AbortController();
-const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-try {
-  const response = await fetch(url, {
-    ...options,
-    signal: controller.signal
-  });
-  clearTimeout(timeoutId);
-  return response;
-} catch (error) {
-  clearTimeout(timeoutId);
-  throw error;
-}
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': this.userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} for ${url}`);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} for ${url}`);
+      }
+
+      const html = await response.text();
+      return this.parseStatAreaHTML(html, endpoint);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
-
-    const html = await response.text();
-    return this.parseStatAreaHTML(html, endpoint);
   }
 
   private parseStatAreaHTML(html: string, source: string): StatAreaPrediction[] {
@@ -90,7 +89,9 @@ try {
       '.match-row',
       '.tip-row',
       'tr.match',
-      '.prediction-item'
+      '.prediction-item',
+      '.match-prediction',
+      '.fixture'
     ];
 
     for (const selector of selectors) {
@@ -106,36 +107,43 @@ try {
       });
     }
 
+    console.log(`Found ${predictions.length} predictions from ${source}`);
     return predictions;
   }
 
-  private extractPredictionFromElement($: any, element: any, source: string): StatAreaPrediction | null {
+  private extractPredictionFromElement($: cheerio.CheerioAPI, element: cheerio.Element, source: string): StatAreaPrediction | null {
     const $el = $(element);
     
     // Extract teams
-    const homeTeam = this.extractTeamName($el, ['.home-team', '.team-home', '.home']);
-    const awayTeam = this.extractTeamName($el, ['.away-team', '.team-away', '.away']);
+    const homeTeam = this.extractTeamName($, $el, ['.home-team', '.team-home', '.home', '.team-a']);
+    const awayTeam = this.extractTeamName($, $el, ['.away-team', '.team-away', '.away', '.team-b']);
     
-    if (!homeTeam || !awayTeam) return null;
+    if (!homeTeam || !awayTeam) {
+      console.log('Could not extract team names');
+      return null;
+    }
 
     // Extract prediction
-    const prediction = this.extractText($el, ['.tip', '.prediction', '.bet-tip', '.recommendation']);
-    if (!prediction) return null;
+    const prediction = this.extractText($, $el, ['.tip', '.prediction', '.bet-tip', '.recommendation', '.pick']);
+    if (!prediction) {
+      console.log('Could not extract prediction');
+      return null;
+    }
 
     // Extract other data
-    const league = this.extractText($el, ['.league', '.competition', '.tournament']) || 'Unknown';
-    const odds = this.extractOdds($el) || 0;
-    const confidence = this.calculateConfidence($el, odds);
-    const date = this.extractDate($el) || new Date().toISOString();
+    const league = this.extractText($, $el, ['.league', '.competition', '.tournament']) || 'Unknown';
+    const odds = this.extractOdds($, $el) || 0;
+    const confidence = this.calculateConfidence($, $el, odds);
+    const date = this.extractDate($, $el) || new Date().toISOString();
     const categories = this.extractCategories(prediction, source);
 
     return {
-      matchId: `${this.slugify(homeTeam)}_vs_${this.slugify(awayTeam)}`,
+      matchId: `${this.slugify(homeTeam)}_vs_${this.slugify(awayTeam)}_${Date.now()}`,
       homeTeam,
       awayTeam,
-      prediction,
+      prediction: prediction.trim(),
       confidence,
-      league,
+      league: league.trim(),
       odds,
       date,
       status: 'active',
@@ -143,42 +151,60 @@ try {
     };
   }
 
-  private extractTeamName($el: any, selectors: string[]): string {
+  private extractTeamName($: cheerio.CheerioAPI, $el: cheerio.Cheerio<cheerio.Element>, selectors: string[]): string {
     for (const selector of selectors) {
-      const text = $el.find(selector).text().trim();
-      if (text) return text;
+      const text = $el.find(selector).first().text().trim();
+      if (text && text.length > 0) return text;
+    }
+    
+    // Fallback: try to find team names in common structures
+    const teamText = $el.text();
+    const vsIndex = teamText.toLowerCase().indexOf(' vs ');
+    if (vsIndex !== -1) {
+      const teams = teamText.split(' vs ');
+      if (teams.length === 2) {
+        return selectors.includes('.home-team') ? teams[0].trim() : teams[1].trim();
+      }
+    }
+    
+    return '';
+  }
+
+  private extractText($: cheerio.CheerioAPI, $el: cheerio.Cheerio<cheerio.Element>, selectors: string[]): string {
+    for (const selector of selectors) {
+      const text = $el.find(selector).first().text().trim();
+      if (text && text.length > 0) return text;
     }
     return '';
   }
 
-  private extractText($el: any, selectors: string[]): string {
-    for (const selector of selectors) {
-      const text = $el.find(selector).text().trim();
-      if (text) return text;
-    }
-    return '';
-  }
-
-  private extractOdds($el: any): number {
-    const oddsSelectors = ['.odds', '.odd', '.price', '.coefficient'];
+  private extractOdds($: cheerio.CheerioAPI, $el: cheerio.Cheerio<cheerio.Element>): number {
+    const oddsSelectors = ['.odds', '.odd', '.price', '.coefficient', '.value'];
     
     for (const selector of oddsSelectors) {
-      const oddsText = $el.find(selector).text().trim();
-      const odds = parseFloat(oddsText);
-      if (!isNaN(odds) && odds > 1) return odds;
+      const oddsText = $el.find(selector).first().text().trim();
+      const oddsMatch = oddsText.match(/(\d+\.\d+|\d+)/);
+      if (oddsMatch) {
+        const odds = parseFloat(oddsMatch[1]);
+        if (!isNaN(odds) && odds >= 1.0) return odds;
+      }
     }
     
     return 0;
   }
 
-  private extractDate($el: any): string {
-    const dateSelectors = ['.date', '.time', '.match-date', '.game-time'];
+  private extractDate($: cheerio.CheerioAPI, $el: cheerio.Cheerio<cheerio.Element>): string {
+    const dateSelectors = ['.date', '.time', '.match-date', '.game-time', '.datetime'];
     
     for (const selector of dateSelectors) {
-      const dateText = $el.find(selector).text().trim();
+      const dateText = $el.find(selector).first().text().trim();
       if (dateText) {
         try {
-          return new Date(dateText).toISOString();
+          // Try to parse the date string
+          const parsedDate = new Date(dateText);
+          if (!isNaN(parsedDate.getTime())) {
+            return parsedDate.toISOString();
+          }
         } catch {
           continue;
         }
@@ -188,20 +214,23 @@ try {
     return new Date().toISOString();
   }
 
-  private calculateConfidence($el: any, odds: number): number {
+  private calculateConfidence($: cheerio.CheerioAPI, $el: cheerio.Cheerio<cheerio.Element>, odds: number): number {
     // Look for explicit confidence
-    const confSelectors = ['.confidence', '.probability', '.sure', '.rating'];
+    const confSelectors = ['.confidence', '.probability', '.sure', '.rating', '.percent'];
     
     for (const selector of confSelectors) {
-      const confText = $el.find(selector).text().trim();
+      const confText = $el.find(selector).first().text().trim();
       const confMatch = confText.match(/(\d+)%?/);
       if (confMatch) {
-        return parseInt(confMatch[1]);
+        const confidence = parseInt(confMatch[1]);
+        if (!isNaN(confidence) && confidence >= 0 && confidence <= 100) {
+          return confidence;
+        }
       }
     }
 
     // Calculate from odds if available
-    if (odds > 1) {
+    if (odds > 1.0) {
       const impliedProb = (1 / odds) * 100;
       return Math.round(Math.min(Math.max(impliedProb, 30), 95));
     }
@@ -211,8 +240,14 @@ try {
   }
 
   private extractCategories(prediction: string, source: string): string[] {
-    const categories = [source.replace('/predictions/', '').replace('/', '')];
+    const categories: string[] = [];
     
+    // Add source-based categories
+    if (source.includes('over-under')) categories.push('over-under');
+    if (source.includes('both-teams')) categories.push('both-teams-score');
+    if (source.includes('1x2')) categories.push('match-result');
+    
+    // Add prediction-based categories
     const predLower = prediction.toLowerCase();
     
     if (predLower.includes('over') || predLower.includes('under')) {
@@ -221,21 +256,24 @@ try {
     if (predLower.includes('both teams') || predLower.includes('btts')) {
       categories.push('both-teams-score');
     }
-    if (predLower.includes('win') || predLower.includes('1x2')) {
+    if (predLower.includes('win') || predLower.includes('1x2') || predLower.includes('draw')) {
       categories.push('match-result');
     }
     if (predLower.includes('handicap') || predLower.includes('spread')) {
       categories.push('handicap');
     }
 
-    return categories;
+    // Remove duplicates
+    return [...new Set(categories)];
   }
 
   private slugify(text: string): string {
     return text
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '_');
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
   }
 
   private removeDuplicates(predictions: StatAreaPrediction[]): StatAreaPrediction[] {
@@ -248,11 +286,17 @@ try {
     });
   }
 
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   // Get predictions by category
   async getPredictionsByCategory(category: string): Promise<StatAreaPrediction[]> {
     const allPredictions = await this.fetchAllPredictions();
     return allPredictions.filter(pred => 
-      pred.categories.includes(category) || 
+      pred.categories.some(cat => 
+        cat.toLowerCase().includes(category.toLowerCase())
+      ) || 
       pred.prediction.toLowerCase().includes(category.toLowerCase())
     );
   }
@@ -263,6 +307,14 @@ try {
     return allPredictions
       .filter(pred => pred.confidence >= minConfidence)
       .sort((a, b) => b.confidence - a.confidence);
+  }
+
+  // Get predictions for a specific league
+  async getPredictionsByLeague(league: string): Promise<StatAreaPrediction[]> {
+    const allPredictions = await this.fetchAllPredictions();
+    return allPredictions.filter(pred => 
+      pred.league.toLowerCase().includes(league.toLowerCase())
+    );
   }
 }
 
