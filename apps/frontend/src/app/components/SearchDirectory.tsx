@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useMobile } from '@hooks/useMobile';
@@ -113,36 +112,36 @@ const SearchDirectory: React.FC = () => {
 
   const performSearch = async (query: string = searchQuery) => {
     if (!query.trim()) return;
-    
+
     setIsSearching(true);
     setShowSuggestions(false);
-    
+
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     let filteredResults = mockResults.filter(result => {
       const matchesQuery = result.title.toLowerCase().includes(query.toLowerCase()) ||
                           result.content?.toLowerCase().includes(query.toLowerCase()) ||
                           result.author?.toLowerCase().includes(query.toLowerCase()) ||
                           result.tags?.some(tag => tag.toLowerCase().includes(query.toLowerCase()));
-      
-      const matchesType = filters.type === 'all' || 
+
+      const matchesType = filters.type === 'all' ||
                          (filters.type === 'articles' && result.type === 'article') ||
                          (filters.type === 'authors' && result.type === 'author') ||
                          (filters.type === 'predictions' && result.type === 'prediction');
-      
-      const matchesSport = filters.sport === 'all' || 
+
+      const matchesSport = filters.sport === 'all' ||
                           result.sport?.toLowerCase() === filters.sport ||
                           result.expertise?.some(exp => exp.toLowerCase().includes(filters.sport));
-      
+
       return matchesQuery && matchesType && matchesSport;
     });
 
     // Apply sorting
     switch (filters.sortBy) {
       case 'date':
-        filteredResults.sort((a, b) => 
-          new Date(b.publishDate || '2024-01-01').getTime() - 
+        filteredResults.sort((a, b) =>
+          new Date(b.publishDate || '2024-01-01').getTime() -
           new Date(a.publishDate || '2024-01-01').getTime()
         );
         break;
@@ -613,75 +612,12 @@ const SearchDirectory: React.FC = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        
+
         select option {
           background: #1e293b;
           color: #fff;
         }
       `}</style>
-    </div>
-  );
-};
-
-export default SearchDirectory;
-'use client';
-
-import React, { useState } from 'react';
-
-const SearchDirectory: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Search Directory</h2>
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search..."
-        className="w-full p-2 border rounded"
-      />
-    </div>
-  );
-};
-
-export default SearchDirectory;
-'use client';
-
-import React, { useState } from 'react';
-
-interface SearchDirectoryProps {
-  onSearch?: (query: string) => void;
-}
-
-const SearchDirectory: React.FC<SearchDirectoryProps> = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch?.(query);
-  };
-
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold mb-4">Search Directory</h2>
-      <form onSubmit={handleSearch} className="space-y-4">
-        <div>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for teams, players, or matches..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
-        >
-          Search
-        </button>
-      </form>
     </div>
   );
 };

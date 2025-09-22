@@ -42,7 +42,7 @@ const MobileNav: React.FC = () => {
       {/* Overlay menu */}
       {isOpen && (
         <>
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setIsOpen(false)}
             style={{
@@ -55,7 +55,7 @@ const MobileNav: React.FC = () => {
               touchAction: 'none'
             }}
           />
-          <div 
+          <div
             className="fixed bottom-20 right-4 z-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 w-48"
             style={{
               position: 'fixed',
@@ -68,9 +68,9 @@ const MobileNav: React.FC = () => {
           >
             <nav className="flex flex-col space-y-2">
               {navItems.map((item) => (
-                <a 
+                <a
                   key={item.id}
-                  href={item.href} 
+                  href={item.href}
                   className="text-gray-800 dark:text-gray-200 hover:text-blue-600 py-2 flex items-center gap-2"
                 >
                   <span>{item.icon}</span>

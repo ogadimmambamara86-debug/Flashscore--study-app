@@ -53,7 +53,7 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
               ? prediction.confidence 
               : `${prediction.confidence || 0}%`;
             const status = prediction.status || 'pending';
-            
+
             return (
               <div
                 key={predictionId}
@@ -108,22 +108,6 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
           })}
         </div>
       )}
-    </div>
-  );
-};
-
-export default PredictionsTable;
-'use client';
-
-import React from 'react';
-
-const PredictionsTable: React.FC = () => {
-  return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Latest Predictions</h2>
-      <div className="text-center text-gray-500">
-        Predictions will be displayed here
-      </div>
     </div>
   );
 };

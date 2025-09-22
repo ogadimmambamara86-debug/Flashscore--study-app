@@ -53,6 +53,16 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
         console.log("✅ Offline actions merged successfully");
       }
     } catch (error) {
+      console.error("❌ Error processing offline actions:", error);
+    }
+  };
+
+  return null; // This is a background service component
+};
+
+export default OfflineManager;
+      }
+    } catch (error) {
       console.error("❌ Error syncing offline data:", error);
     }
   };
