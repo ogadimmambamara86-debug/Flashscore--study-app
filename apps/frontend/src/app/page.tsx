@@ -26,6 +26,7 @@ const ComponentLoader = ({ children }: { children: React.ReactNode }) => (
 // Lazy load heavy components with better error boundaries
 const InteractiveTools = lazy(() => import("@components/InteractiveTools").catch(() => ({ default: () => <div>Tools unavailable</div> })));
 const CommunityVoting = lazy(() => import("@components/CommunityVoting").catch(() => ({ default: () => <div>Voting unavailable</div> })));
+const UserFriendlyFeatures = lazy(() => import("@components/UserFriendlyFeatures").catch(() => ({ default: () => <div>Features unavailable</div> })));
 const Forum = lazy(() => import("@components/Forum").catch(() => ({ default: () => <div>Forum unavailable</div> })));
 const PiCoinWallet = lazy(() => import("@components/PiCoinWallet").catch(() => ({ default: () => <div>Wallet unavailable</div> })));
 const PiCoinStore = lazy(() => import("@components/PiCoinStore").catch(() => ({ default: () => <div>Store unavailable</div> })));
@@ -352,11 +353,19 @@ export default function Home() {
 
           {!isMobile && <ModulesGrid />}
 
+          {/* User-Friendly Features */}
+          <Suspense fallback={<ComponentLoader><SkeletonLoader height="h-32" /></ComponentLoader>}>
+            <UserFriendlyFeatures
+              currentUser={currentUser}
+              isMobile={isMobile}
+            />
+          </Suspense>
+
           {/* Content Personalization */}
           <Suspense fallback={<ComponentLoader><SkeletonLoader height="h-32" /></ComponentLoader>}>
             <ContentPersonalization
               currentUser={currentUser}
-              onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}
+              onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}pdated:', prefs)}
             />
           </Suspense>
 
