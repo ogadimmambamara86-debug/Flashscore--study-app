@@ -188,3 +188,76 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent;
+'use client';
+
+import React from 'react';
+
+interface ProtectedContentProps {
+  children: React.ReactNode;
+  contentType: string;
+  contentId: string;
+  title: string;
+  preview: string;
+  onRegister: () => void;
+  onUpgrade: () => void;
+}
+
+const ProtectedContent: React.FC<ProtectedContentProps> = ({
+  children,
+  contentType,
+  contentId,
+  title,
+  preview,
+  onRegister,
+  onUpgrade
+}) => {
+  const [showContent, setShowContent] = React.useState(false);
+  
+  // Mock authentication check - replace with actual auth logic
+  const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('currentUser');
+  const hasPremium = false; // Replace with actual premium check
+
+  if (!isAuthenticated) {
+    return (
+      <div className="glass-card p-6">
+        <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
+        <p className="text-gray-300 mb-6">{preview}</p>
+        <div className="flex gap-4">
+          <button
+            onClick={onRegister}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Sign Up to View
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasPremium && contentType === 'predictions') {
+    return (
+      <div className="glass-card p-6">
+        <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
+        <p className="text-gray-300 mb-6">{preview}</p>
+        <div className="flex gap-4">
+          <button
+            onClick={onUpgrade}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Upgrade to Premium
+          </button>
+          <button
+            onClick={() => setShowContent(true)}
+            className="border border-gray-400 hover:border-gray-300 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-medium"
+          >
+            View Limited Preview
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <div>{children}</div>;
+};
+
+export default ProtectedContent;

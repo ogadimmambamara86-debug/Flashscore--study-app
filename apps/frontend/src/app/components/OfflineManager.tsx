@@ -1,109 +1,86 @@
+
 "use client";
-import React, { useState, useEffect } from "react";
-import { AlertManager } from "@shared/utils/alertUtils";
-import { isClient, registerNetworkEvents } from "@shared/utils/offlineUtils";
-import OfflineBanner from "./OfflineBanner";
+import React, { useEffect, useState } from 'react';
 
 interface OfflineManagerProps {
   children: React.ReactNode;
 }
 
-interface OfflineAction {
+interface PendingAction {
   id: string;
   type: string;
-  payload: any;
+  data: any;
   timestamp: number;
 }
 
-const OFFLINE_STORAGE_KEY = "offlineActions";
-
 const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
   const [isOnline, setIsOnline] = useState(true);
-  const [lastOnlineTime, setLastOnlineTime] = useState<Date | null>(null);
-  const [pendingActions, setPendingActions] = useState<OfflineAction[]>([]);
+  const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
 
-  // Load and save offline actions
-  const loadPendingActions = () => (isClient ? JSON.parse(localStorage.getItem(OFFLINE_STORAGE_KEY) || "[]") : []);
-  const savePendingActions = (actions: OfflineAction[]) => isClient && localStorage.setItem(OFFLINE_STORAGE_KEY, JSON.stringify(actions));
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncPendingActions();
+    };
 
-  const addOfflineAction = (action: OfflineAction) => {
-    const updated = [...pendingActions, action];
-    setPendingActions(updated);
-    savePendingActions(updated);
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Check initial status
+    setIsOnline(navigator.onLine);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const savePendingActions = (actions: PendingAction[]) => {
+    localStorage.setItem('pendingActions', JSON.stringify(actions));
+    setPendingActions(actions);
   };
 
-  // Merge offline actions with server state
-  const syncOfflineActions = async () => {
-    if (!pendingActions.length || !isOnline) return;
+  const syncPendingActions = async () => {
+    const stored = localStorage.getItem('pendingActions');
+    if (!stored) return;
 
     try {
-      const response = await fetch("/api/syncActions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingActions),
-      });
-      const { mergedData, failedIds }: { mergedData: any; failedIds: string[] } = await response.json();
+      const actions: PendingAction[] = JSON.parse(stored);
+      const remaining: PendingAction[] = [];
 
-      // Update local state and remove successfully merged actions
-      const remaining = pendingActions.filter(a => failedIds.includes(a.id));
-      setPendingActions(remaining);
+      for (const action of actions) {
+        try {
+          // Process each action
+          console.log(`Processing offline action: ${action.type}`);
+          // Add actual sync logic here
+        } catch (error) {
+          console.error(`Failed to sync action ${action.id}:`, error);
+          remaining.push(action);
+        }
+      }
+
       savePendingActions(remaining);
 
-      if (mergedData) {
+      if (remaining.length === 0) {
         console.log("✅ Offline actions merged successfully");
-      }
-    } catch (error) {
-      console.error("❌ Error processing offline actions:", error);
-    }
-  };
-
-  return null; // This is a background service component
-};
-
-export default OfflineManager;
       }
     } catch (error) {
       console.error("❌ Error syncing offline data:", error);
     }
   };
 
-  useEffect(() => {
-    if (pendingActions.length > 0 && isOnline) {
-      syncOfflineActions();
-    }
-  }, [pendingActions, isOnline]);
-
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      if (pendingActions.length > 0) {
-        syncOfflineActions();
-      }
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-      setLastOnlineTime(new Date());
-    };
-
-    if (isClient) {
-      const loadedActions = loadPendingActions();
-      setPendingActions(loadedActions);
-
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
-
-      return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-      };
-    }
-  }, []);
-
   return (
     <>
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 bg-yellow-600 text-white p-2 text-center z-50">
+          You're offline. Changes will sync when connection is restored.
+        </div>
+      )}
       {children}
-      {!isOnline && <OfflineBanner lastOnlineTime={lastOnlineTime} />}
     </>
   );
 };

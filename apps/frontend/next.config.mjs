@@ -59,6 +59,7 @@ const nextConfig = {
       "@api": path.resolve(__dirname, "src/app/api"),
       "@services": path.resolve(__dirname, "src/app/services"),
       "@styles": path.resolve(__dirname, "src/app/styles"),
+      "@config": path.resolve(__dirname, "src/app/config"),
       "@shared/types": path.resolve(
         __dirname,
         "../../packages/shared/src/libs/types"

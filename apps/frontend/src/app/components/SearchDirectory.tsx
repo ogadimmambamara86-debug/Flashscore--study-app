@@ -623,3 +623,108 @@ const SearchDirectory: React.FC = () => {
 };
 
 export default SearchDirectory;
+'use client';
+
+import React, { useState } from 'react';
+
+interface SearchResult {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  url?: string;
+}
+
+const SearchDirectory: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const mockResults: SearchResult[] = [
+    {
+      id: '1',
+      title: 'Football Predictions',
+      description: 'Expert predictions for upcoming football matches',
+      category: 'Predictions'
+    },
+    {
+      id: '2',
+      title: 'Basketball Odds',
+      description: 'Live odds and betting analysis for NBA games',
+      category: 'Odds'
+    },
+    {
+      id: '3',
+      title: 'Soccer Stats',
+      description: 'Comprehensive soccer statistics and analytics',
+      category: 'Statistics'
+    }
+  ];
+
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      const filtered = mockResults.filter(result =>
+        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        result.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setResults(filtered);
+      setIsLoading(false);
+    }, 500);
+  };
+
+  return (
+    <div className="glass-card p-6">
+      <h2 className="text-2xl font-bold text-white mb-6">🔍 Sports Directory</h2>
+      
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search sports content..."
+          value={query}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="w-full p-4 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="text-gray-400 mt-4">Searching...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {results.length === 0 && query ? (
+            <p className="text-gray-400 text-center py-8">No results found for "{query}"</p>
+          ) : (
+            results.map((result) => (
+              <div
+                key={result.id}
+                className="bg-gray-800/30 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition-colors cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-white">{result.title}</h3>
+                  <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                    {result.category}
+                  </span>
+                </div>
+                <p className="text-gray-300">{result.description}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {!query && (
+        <div className="text-center py-8">
+          <p className="text-gray-400">Enter a search term to find sports content</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SearchDirectory;

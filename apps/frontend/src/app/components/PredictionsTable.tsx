@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -106,57 +107,6 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
               </div>
             );
           })}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default PredictionsTable;
-'use client';
-
-import React from 'react';
-
-interface Prediction {
-  id: string;
-  match: string;
-  prediction: string;
-  confidence: number;
-  date: string;
-}
-
-interface PredictionsTableProps {
-  predictions?: Prediction[];
-}
-
-const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions = [] }) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold mb-4">Match Predictions</h2>
-      {predictions.length === 0 ? (
-        <p className="text-gray-500">No predictions available</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-4 py-2 text-left">Match</th>
-                <th className="px-4 py-2 text-left">Prediction</th>
-                <th className="px-4 py-2 text-left">Confidence</th>
-                <th className="px-4 py-2 text-left">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {predictions.map((prediction) => (
-                <tr key={prediction.id} className="border-t">
-                  <td className="px-4 py-2">{prediction.match}</td>
-                  <td className="px-4 py-2">{prediction.prediction}</td>
-                  <td className="px-4 py-2">{prediction.confidence}%</td>
-                  <td className="px-4 py-2">{prediction.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
     </div>
