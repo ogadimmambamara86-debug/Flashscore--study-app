@@ -58,6 +58,12 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (pendingActions.length > 0 && isOnline) {
+      syncOfflineActions();
+    }
+  }, [pendingActions, isOnline]);
+
+  useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
       if (pendingActions.length > 0) {

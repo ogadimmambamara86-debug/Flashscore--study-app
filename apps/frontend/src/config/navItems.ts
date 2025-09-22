@@ -4,73 +4,89 @@ export interface NavItem {
   href: string;
   icon?: string;
   description?: string;
+  id?: string;
+  label?: string;
 }
 
 export const navItems: NavItem[] = [
   {
-    name: 'Home',
+    id: "dashboard",
+    name: 'Dashboard',
     href: '/',
     icon: '🏠',
+    label: "🏠 Dashboard",
     description: 'Main dashboard and predictions'
   },
   {
+    id: "predictions", 
     name: 'Predictions',
     href: '/predictions',
     icon: '🔮',
+    label: "🔮 Predictions",
     description: 'AI-powered sports predictions'
   },
   {
+    id: "scores",
     name: 'Live Scores',
-    href: '/live',
-    icon: '📺',
+    href: '/scores',
+    icon: '⚽',
+    label: "📊 Live Scores", 
     description: 'Real-time match updates'
   },
   {
-    name: 'Formations',
-    href: '/formations',
-    icon: '⚽',
-    description: 'Football tactical formations'
-  },
-  {
-    name: 'Quiz',
-    href: '/quiz',
-    icon: '🧠',
-    description: 'Test your sports knowledge'
-  },
-  {
-    name: 'Wallet',
-    href: '/wallet',
-    icon: '💰',
-    description: 'Pi coin balance and rewards'
-  },
-  {
-    name: 'Community',
-    href: '/community',
-    icon: '👥',
-    description: 'Sports community discussions'
-  },
-  {
+    id: "news",
     name: 'News',
     href: '/news',
     icon: '📰',
+    label: "📰 News",
     description: 'Latest sports news'
+  },
+  {
+    id: "quiz",
+    name: 'Quiz',
+    href: '/quiz',
+    icon: '🧠',
+    label: "🎯 Quiz",
+    description: 'Test your sports knowledge'
+  },
+  {
+    id: "tools",
+    name: 'Tools',
+    href: '/tools',
+    icon: '🛠️',
+    label: "🛠️ Tools",
+    description: 'Interactive prediction tools'
+  },
+  {
+    id: "search",
+    name: 'Search',
+    href: '/search',
+    icon: '🔍',
+    label: "🔍 Search",
+    description: 'Search sports content'
+  },
+  {
+    id: "community",
+    name: 'Community',
+    href: '/community',
+    icon: '👥',
+    label: "👥 Community",
+    description: 'Sports community discussions'
+  },
+  {
+    id: "store",
+    name: 'Store',
+    href: '/store',
+    icon: '🛒',
+    label: "🛒 Store",
+    description: 'Pi coin store'
+  },
+  {
+    id: "profile",
+    name: 'Profile',
+    href: '/profile',
+    icon: '👤',
+    label: "👤 Profile",
+    description: 'User profile and settings'
   }
-];
-export const navItems = [
-  { id: "dashboard", label: "🏠 Dashboard", icon: "🏠" },
-  { id: "predictions", label: "🔮 Predictions", icon: "🔮" },
-  { id: "scores", label: "📊 Live Scores", icon: "📊" },
-  { id: "news", label: "📰 News", icon: "📰" },
-  { id: "quiz", label: "🎯 Quiz", icon: "🎯" },
-  { id: "tools", label: "🛠️ Tools", icon: "🛠️" },
-  { id: "search", label: "🔍 Search", icon: "🔍" },
-];
-export const navItems = [
-  { name: 'Dashboard', href: '/', icon: '🏠' },
-  { name: 'Predictions', href: '/predictions', icon: '🔮' },
-  { name: 'Live Scores', href: '/scores', icon: '⚽' },
-  { name: 'Community', href: '/community', icon: '👥' },
-  { name: 'Quiz', href: '/quiz', icon: '🧠' },
-  { name: 'Store', href: '/store', icon: '🛒' },
-  { name: 'Profile', href: '/profile', icon: '👤' },
 ];

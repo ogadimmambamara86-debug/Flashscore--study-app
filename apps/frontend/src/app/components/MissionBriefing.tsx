@@ -66,15 +66,13 @@ const MissionBriefing = () => {
         fontSize: "2rem",
         fontWeight: "bold",
         marginTop: "0.25rem",
-        transform: fade ? "translateY(-10px)" : "translateY(0px)",
-      }}
-    >
-      {children}
+        color: currentMetric.color,
+        transform: fade ? "translateY(0)" : "translateY(-10px)",
+        transition: "transform 0.5s, opacity 0.5s"
+      }}>
+        {currentMetric.value}
+      </div>
     </div>
-  );
-};
-
-export default MissionBriefing;
   );
 };
 
