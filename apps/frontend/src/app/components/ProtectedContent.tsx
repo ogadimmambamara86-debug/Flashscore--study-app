@@ -135,9 +135,6 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent;
-'use client';
-
-import React from 'react';
 
 interface Props {
   children: React.ReactNode;

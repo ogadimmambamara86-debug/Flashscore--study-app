@@ -93,16 +93,9 @@ export const navItems = [
   { label: "Home", href: "/", icon: "🏠" },
   { label: "Predictions", href: "/predictions", icon: "🔮" },
   { label: "News", href: "/news", icon: "📰" },
-  { label: "Quiz", href: "/quiz", icon: "🧠" },
-  { label: "Community", href: "/community", icon: "👥" },
-];
-
-export default navItems;
-export const navItems = [
-  { label: "Home", href: "/", icon: "🏠" },
-  { label: "Predictions", href: "/predictions", icon: "🔮" },
-  { label: "News", href: "/news", icon: "📰" },
   { label: "Analytics", href: "/analytics", icon: "📊" },
   { label: "Community", href: "/community", icon: "👥" },
   { label: "MagajiCo", href: "/magajico", icon: "🤖" }
 ];
+
+export default navItems;
