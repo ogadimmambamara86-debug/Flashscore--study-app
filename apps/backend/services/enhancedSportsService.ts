@@ -99,8 +99,6 @@ export class EnhancedSportsService {
       const [basicMatches, detailedStats, socialData] = await Promise.allSettled([
         this.fetchBasicMatchData(),
         this.fetchMatchStatistics(),
-        this.fetchSocialMatchData()
-      ]);
 
       const matches: EnhancedMatch[] = [];
 
