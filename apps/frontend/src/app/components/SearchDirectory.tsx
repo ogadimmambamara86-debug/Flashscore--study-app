@@ -624,3 +624,25 @@ const SearchDirectory: React.FC = () => {
 };
 
 export default SearchDirectory;
+'use client';
+
+import React, { useState } from 'react';
+
+const SearchDirectory: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  return (
+    <div className="bg-white shadow-md rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-4">Search Directory</h2>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search..."
+        className="w-full p-2 border rounded"
+      />
+    </div>
+  );
+};
+
+export default SearchDirectory;

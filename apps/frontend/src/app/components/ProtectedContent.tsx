@@ -135,3 +135,26 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
 };
 
 export default ProtectedContent;
+'use client';
+
+import React from 'react';
+
+interface Props {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+}
+
+const ProtectedContent: React.FC<Props> = ({ children, requireAuth = false }) => {
+  if (requireAuth) {
+    // Add authentication logic here
+    return (
+      <div className="text-center p-6">
+        <p>Please log in to access this content</p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedContent;
