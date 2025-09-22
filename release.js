@@ -1,3 +1,15 @@
+// Option 1: Keep as semantic-release config (release.config.js)
+module.exports = {
+  branches: ['main', 'master'],
+  plugins: [
+    '@semantic-release/commit-analyzer',
+    '@semantic-release/release-notes-generator',
+    '@semantic-release/npm',
+    '@semantic-release/github'
+  ]
+};
+
+// Option 2: Keep as custom release script (scripts/release.js)
 #!/usr/bin/env node
 'use strict';
 
@@ -6,7 +18,7 @@ const { existsSync, writeFileSync, readFileSync } = require('fs');
 const inquirer = require('inquirer');
 const path = require('path');
 
-const metadataPath = path.join(__dirname, 'build-metadata.json');
+const metadataPath = path.join(__dirname, '..', 'build-metadata.json');
 
 function run(command) {
   return new Promise((resolve, reject) => {
