@@ -1,4 +1,8 @@
 // aiAnalysis.ts
+export interface AIAnalysisResult {
+  // your existing interface properties
+}
+
 interface MatchData {
   homeTeam: string;
   awayTeam: string;
