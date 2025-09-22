@@ -1,4 +1,3 @@
-
 export interface NavItem {
   name: string;
   href: string;
@@ -18,7 +17,7 @@ export const navItems: NavItem[] = [
     description: 'Main dashboard and predictions'
   },
   {
-    id: "predictions", 
+    id: "predictions",
     name: 'Predictions',
     href: '/predictions',
     icon: '🔮',
@@ -30,7 +29,7 @@ export const navItems: NavItem[] = [
     name: 'Live Scores',
     href: '/scores',
     icon: '⚽',
-    label: "📊 Live Scores", 
+    label: "📊 Live Scores",
     description: 'Real-time match updates'
   },
   {

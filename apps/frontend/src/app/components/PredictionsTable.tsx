@@ -113,10 +113,11 @@ const PredictionsTable: React.FC<PredictionsTableProps> = ({ predictions }) => {
   );
 };
 
-export default PredictionsTable;
 "use client";
 
 import React from 'react';
+
+export default PredictionsTable;
 
 interface Prediction {
   id: string;

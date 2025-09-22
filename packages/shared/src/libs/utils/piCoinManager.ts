@@ -302,5 +302,5 @@ const piCoinManagerInstance = PiCoinManager.getInstance();
 // Export the class for direct instantiation if needed
 export { PiCoinManager as PiCoinManagerClass };
 
-// Export the default instance
+// Single default export
 export default piCoinManagerInstance;

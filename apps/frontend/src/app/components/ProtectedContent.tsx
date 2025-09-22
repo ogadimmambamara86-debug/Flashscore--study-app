@@ -144,7 +144,7 @@ interface Props {
   requireAuth?: boolean;
 }
 
-const ProtectedContent: React.FC<Props> = ({ children, requireAuth = false }) => {
+const ProtectedContent_1: React.FC<Props> = ({ children, requireAuth = false }) => {
   if (requireAuth) {
     // Add authentication logic here
     return (
@@ -157,7 +157,7 @@ const ProtectedContent: React.FC<Props> = ({ children, requireAuth = false }) =>
   return <>{children}</>;
 };
 
-export default ProtectedContent;
+export default ProtectedContent_1;
 'use client';
 
 import React from 'react';
@@ -168,7 +168,7 @@ interface ProtectedContentProps {
   fallback?: React.ReactNode;
 }
 
-const ProtectedContent: React.FC<ProtectedContentProps> = ({ 
+const ProtectedContent_2: React.FC<ProtectedContentProps> = ({ 
   children, 
   requireAuth = false,
   fallback 
@@ -187,7 +187,7 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
   return <>{children}</>;
 };
 
-export default ProtectedContent;
+export default ProtectedContent_2;
 'use client';
 
 import React from 'react';
@@ -202,7 +202,7 @@ interface ProtectedContentProps {
   onUpgrade: () => void;
 }
 
-const ProtectedContent: React.FC<ProtectedContentProps> = ({
+const ProtectedContent_3: React.FC<ProtectedContentProps> = ({
   children,
   contentType,
   contentId,
@@ -212,7 +212,7 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
   onUpgrade
 }) => {
   const [showContent, setShowContent] = React.useState(false);
-  
+
   // Mock authentication check - replace with actual auth logic
   const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem('currentUser');
   const hasPremium = false; // Replace with actual premium check
@@ -260,8 +260,8 @@ const ProtectedContent: React.FC<ProtectedContentProps> = ({
   return <div>{children}</div>;
 };
 
-export default ProtectedContent;
-"use client";
+export default ProtectedContent_3;
+'use client';
 
 import React from 'react';
 

@@ -622,10 +622,11 @@ const SearchDirectory: React.FC = () => {
   );
 };
 
-export default SearchDirectory;
 'use client';
 
 import React, { useState } from 'react';
+
+export default SearchDirectory;
 
 interface SearchResult {
   id: string;
