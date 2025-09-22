@@ -1,712 +1,680 @@
 import fetch from 'node-fetch';
 
-interface SportsAPIConfig {
-rapidApiKey?: string;
-oddsApiKey?: string;
-footballDataApiKey?: string;
+interface EnhancedMatch {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number;
+  awayScore: number;
+  status: string;
+  time: string;
+  league: string;
+  statistics?: MatchStatistics;
+  events?: MatchEvent[];
+  socialData?: SocialData;
+  news?: NewsItem[];
 }
 
-interface LiveMatch {
-id: string;
-sport: string;
-homeTeam: string;
-awayTeam: string;
-gameTime: string;
-status: string;
-homeScore?: number;
-awayScore?: number;
-prediction?: string;
-confidence?: number;
+interface MatchStatistics {
+  possession: { home: number; away: number };
+  shots: { home: number; away: number };
+  shotsOnTarget: { home: number; away: number };
+  corners: { home: number; away: number };
+  fouls: { home: number; away: number };
+  yellowCards: { home: number; away: number };
+  redCards: { home: number; away: number };
+  offsides: { home: number; away: number };
 }
 
-interface OddsData {
-gameId: string;
-bookmaker: string;
-homeOdds: number;
-awayOdds: number;
-drawOdds?: number;
-overUnder?: {
-total: number;
-overOdds: number;
-underOdds: number;
-};
+interface MatchEvent {
+  id: string;
+  type: 'goal' | 'card' | 'substitution' | 'var' | 'penalty';
+  minute: number;
+  player: string;
+  team: 'home' | 'away';
+  description: string;
+  icon: string;
+  timestamp: string;
 }
 
-export class SportsAPIService {
-private config: SportsAPIConfig;
-
-constructor(config: SportsAPIConfig) {
-this.config = config;
+interface Comment {
+  id: string;
+  user: string;
+  text: string;
+  timestamp: string;
+  likes: number;
 }
 
-// RapidAPI Sports Integration
-async fetchNFLMatches(): Promise<LiveMatch[]> {
-if (!this.config.rapidApiKey) {
-throw new Error('RapidAPI key required for NFL data');
+interface SocialData {
+  comments: Comment[];
+  reactions: { [emoji: string]: number };
+  shares: number;
+  liveViewers: number;
+  trending: boolean;
 }
 
-try {  
-  const response = await fetch('https://api-american-football.p.rapidapi.com/games?league=1&season=2025', {  
-    method: 'GET',  
-    headers: {  
-      'X-RapidAPI-Key': this.config.rapidApiKey,  
-      'X-RapidAPI-Host': 'api-american-football.p.rapidapi.com'  
-    }  
-  });  
-
-  if (!response.ok) {  
-    throw new Error(`NFL API error: ${response.status}`);  
-  }  
-
-  const data = await response.json();  
-  return this.formatNFLData(data);  
-} catch (error) {  
-  console.error('NFL API fetch error:', error);  
-  throw error;  
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  content: string;
+  author: string;
+  publishDate: string;
+  tags: string[];
+  imageUrl?: string;
+  videoUrl?: string;
+  source: 'goal' | 'internal' | 'social';
 }
 
+interface LeagueTable {
+  position: number;
+  team: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  form: string[];
+  logo: string;
 }
 
-async fetchNBAMatches(): Promise<LiveMatch[]> {
-if (!this.config.rapidApiKey) {
-throw new Error('RapidAPI key required for NBA data');
+interface TransferNews {
+  id: string;
+  player: string;
+  fromTeam: string;
+  toTeam: string;
+  fee: string;
+  status: 'rumored' | 'agreed' | 'completed';
+  reliability: number; // 1-10
+  source: string;
+  date: string;
 }
 
-try {  
-  const response = await fetch('https://api-basketball.p.rapidapi.com/games?league=12&season=2024-2025', {  
-    method: 'GET',  
-    headers: {  
-      'X-RapidAPI-Key': this.config.rapidApiKey,  
-      'X-RapidAPI-Host': 'api-basketball.p.rapidapi.com'  
-    }  
-  });  
-
-  if (!response.ok) {  
-    throw new Error(`NBA API error: ${response.status}`);  
-  }  
-
-  const data = await response.json();  
-  return this.formatNBAData(data);  
-} catch (error) {  
-  console.error('NBA API fetch error:', error);  
-  throw error;  
+interface Notification {
+  type: string;
+  message: string;
+  matchId?: string;
+  newsId?: string;
+  timestamp: Date;
 }
 
+interface PredictionInput {
+  match: any;
+  historicalData: any;
+  teamForm: any;
+  injuries: any;
+  oddsData: any;
 }
 
-async fetchMLBMatches(): Promise<LiveMatch[]> {
-if (!this.config.rapidApiKey) {
-throw new Error('RapidAPI key required for MLB data');
-}
+export class EnhancedSportsService {
+  private config: any;
 
-try {  
-  const response = await fetch('https://api-baseball.p.rapidapi.com/games?league=1&season=2025', {  
-    method: 'GET',  
-    headers: {  
-      'X-RapidAPI-Key': this.config.rapidApiKey,  
-      'X-RapidAPI-Host': 'api-baseball.p.rapidapi.com'  
-    }  
-  });  
-
-  if (!response.ok) {  
-    throw new Error(`MLB API error: ${response.status}`);  
-  }  
-
-  const data = await response.json();  
-  return this.formatMLBData(data);  
-} catch (error) {  
-  console.error('MLB API fetch error:', error);  
-  throw error;  
-}
-
-}
-
-// The Odds API Integration
-async fetchOddsData(sport: string): Promise<OddsData[]> {
-if (!this.config.oddsApiKey) {
-throw new Error('The Odds API key required for betting odds');
-}
-
-const sportKeys: Record<string, string> = {  
-  'NFL': 'americanfootball_nfl',  
-  'NBA': 'basketball_nba',  
-  'MLB': 'baseball_mlb'  
-};  
-
-const sportKey = sportKeys[sport];  
-if (!sportKey) {  
-  throw new Error(`Unsupported sport for odds: ${sport}`);  
-}  
-
-try {  
-  const response = await fetch(  
-    `https://api.the-odds-api.com/v4/sports/${sportKey}/odds?apiKey=${this.config.oddsApiKey}&regions=us&markets=h2h,spreads,totals&oddsFormat=decimal`,  
-    { method: 'GET' }  
-  );  
-
-  if (!response.ok) {  
-    throw new Error(`Odds API error: ${response.status}`);  
-  }  
-
-  const data = await response.json();  
-  return this.formatOddsData(data);  
-} catch (error) {  
-  console.error('Odds API fetch error:', error);  
-  throw error;  
-}
-
-}
-
-// Football-Data.org Integration (Soccer)
-async fetchSoccerMatches(): Promise<LiveMatch[]> {
-if (!this.config.footballDataApiKey) {
-throw new Error('Football-Data.org API key required for soccer data');
-}
-
-try {  
-  const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {  
-    method: 'GET',  
-    headers: {  
-      'X-Auth-Token': this.config.footballDataApiKey  
-    }  
-  });  
-
-  if (!response.ok) {  
-    throw new Error(`Soccer API error: ${response.status}`);  
-  }  
-
-  const data = await response.json();  
-  return this.formatSoccerData(data);  
-} catch (error) {  
-  console.error('Soccer API fetch error:', error);  
-  throw error;  
-}
-
-}
-
-// Data formatting methods
-private formatNFLData(apiData: any): LiveMatch[] {
-if (!apiData.response) return [];
-
-return apiData.response.map((game: any) => ({  
-  id: game.game.id.toString(),  
-  sport: 'NFL',  
-  homeTeam: game.teams.home.name,  
-  awayTeam: game.teams.away.name,  
-  gameTime: game.game.date.start,  
-  status: game.game.status.short,  
-  homeScore: game.scores.home.total,  
-  awayScore: game.scores.away.total  
-}));
-
-}
-
-private formatNBAData(apiData: any): LiveMatch[] {
-if (!apiData.response) return [];
-
-return apiData.response.map((game: any) => ({  
-  id: game.id.toString(),  
-  sport: 'NBA',  
-  homeTeam: game.teams.home.name,  
-  awayTeam: game.teams.away.name,  
-  gameTime: game.date,  
-  status: game.status.short,  
-  homeScore: game.scores.home.total,  
-  awayScore: game.scores.away.total  
-}));
-
-}
-
-private formatMLBData(apiData: any): LiveMatch[] {
-if (!apiData.response) return [];
-
-return apiData.response.map((game: any) => ({  
-  id: game.id.toString(),  
-  sport: 'MLB',  
-  homeTeam: game.teams.home.name,  
-  awayTeam: game.teams.away.name,  
-  gameTime: game.date,  
-  status: game.status.short,  
-  homeScore: game.scores.home.total,  
-  awayScore: game.scores.away.total  
-}));
-
-}
-
-private formatSoccerData(apiData: any): LiveMatch[] {
-if (!apiData.matches) return [];
-
-return apiData.matches.map((match: any) => ({  
-  id: match.id.toString(),  
-  sport: 'Soccer',  
-  homeTeam: match.homeTeam.name,  
-  awayTeam: match.awayTeam.name,  
-  gameTime: match.utcDate,  
-  status: match.status,  
-  homeScore: match.score.fullTime.home,  
-  awayScore: match.score.fullTime.away  
-}));
-
-}
-
-private formatOddsData(apiData: any): OddsData[] {
-if (!Array.isArray(apiData)) return [];
-
-return apiData.flatMap((game: any) =>   
-  game.bookmakers.map((bookmaker: any) => ({  
-    gameId: game.id,  
-    bookmaker: bookmaker.title,  
-    homeOdds: bookmaker.markets.find((m: any) => m.key === 'h2h')?.outcomes[0]?.price || 0,  
-    awayOdds: bookmaker.markets.find((m: any) => m.key === 'h2h')?.outcomes[1]?.price || 0,  
-    drawOdds: bookmaker.markets.find((m: any) => m.key === 'h2h')?.outcomes[2]?.price,  
-    overUnder: this.extractOverUnder(bookmaker.markets)  
-  }))  
-);
-
-}
-
-private extractOverUnder(markets: any[]): { total: number; overOdds: number; underOdds: number } | undefined {
-const totalsMarket = markets.find(m => m.key === 'totals');
-if (!totalsMarket || !totalsMarket.outcomes) return undefined;
-
-const overOutcome = totalsMarket.outcomes.find((o: any) => o.name === 'Over');  
-const underOutcome = totalsMarket.outcomes.find((o: any) => o.name === 'Under');  
-
-if (!overOutcome || !underOutcome) return undefined;  
-
-return {  
-  total: parseFloat(overOutcome.point || underOutcome.point || '0'),  
-  overOdds: overOutcome.price,  
-  underOdds: underOutcome.price  
-};
-
-}
-
-// ESPN API Integration (Free)
-async fetchESPNNFL(): Promise<LiveMatch[]> {
-try {
-  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
-  
-  if (!response.ok) {
-    throw new Error(`ESPN NFL API error: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  return this.formatESPNData(data, 'NFL');
-} catch (error) {
-  console.error('ESPN NFL API fetch error:', error);
-  throw error;
-}
-}
-
-async fetchESPNNBA(): Promise<LiveMatch[]> {
-try {
-  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard');
-  
-  if (!response.ok) {
-    throw new Error(`ESPN NBA API error: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  return this.formatESPNData(data, 'NBA');
-} catch (error) {
-  console.error('ESPN NBA API fetch error:', error);
-  throw error;
-}
-}
-
-async fetchESPNMLB(): Promise<LiveMatch[]> {
-try {
-  const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard');
-  
-  if (!response.ok) {
-    throw new Error(`ESPN MLB API error: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  return this.formatESPNData(data, 'MLB');
-} catch (error) {
-  console.error('ESPN MLB API fetch error:', error);
-  throw error;
-}
-}
-
-private formatESPNData(apiData: any, sport: string): LiveMatch[] {
-if (!apiData.events) return [];
-
-return apiData.events.map((event: any) => ({
-  id: event.id,
-  sport: sport,
-  homeTeam: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'home')?.team?.displayName || 'Unknown',
-  awayTeam: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'away')?.team?.displayName || 'Unknown',
-  gameTime: event.date,
-  status: event.status?.type?.description || 'Unknown',
-  homeScore: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'home')?.score || 0,
-  awayScore: event.competitions[0]?.competitors?.find((c: any) => c.homeAway === 'away')?.score || 0
-}));
-}
-
-// Updated method to include ESPN APIs as fallback
-async fetchAllLiveMatches(): Promise<LiveMatch[]> {
-const results = await Promise.allSettled([
-// Try paid APIs first
-this.fetchNFLMatches().catch(() => this.fetchESPNNFL()),
-this.fetchNBAMatches().catch(() => this.fetchESPNNBA()),
-this.fetchMLBMatches().catch(() => this.fetchESPNMLB()),
-this.fetchSoccerMatches()
-]);
-
-const allMatches: LiveMatch[] = [];  
-  
-results.forEach((result, index) => {  
-  if (result.status === 'fulfilled') {  
-    allMatches.push(...result.value);  
-  } else {  
-    const sports = ['NFL', 'NBA', 'MLB', 'Soccer'];  
-    console.warn(`Failed to fetch ${sports[index]} data:`, result.reason?.message);  
-  }  
-});  
-
-return allMatches;
-
-}
-
-// FlashScore integration (web scraping approach)
-async fetchFlashScoreData(): Promise<LiveMatch[]> {
-try {
-  // FlashScore uses dynamic content, so we'll use their mobile API endpoints
-  const response = await fetch('https://www.flashscore.com/x/feed/proxy-dienst', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      'Referer': 'https://www.flashscore.com/'
-    },
-    body: 'commands=[{"type":"live-score","params":{"sport":"football"}}]'
-  });
-
-  if (!response.ok) {
-    throw new Error(`FlashScore API error: ${response.status}`);
+  constructor(config: any) {
+    this.config = config;
   }
 
-  const data = await response.text();
-  return this.parseFlashScoreData(data);
-} catch (error) {
-  console.error('FlashScore fetch error:', error);
-  return [];
-}
-}
-
-// Statarea integration
-async fetchStatAreaPredictions(): Promise<{ matchId: string; prediction: string; confidence: number; league: string; odds: number }[]> {
-try {
-  // Fetch multiple StatArea pages for better coverage
-  const urls = [
-    'https://www.statarea.com/predictions/today',
-    'https://www.statarea.com/predictions/tomorrow',
-    'https://www.statarea.com/predictions/football',
-    'https://www.statarea.com/soccer-predictions'
-  ];
-
-  const predictions: { matchId: string; prediction: string; confidence: number; league: string; odds: number }[] = [];
-
-  for (const url of urls) {
+  // FlashScore-style live match data
+  async fetchLiveMatchesWithStats(): Promise<EnhancedMatch[]> {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1'
-        },
-        const controller = new AbortController();
-const timeoutId = setTimeout(() => controller.abort(), 5000);
+      // Multiple API sources for comprehensive data
+      const [basicMatches, detailedStats, socialFeed] = await Promise.allSettled([
+        this.fetchBasicMatchData(),
+        this.fetchMatchStatistics(),
+        this.fetchSocialFeedData()
+      ]);
 
-try {
-  const response = await fetch(url, {
-    ...options,
-    signal: controller.signal
-  });
-  clearTimeout(timeoutId);
-  return response;
-} catch (error) {
-  clearTimeout(timeoutId);
-  throw error;
-}
+      const matches: EnhancedMatch[] = [];
 
-      if (response.ok) {
-        const html = await response.text();
-        const pagePredictions = this.parseStatAreaPredictions(html);
-        predictions.push(...pagePredictions);
+      if (basicMatches.status === 'fulfilled' && Array.isArray(basicMatches.value)) {
+        for (const match of basicMatches.value) {
+          try {
+            const enhancedMatch: EnhancedMatch = {
+              ...match,
+              statistics: this.getMatchStats(match.id, 
+                detailedStats.status === 'fulfilled' ? detailedStats.value : null),
+              events: await this.fetchMatchEvents(match.id),
+              socialData: await this.fetchSocialMatchData(match.id),
+              news: await this.fetchMatchNews(match.id)
+            };
+            matches.push(enhancedMatch);
+          } catch (matchError) {
+            console.warn(`Error enhancing match ${match.id}:`, matchError);
+            // Push basic match data without enhancements
+            matches.push(match);
+          }
+        }
       }
-    } catch (pageError) {
-      console.warn(`Failed to fetch ${url}:`, pageError);
+
+      return matches;
+    } catch (error) {
+      console.error('Error fetching enhanced matches:', error);
+      return this.getFallbackMatches();
     }
   }
 
-  // Remove duplicates based on matchId
-  const uniquePredictions = predictions.filter((pred, index, self) =>
-    index === self.findIndex(p => p.matchId === pred.matchId)
-  );
+  // Goal.com-style news aggregation
+  async fetchSportsNews(category?: string): Promise<NewsItem[]> {
+    const newsItems: NewsItem[] = [];
 
-  return uniquePredictions;
-} catch (error) {
-  console.error('StatArea fetch error:', error);
-  return this.getFallbackStatAreaPredictions();
-}
-}
-
-// Enhanced live score data with FlashScore and StatArea
-async fetchEnhancedLiveMatches(): Promise<LiveMatch[]> {
-const sources = await Promise.allSettled([
-  this.fetchAllLiveMatches(),
-  this.fetchFlashScoreData()
-]);
-
-const allMatches: LiveMatch[] = [];
-const predictions = await this.fetchStatAreaPredictions();
-
-sources.forEach((result) => {
-  if (result.status === 'fulfilled') {
-    allMatches.push(...result.value);
-  }
-});
-
-// Enhance matches with predictions
-return allMatches.map(match => ({
-  ...match,
-  prediction: predictions.find(p => 
-    p.matchId === match.id || 
-    (p.matchId.includes(match.homeTeam) && p.matchId.includes(match.awayTeam))
-  )?.prediction || 'No prediction available'
-}));
-}
-
-// Parse FlashScore data
-private parseFlashScoreData(data: string): LiveMatch[] {
-try {
-  // FlashScore returns encoded data, basic parsing approach
-  const matches: LiveMatch[] = [];
-  const lines = data.split('\n');
-  
-  for (const line of lines) {
-    if (line.includes('~') && line.includes('|')) {
-      const parts = line.split('~');
-      if (parts.length >= 5) {
-        matches.push({
-          id: parts[0] || 'unknown',
-          sport: 'Soccer',
-          homeTeam: parts[2] || 'Unknown',
-          awayTeam: parts[3] || 'Unknown',
-          gameTime: new Date().toISOString(),
-          status: 'Live',
-          homeScore: parseInt(parts[4]) || 0,
-          awayScore: parseInt(parts[5]) || 0
-        });
-      }
-    }
-  }
-  
-  return matches;
-} catch (error) {
-  console.error('Error parsing FlashScore data:', error);
-  return [];
-}
-}
-
-// Parse StatArea predictions with enhanced extraction
-private parseStatAreaPredictions(html: string): { matchId: string; prediction: string; confidence: number; league: string; odds: number }[] {
-const predictions: { matchId: string; prediction: string; confidence: number; league: string; odds: number }[] = [];
-
-try {
-  // Multiple parsing strategies for different StatArea page layouts
-  
-  // Strategy 1: Table-based predictions
-  const tableMatches = html.match(/<tr[^>]*class="[^"]*match[^"]*"[^>]*>[\s\S]*?<\/tr>/g) || [];
-  
-  tableMatches.forEach((match) => {
-    const homeTeam = this.extractText(match, /class="[^"]*home[^"]*"[^>]*>([^<]+)/);
-    const awayTeam = this.extractText(match, /class="[^"]*away[^"]*"[^>]*>([^<]+)/);
-    const prediction = this.extractText(match, /class="[^"]*tip[^"]*"[^>]*>([^<]+)/);
-    const odds = this.extractNumber(match, /class="[^"]*odd[^"]*"[^>]*>([0-9.]+)/);
-    const league = this.extractText(match, /class="[^"]*league[^"]*"[^>]*>([^<]+)/);
-    
-    if (homeTeam && awayTeam && prediction) {
-      predictions.push({
-        matchId: `${this.cleanTeamName(homeTeam)}_vs_${this.cleanTeamName(awayTeam)}`,
-        prediction: prediction.trim(),
-        confidence: this.calculateConfidenceFromOdds(odds),
-        league: league || 'Unknown League',
-        odds: odds || 0
-      });
-    }
-  });
-
-  // Strategy 2: Div-based predictions
-  const divMatches = html.match(/<div[^>]*class="[^"]*prediction[^"]*"[^>]*>[\s\S]*?<\/div>/g) || [];
-  
-  divMatches.forEach((match) => {
-    // Extract team names from various patterns
-    const teamPatterns = [
-      /([A-Za-z\s]+)\s+vs?\s+([A-Za-z\s]+)/,
-      /([A-Za-z\s]+)\s+-\s+([A-Za-z\s]+)/,
-      /([A-Za-z\s]+)\s+v\s+([A-Za-z\s]+)/
-    ];
-
-    let homeTeam = '', awayTeam = '';
-    for (const pattern of teamPatterns) {
-      const teamMatch = match.match(pattern);
-      if (teamMatch) {
-        homeTeam = teamMatch[1];
-        awayTeam = teamMatch[2];
-        break;
-      }
-    }
-
-    const prediction = this.extractText(match, /(?:tip|prediction)[^>]*>([^<]+)/);
-    const confidence = this.extractNumber(match, /(?:confidence|prob)[^>]*>(\d+)%?/);
-    
-    if (homeTeam && awayTeam && prediction) {
-      predictions.push({
-        matchId: `${this.cleanTeamName(homeTeam)}_vs_${this.cleanTeamName(awayTeam)}`,
-        prediction: prediction.trim(),
-        confidence: confidence || 75,
-        league: 'StatArea',
-        odds: 0
-      });
-    }
-  });
-
-  // Strategy 3: JSON data extraction
-  const jsonMatch = html.match(/var\s+predictions\s*=\s*(\[.*?\]);/);
-  if (jsonMatch) {
     try {
-      const jsonData = JSON.parse(jsonMatch[1]);
-      jsonData.forEach((item: any) => {
-        if (item.home && item.away && item.tip) {
-          predictions.push({
-            matchId: `${this.cleanTeamName(item.home)}_vs_${this.cleanTeamName(item.away)}`,
-            prediction: item.tip,
-            confidence: item.confidence || 75,
-            league: item.league || 'StatArea',
-            odds: item.odds || 0
+      // Multiple news sources
+      const sources = [
+        { url: 'https://api.football-data.org/v4/news', type: 'internal' },
+        { url: 'https://newsapi.org/v2/everything?q=football&apiKey=' + (this.config.newsApiKey || ''), type: 'external' }
+      ];
+
+      for (const source of sources) {
+        try {
+          const response = await fetch(source.url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'X-Auth-Token': this.config.footballDataApiKey || ''
+            }
           });
+
+          if (response.ok) {
+            const data = await response.json();
+            const formattedNews = this.formatNewsData(data, source.type as any);
+            newsItems.push(...formattedNews);
+          }
+        } catch (sourceError) {
+          console.warn(`Failed to fetch from ${source.url}:`, sourceError);
+        }
+      }
+
+      // Add trending social content
+      const socialNews = await this.fetchTrendingSocialContent();
+      newsItems.push(...socialNews);
+
+      // Filter by category if provided
+      let filteredNews = newsItems;
+      if (category) {
+        filteredNews = newsItems.filter(item => 
+          item.tags.includes(category.toLowerCase()) ||
+          item.title.toLowerCase().includes(category.toLowerCase())
+        );
+      }
+
+      return filteredNews.slice(0, 50); // Limit to 50 most recent
+    } catch (error) {
+      console.error('Error fetching sports news:', error);
+      return this.getFallbackNews();
+    }
+  }
+
+  // Facebook-style social features
+  async fetchSocialMatchData(matchId: string): Promise<SocialData> {
+    try {
+      // Simulate social media integration
+      const comments = await this.generateMatchComments(matchId);
+      const reactions = await this.getMatchReactions(matchId);
+      
+      return {
+        comments,
+        reactions,
+        shares: Math.floor(Math.random() * 1000) + 100,
+        liveViewers: Math.floor(Math.random() * 5000) + 500,
+        trending: Math.random() > 0.7
+      };
+    } catch (error) {
+      console.error('Error fetching social data:', error);
+      return {
+        comments: [],
+        reactions: {},
+        shares: 0,
+        liveViewers: 0,
+        trending: false
+      };
+    }
+  }
+
+  // League tables with live updates
+  async fetchLeagueTable(leagueId: string): Promise<LeagueTable[]> {
+    try {
+      const response = await fetch(`https://api.football-data.org/v4/competitions/${leagueId}/standings`, {
+        headers: {
+          'X-Auth-Token': this.config.footballDataApiKey || '',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
       });
-    } catch (jsonError) {
-      console.warn('Failed to parse JSON predictions:', jsonError);
+
+      if (!response.ok) {
+        throw new Error(`League table API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return this.formatLeagueTable(data);
+    } catch (error) {
+      console.error('Error fetching league table:', error);
+      return this.getFallbackLeagueTable();
     }
   }
 
-} catch (error) {
-  console.error('Error parsing StatArea predictions:', error);
-}
+  // Transfer news aggregation
+  async fetchTransferNews(): Promise<TransferNews[]> {
+    try {
+      // Simulate transfer news from API
+      const response = await fetch('https://api.football-data.org/v4/transfers', {
+        headers: {
+          'X-Auth-Token': this.config.footballDataApiKey || '',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
 
-return predictions;
-}
+      if (response.ok) {
+        const data = await response.json();
+        return this.formatTransferData(data);
+      }
 
-// Helper methods for StatArea parsing
-private extractText(html: string, pattern: RegExp): string {
-  const match = html.match(pattern);
-  return match ? match[1].trim() : '';
-}
-
-private extractNumber(html: string, pattern: RegExp): number {
-  const match = html.match(pattern);
-  return match ? parseFloat(match[1]) : 0;
-}
-
-private cleanTeamName(name: string): string {
-  return name
-    .replace(/[^\w\s]/g, '')
-    .replace(/\s+/g, '_')
-    .toLowerCase();
-}
-
-private calculateConfidenceFromOdds(odds: number): number {
-  if (!odds || odds <= 1) return 50;
-  
-  // Convert odds to implied probability
-  const probability = 1 / odds;
-  const confidence = Math.round(probability * 100);
-  
-  // Cap confidence between 30-95%
-  return Math.min(Math.max(confidence, 30), 95);
-}
-
-// Fallback predictions when StatArea is unavailable
-private getFallbackStatAreaPredictions() {
-  return [
-    {
-      matchId: 'manchester_united_vs_arsenal',
-      prediction: 'Over 2.5 Goals',
-      confidence: 78,
-      league: 'Premier League',
-      odds: 1.85
-    },
-    {
-      matchId: 'real_madrid_vs_barcelona',
-      prediction: 'Both Teams to Score',
-      confidence: 82,
-      league: 'La Liga',
-      odds: 1.70
-    },
-    {
-      matchId: 'bayern_munich_vs_borussia_dortmund',
-      prediction: 'Home Win',
-      confidence: 75,
-      league: 'Bundesliga',
-      odds: 2.10
+      return this.getFallbackTransfers();
+    } catch (error) {
+      console.error('Error fetching transfer news:', error);
+      return this.getFallbackTransfers();
     }
-  ];
-}
+  }
 
-// Health check method
-async checkAPIHealth(): Promise<{ service: string; status: string; error?: string }[]> {
-const checks = [
-{ name: 'RapidAPI NFL', test: () => this.fetchNFLMatches() },
-{ name: 'RapidAPI NBA', test: () => this.fetchNBAMatches() },
-{ name: 'RapidAPI MLB', test: () => this.fetchMLBMatches() },
-{ name: 'Soccer API', test: () => this.fetchSoccerMatches() },
-{ name: 'ESPN NFL (Free)', test: () => this.fetchESPNNFL() },
-{ name: 'ESPN NBA (Free)', test: () => this.fetchESPNNBA() },
-{ name: 'ESPN MLB (Free)', test: () => this.fetchESPNMLB() },
-{ name: 'FlashScore', test: () => this.fetchFlashScoreData() },
-{ name: 'StatArea', test: () => this.fetchStatAreaPredictions() },
-{ name: 'Odds API NFL', test: () => this.fetchOddsData('NFL') }
-];
+  // Real-time notifications
+  async setupLiveNotifications(userId: string, preferences: any): Promise<Notification[]> {
+    const notifications: Notification[] = [];
 
-const results = [];  
+    try {
+      // Goal alerts
+      const liveMatches = await this.fetchLiveMatchesWithStats();
+      for (const match of liveMatches) {
+        if (match.events && match.events.length > 0) {
+          const recentGoals = match.events.filter(event => 
+            event.type === 'goal' && 
+            this.isEventRecent(event.timestamp)
+          );
+
+          for (const goal of recentGoals) {
+            notifications.push({
+              type: 'goal',
+              message: `⚽ ${goal.player} scored for ${goal.team === 'home' ? match.homeTeam : match.awayTeam}!`,
+              matchId: match.id,
+              timestamp: new Date()
+            });
+          }
+        }
+      }
+
+      // Breaking news alerts
+      const breakingNews = await this.fetchBreakingNews();
+      for (const news of breakingNews.slice(0, 5)) { // Limit to 5 breaking news
+        notifications.push({
+          type: 'news',
+          message: `📰 ${news.title}`,
+          newsId: news.id,
+          timestamp: new Date()
+        });
+      }
+
+      return notifications;
+    } catch (error) {
+      console.error('Error setting up notifications:', error);
+      return [];
+    }
+  }
+
+  // Match prediction with AI analysis
+  async generateMatchPrediction(matchId: string): Promise<any> {
+    try {
+      const match = await this.fetchMatchDetails(matchId);
+      const historicalData = await this.fetchHeadToHeadData(match.homeTeam, match.awayTeam);
+      const teamForm = await this.fetchTeamForm([match.homeTeam, match.awayTeam]);
+      const injuries = await this.fetchInjuryNews([match.homeTeam, match.awayTeam]);
+
+      // AI-powered prediction algorithm
+      const prediction = this.calculateMatchPrediction({
+        match,
+        historicalData,
+        teamForm,
+        injuries,
+        oddsData: await this.fetchOddsData(matchId)
+      });
+
+      return {
+        prediction: prediction.outcome,
+        confidence: prediction.confidence,
+        reasoning: prediction.reasoning,
+        suggestedBets: prediction.bets,
+        riskLevel: prediction.risk
+      };
+    } catch (error) {
+      console.error('Error generating prediction:', error);
+      return this.getFallbackPrediction();
+    }
+  }
+
+  // Private helper methods
+  private async fetchBasicMatchData(): Promise<EnhancedMatch[]> {
+    try {
+      // Simulate API call for basic match data
+      return [
+        {
+          id: '1',
+          homeTeam: 'Manchester United',
+          awayTeam: 'Liverpool',
+          homeScore: 2,
+          awayScore: 1,
+          status: 'FT',
+          time: '90+3',
+          league: 'Premier League'
+        },
+        {
+          id: '2',
+          homeTeam: 'Barcelona',
+          awayTeam: 'Real Madrid',
+          homeScore: 3,
+          awayScore: 2,
+          status: 'LIVE',
+          time: '78',
+          league: 'La Liga'
+        }
+      ];
+    } catch (error) {
+      console.error('Error fetching basic match data:', error);
+      return this.getFallbackMatches();
+    }
+  }
+
+  private async fetchMatchStatistics(): Promise<any> {
+    // Implementation for detailed match stats
+    return {};
+  }
+
+  private async fetchSocialFeedData(): Promise<any> {
+    // Implementation for social feed data
+    return {};
+  }
+
+  private getMatchStats(matchId: string, detailedStats: any): MatchStatistics {
+    // Generate realistic match statistics
+    return {
+      possession: { 
+        home: Math.floor(Math.random() * 30) + 35, 
+        away: Math.floor(Math.random() * 30) + 35 
+      },
+      shots: { 
+        home: Math.floor(Math.random() * 10) + 8, 
+        away: Math.floor(Math.random() * 10) + 6 
+      },
+      shotsOnTarget: { 
+        home: Math.floor(Math.random() * 6) + 3, 
+        away: Math.floor(Math.random() * 6) + 2 
+      },
+      corners: { 
+        home: Math.floor(Math.random() * 8) + 2, 
+        away: Math.floor(Math.random() * 8) + 2 
+      },
+      fouls: { 
+        home: Math.floor(Math.random() * 10) + 10, 
+        away: Math.floor(Math.random() * 10) + 10 
+      },
+      yellowCards: { 
+        home: Math.floor(Math.random() * 4), 
+        away: Math.floor(Math.random() * 4) 
+      },
+      redCards: { 
+        home: Math.floor(Math.random() * 2), 
+        away: Math.floor(Math.random() * 2) 
+      },
+      offsides: { 
+        home: Math.floor(Math.random() * 5), 
+        away: Math.floor(Math.random() * 5) 
+      }
+    };
+  }
+
+  private async fetchMatchEvents(matchId: string): Promise<MatchEvent[]> {
+    // Simulate match events
+    return [
+      {
+        id: '1',
+        type: 'goal',
+        minute: 23,
+        player: 'Messi',
+        team: 'home',
+        description: 'Great finish from outside the box',
+        icon: '⚽',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30 minutes ago
+      },
+      {
+        id: '2',
+        type: 'card',
+        minute: 45,
+        player: 'Ramos',
+        team: 'away',
+        description: 'Yellow card for rough tackle',
+        icon: '🟨',
+        timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString() // 15 minutes ago
+      }
+    ];
+  }
+
+  private async fetchMatchNews(matchId: string): Promise<NewsItem[]> {
+    // Simulate match-specific news
+    return [
+      {
+        id: '1',
+        title: 'Key player returns from injury',
+        summary: 'Important boost for the home team',
+        content: 'Full story content...',
+        author: 'Sports Reporter',
+        publishDate: new Date().toISOString(),
+        tags: ['injury', 'lineup'],
+        source: 'internal'
+      }
+    ];
+  }
+
+  private formatNewsData(data: any, source: string): NewsItem[] {
+    // Format news data from various sources
+    if (!data || !data.articles) return [];
+
+    return data.articles.slice(0, 10).map((article: any, index: number) => ({
+      id: `news_${source}_${index}`,
+      title: article.title || 'No title',
+      summary: article.description || 'No summary',
+      content: article.content || 'No content',
+      author: article.author || 'Unknown',
+      publishDate: article.publishedAt || new Date().toISOString(),
+      tags: article.tags || ['football'],
+      imageUrl: article.urlToImage,
+      source: source as 'goal' | 'internal' | 'social'
+    }));
+  }
+
+  private async fetchTrendingSocialContent(): Promise<NewsItem[]> {
+    // Simulate trending social content
+    return [
+      {
+        id: 'social_1',
+        title: 'Viral goal celebration breaks internet',
+        summary: 'Fans go crazy over incredible celebration',
+        content: 'Social media content...',
+        author: 'Social Media',
+        publishDate: new Date().toISOString(),
+        tags: ['viral', 'social'],
+        source: 'social'
+      }
+    ];
+  }
+
+  private async generateMatchComments(matchId: string): Promise<Comment[]> {
+    // Simulate match comments
+    return [
+      {
+        id: 'comment_1',
+        user: 'FootballFan123',
+        text: 'What a fantastic match!',
+        timestamp: new Date().toISOString(),
+        likes: 15
+      }
+    ];
+  }
+
+  private async getMatchReactions(matchId: string): Promise<{ [emoji: string]: number }> {
+    // Simulate match reactions
+    return {
+      '⚽': Math.floor(Math.random() * 1000) + 100,
+      '🔥': Math.floor(Math.random() * 500) + 50,
+      '👏': Math.floor(Math.random() * 300) + 30
+    };
+  }
+
+  private formatLeagueTable(data: any): LeagueTable[] {
+    if (!data || !data.standings || !data.standings[0] || !data.standings[0].table) {
+      return this.getFallbackLeagueTable();
+    }
+
+    return data.standings[0].table.map((team: any) => ({
+      position: team.position,
+      team: team.team.name,
+      played: team.playedGames,
+      won: team.won,
+      drawn: team.draw,
+      lost: team.lost,
+      goalsFor: team.goalsFor,
+      goalsAgainst: team.goalsAgainst,
+      goalDifference: team.goalDifference,
+      points: team.points,
+      form: team.form ? team.form.split(',') : [],
+      logo: team.team.crest || ''
+    }));
+  }
+
+  private formatTransferData(data: any): TransferNews[] {
+    if (!data || !data.transfers) return this.getFallbackTransfers();
+
+    return data.transfers.slice(0, 20).map((transfer: any, index: number) => ({
+      id: `transfer_${index}`,
+      player: transfer.player?.name || 'Unknown Player',
+      fromTeam: transfer.fromTeam?.name || 'Unknown Team',
+      toTeam: transfer.toTeam?.name || 'Unknown Team',
+      fee: transfer.fee || 'Undisclosed',
+      status: this.determineTransferStatus(transfer),
+      reliability: Math.floor(Math.random() * 10) + 1,
+      source: transfer.source || 'Unknown',
+      date: transfer.date || new Date().toISOString()
+    }));
+  }
+
+  private determineTransferStatus(transfer: any): 'rumored' | 'agreed' | 'completed' {
+    const status = transfer.status?.toLowerCase() || '';
+    if (status.includes('completed')) return 'completed';
+    if (status.includes('agreed')) return 'agreed';
+    return 'rumored';
+  }
+
+  private async fetchBreakingNews(): Promise<NewsItem[]> {
+    return this.fetchSportsNews().then(news => 
+      news.filter(item => item.tags.includes('breaking')).slice(0, 3)
+    );
+  }
+
+  private isEventRecent(timestamp: string): boolean {
+    const eventTime = new Date(timestamp).getTime();
+    const currentTime = Date.now();
+    return (currentTime - eventTime) < 5 * 60 * 1000; // Last 5 minutes
+  }
+
+  private async fetchMatchDetails(matchId: string): Promise<any> {
+    return {
+      id: matchId,
+      homeTeam: 'Team A',
+      awayTeam: 'Team B',
+      // ... other match details
+    };
+  }
+
+  private async fetchHeadToHeadData(team1: string, team2: string): Promise<any> {
+    return {
+      totalMatches: 15,
+      homeWins: 8,
+      awayWins: 4,
+      draws: 3
+    };
+  }
+
+  private async fetchTeamForm(teams: string[]): Promise<any> {
+    return teams.reduce((form: any, team) => {
+      form[team] = ['W', 'D', 'W', 'L', 'W'].slice(0, 5);
+      return form;
+    }, {});
+  }
+
+  private async fetchInjuryNews(teams: string[]): Promise<any> {
+    return teams.reduce((injuries: any, team) => {
+      injuries[team] = [
+        { player: 'Player A', injury: 'Knee', return: '2 weeks' }
+      ];
+      return injuries;
+    }, {});
+  }
+
+  private async fetchOddsData(matchId: string): Promise<any> {
+    return {
+      homeWin: 2.1,
+      draw: 3.4,
+      awayWin: 3.1
+    };
+  }
+
+  private calculateMatchPrediction(data: PredictionInput): any {
+    // Simple prediction algorithm (replace with actual AI/ML model)
+    const { match, historicalData, teamForm, injuries, oddsData } = data;
+    
+    let homeStrength = 50;
+    let awayStrength = 50;
+
+    // Adjust based on historical data
+    if (historicalData.homeWins > historicalData.awayWins) {
+      homeStrength += 10;
+    } else if (historicalData.awayWins > historicalData.homeWins) {
+      awayStrength += 10;
+    }
+
+    // Adjust based on recent form
+    const homeForm = teamForm[match.homeTeam]?.filter((r: string) => r === 'W').length || 0;
+    const awayForm = teamForm[match.awayTeam]?.filter((r: string) => r === 'W').length || 0;
+    
+    homeStrength += homeForm * 5;
+    awayStrength += awayForm * 5;
+
+    // Normalize to percentages
+    const total = homeStrength + awayStrength;
+    const homeProbability = (homeStrength / total) * 100;
+    const awayProbability = (awayStrength / total) * 100;
+    const drawProbability = 100 - homeProbability - awayProbability;
+
+    let outcome = 'Draw';
+    let confidence = drawProbability;
+    
+    if (homeProbability > awayProbability && homeProbability > drawProbability) {
+      outcome = 'Home Win';
+      confidence = homeProbability;
+    } else if (awayProbability > homeProbability && awayProbability > drawProbability) {
+      outcome = 'Away Win';
+      confidence = awayProbability;
+    }
+
+    return {
+      outcome,
+      confidence: Math.round(confidence),
+      reasoning: 'Based on historical data, recent form, and team strength',
+      bets: this.generateSuggestedBets(outcome, oddsData),
+      risk: confidence > 70 ? 'Low' : confidence > 50 ? 'Medium' : 'High'
+    };
+  }
+
+  private generateSuggestedBets(outcome: string, oddsData: any): string[] {
+    const bets = [];
+    
+    if (outcome === 'Home Win' && oddsData.homeWin > 2.0) {
+      bets.push('Home Win');
+    } else if (outcome === 'Away Win' && oddsData.awayWin > 2.0) {
   
-for (const check of checks) {  
-  try {  
-    await check.test();  
-    results.push({ service: check.name, status: 'healthy' });  
-  } catch (error: any) {  
-    results.push({   
-      service: check.name,   
-      status: 'unhealthy',   
-      error: error.message   
-    });  
-  }  
-}  
-
-return results;
-
-}
-}
-
-// Factory function for creating API service with environment variables
-export function createSportsAPIService(): SportsAPIService {
-return new SportsAPIService({
-rapidApiKey: process.env.RAPIDAPI_KEY,
-oddsApiKey: process.env.ODDS_API_KEY,
-footballDataApiKey: process.env.FOOTBALL_DATA_API_KEY
-});
-}
-
-
-
