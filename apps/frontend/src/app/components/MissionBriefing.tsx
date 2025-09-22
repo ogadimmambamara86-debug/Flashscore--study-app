@@ -1,83 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-const MissionBriefing = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeMetric, setActiveMetric] = useState(0);
-  const [fade, setFade] = useState(true);
-
-  const metrics = [
-    { label: "Accuracy Rate", value: "94.2%", icon: "🎯", color: "#22c55e" },
-    { label: "Active Users", value: "1,247", icon: "👥", color: "#06b6d4" },
-    { label: "Predictions Made", value: "15,892", icon: "🔮", color: "#8b5cf6" },
-    { label: "Total Winnings", value: "$2.1M", icon: "💰", color: "#f59e0b" }
-  ];
-
-  useEffect(() => {
-    setIsVisible(true);
-
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setActiveMetric((prev) => (prev + 1) % metrics.length);
-        setFade(true);
-      }, 500);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!isVisible) return null;
-
-  const currentMetric = metrics[activeMetric];
-
-  return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2rem",
-      backgroundColor: "#111827",
-      borderRadius: "1rem",
-      color: "#fff",
-      minWidth: "250px",
-      textAlign: "center",
-      transition: "opacity 0.5s",
-      opacity: fade ? 1 : 0
-    }}>
-      <div style={{
-        fontSize: "2.5rem",
-        color: currentMetric.color,
-        transform: fade ? "translateY(0)" : "translateY(-10px)",
-        transition: "transform 0.5s, opacity 0.5s"
-      }}>
-        {currentMetric.icon}
-      </div>
-      <div style={{
-        fontSize: "1.25rem",
-        marginTop: "0.5rem",
-        transform: fade ? "translateY(0)" : "translateY(-10px)",
-        transition: "transform 0.5s, opacity 0.5s"
-      }}>
-        {currentMetric.label}
-      </div>
-      <div style={{
-        fontSize: "2rem",
-        fontWeight: "bold",
-        marginTop: "0.25rem",
-        color: currentMetric.color,
-        transform: fade ? "translateY(0)" : "translateY(-10px)",
-        transition: "transform 0.5s, opacity 0.5s"
-      }}>
-        {currentMetric.value}
-      </div>
-    </div>
-  );
-};
-
-export default MissionBriefing;
-
 interface Mission {
   id: string;
   title: string;
@@ -89,9 +12,20 @@ interface Mission {
   timeLimit?: string;
 }
 
+// Remove the first MissionBriefing component and keep only one
+
 export default function MissionBriefing() {
   const [currentMission, setCurrentMission] = useState<Mission | null>(null);
   const [fade, setFade] = useState(false);
+  const [activeMetric, setActiveMetric] = useState(0);
+  const [metricFade, setMetricFade] = useState(true);
+
+  const metrics = [
+    { label: "Accuracy Rate", value: "94.2%", icon: "🎯", color: "#22c55e" },
+    { label: "Active Users", value: "1,247", icon: "👥", color: "#06b6d4" },
+    { label: "Predictions Made", value: "15,892", icon: "🔮", color: "#8b5cf6" },
+    { label: "Total Winnings", value: "$2.1M", icon: "💰", color: "#f59e0b" }
+  ];
 
   const missions: Mission[] = [
     {
@@ -130,12 +64,24 @@ export default function MissionBriefing() {
       setCurrentMission(missions[0]);
     }
 
-    // Fade animation timer
-    const timer = setInterval(() => {
+    // Fade animation timer for title
+    const titleTimer = setInterval(() => {
       setFade(prev => !prev);
     }, 3000);
 
-    return () => clearInterval(timer);
+    // Metric rotation timer
+    const metricTimer = setInterval(() => {
+      setMetricFade(false);
+      setTimeout(() => {
+        setActiveMetric((prev) => (prev + 1) % metrics.length);
+        setMetricFade(true);
+      }, 500);
+    }, 3000);
+
+    return () => {
+      clearInterval(titleTimer);
+      clearInterval(metricTimer);
+    };
   }, []);
 
   const acceptMission = (mission: Mission) => {
@@ -152,19 +98,65 @@ export default function MissionBriefing() {
     }
   };
 
-  const missionBriefingStyle: React.CSSProperties = {
-    fontSize: "2rem",
-    fontWeight: "bold",
-    marginTop: "0.25rem",
-    transform: fade ? "translateY(-10px)" : "translateY(0px)",
-    transition: "transform 0.5s ease-in-out"
-  };
+  const currentMetric = metrics[activeMetric];
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg border-2 border-blue-500">
+      {/* Metrics Display Section */}
+      <div className="mb-6">
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem",
+          backgroundColor: "#1f2937",
+          borderRadius: "0.75rem",
+          color: "#fff",
+          textAlign: "center",
+          transition: "opacity 0.5s",
+          opacity: metricFade ? 1 : 0
+        }}>
+          <div style={{
+            fontSize: "2rem",
+            color: currentMetric.color,
+            transform: metricFade ? "translateY(0)" : "translateY(-10px)",
+            transition: "transform 0.5s, opacity 0.5s"
+          }}>
+            {currentMetric.icon}
+          </div>
+          <div style={{
+            fontSize: "1rem",
+            marginTop: "0.5rem",
+            transform: metricFade ? "translateY(0)" : "translateY(-10px)",
+            transition: "transform 0.5s, opacity 0.5s"
+          }}>
+            {currentMetric.label}
+          </div>
+          <div style={{
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            marginTop: "0.25rem",
+            color: currentMetric.color,
+            transform: metricFade ? "translateY(0)" : "translateY(-10px)",
+            transition: "transform 0.5s, opacity 0.5s"
+          }}>
+            {currentMetric.value}
+          </div>
+        </div>
+      </div>
+
+      {/* Mission Briefing Section */}
       <div className="flex items-center mb-4">
         <div className="text-3xl mr-3">🎯</div>
-        <h2 style={missionBriefingStyle}>Mission Briefing</h2>
+        <h2 style={{
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          transform: fade ? "translateY(-5px)" : "translateY(0px)",
+          transition: "transform 0.5s ease-in-out"
+        }}>
+          Mission Briefing
+        </h2>
       </div>
 
       {currentMission && (
