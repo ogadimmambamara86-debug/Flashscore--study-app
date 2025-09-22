@@ -422,8 +422,20 @@ try {
           'Connection': 'keep-alive',
           'Upgrade-Insecure-Requests': '1'
         },
-        timeout: 15000
-      });
+        const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+try {
+  const response = await fetch(url, {
+    ...options,
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
+  return response;
+} catch (error) {
+  clearTimeout(timeoutId);
+  throw error;
+}
 
       if (response.ok) {
         const html = await response.text();
