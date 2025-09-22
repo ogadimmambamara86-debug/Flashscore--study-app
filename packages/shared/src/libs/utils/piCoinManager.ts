@@ -1,5 +1,4 @@
-import CryptoJS from 'crypto-js';
-
+// src/utils/piCoinManager.ts
 export interface PiTransaction {
   id: string;
   userId: string;
@@ -39,12 +38,18 @@ export default class PiCoinManager {
     return PiCoinManager.instance;
   }
 
-  private loadFromStorage(): void {
+  private async loadFromStorage(): Promise<void> {
     try {
       if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('piCoinWallets');
         if (stored) {
           const data = JSON.parse(stored);
+          // Convert timestamp strings back to Date objects
+          Object.values(data).forEach((wallet: any) => {
+            wallet.transactions.forEach((transaction: any) => {
+              transaction.timestamp = new Date(transaction.timestamp);
+            });
+          });
           this.wallets = new Map(Object.entries(data));
         }
       }
@@ -117,13 +122,16 @@ export default class PiCoinManager {
   }
 
   public earnCoins(userId: string, amount: number, description: string, metadata?: any): boolean {
+    if (amount <= 0) return false;
+    
     if (this.isRateLimited(userId)) {
-      console.log('Transaction rate limit exceeded for user:', userId);
+      console.warn('Transaction rate limit exceeded for user:', userId);
       return false;
     }
 
     const wallet = this.wallets.get(userId);
     if (!wallet) {
+      console.warn('Wallet not found for user:', userId);
       return false;
     }
 
@@ -143,10 +151,7 @@ export default class PiCoinManager {
     wallet.transactions.push(transaction);
 
     // Level up logic
-    if (wallet.totalEarned >= wallet.level * 100) {
-      wallet.level += 1;
-      wallet.achievements.push(`level_${wallet.level}`);
-    }
+    this.checkLevelUp(wallet);
 
     this.addTransactionTimestamp(userId);
     this.saveToStorage();
@@ -154,13 +159,16 @@ export default class PiCoinManager {
   }
 
   public spendCoins(userId: string, amount: number, description: string, metadata?: any): boolean {
+    if (amount <= 0) return false;
+    
     if (this.isRateLimited(userId)) {
-      console.log('Transaction rate limit exceeded for user:', userId);
+      console.warn('Transaction rate limit exceeded for user:', userId);
       return false;
     }
 
     const wallet = this.wallets.get(userId);
     if (!wallet || wallet.balance < amount) {
+      console.warn('Insufficient balance or wallet not found for user:', userId);
       return false;
     }
 
@@ -185,15 +193,29 @@ export default class PiCoinManager {
   }
 
   public transferCoins(fromUserId: string, toUserId: string, amount: number, description: string): boolean {
+    if (amount <= 0) return false;
+    
     if (this.isRateLimited(fromUserId) || this.isRateLimited(toUserId)) {
+      console.warn('Rate limit exceeded for transfer between users:', fromUserId, toUserId);
       return false;
     }
 
     const fromWallet = this.wallets.get(fromUserId);
     const toWallet = this.wallets.get(toUserId);
 
-    if (!fromWallet || !toWallet || fromWallet.balance < amount) {
+    if (!fromWallet || !toWallet) {
+      console.warn('One or both wallets not found');
       return false;
+    }
+
+    if (fromWallet.balance < amount) {
+      console.warn('Insufficient balance for transfer');
+      return false;
+    }
+
+    // Ensure recipient has a wallet
+    if (!this.wallets.has(toUserId)) {
+      this.createWallet(toUserId);
     }
 
     const transferId = this.generateTransactionId();
@@ -230,10 +252,24 @@ export default class PiCoinManager {
     toWallet.totalEarned += amount;
     toWallet.transactions.push(creditTransaction);
 
+    // Check level up for recipient
+    this.checkLevelUp(toWallet);
+
     this.addTransactionTimestamp(fromUserId);
     this.addTransactionTimestamp(toUserId);
     this.saveToStorage();
     return true;
+  }
+
+  private checkLevelUp(wallet: PiWallet): void {
+    const nextLevelThreshold = wallet.level * 100;
+    if (wallet.totalEarned >= nextLevelThreshold) {
+      wallet.level += 1;
+      wallet.achievements.push(`level_${wallet.level}`);
+      
+      // Award level up bonus
+      this.earnCoins(wallet.userId, wallet.level * 10, `Level ${wallet.level} achievement bonus`);
+    }
   }
 
   public getTransactionHistory(userId: string, limit: number = 50): PiTransaction[] {
@@ -245,21 +281,22 @@ export default class PiCoinManager {
       .slice(0, limit);
   }
 
-  public getLeaderboard(limit: number = 10): Array<{userId: string, balance: number, level: number}> {
+  public getLeaderboard(limit: number = 10): Array<{userId: string, balance: number, level: number, totalEarned: number}> {
     return Array.from(this.wallets.values())
       .sort((a, b) => b.balance - a.balance)
       .slice(0, limit)
       .map(wallet => ({
         userId: wallet.userId,
         balance: wallet.balance,
-        level: wallet.level
+        level: wallet.level,
+        totalEarned: wallet.totalEarned
       }));
   }
 
   private generateTransactionId(): string {
     const timestamp = Date.now().toString();
-    const random = Math.random().toString(36).substr(2, 9);
-    return CryptoJS.SHA256(timestamp + random).toString().substr(0, 16);
+    const random = Math.random().toString(36).substring(2, 15);
+    return btoa(timestamp + random).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
   }
 
   public validateTransaction(transactionId: string, userId: string): boolean {
@@ -274,6 +311,10 @@ export default class PiCoinManager {
       .reduce((total, wallet) => total + wallet.balance, 0);
   }
 
+  public getActiveUsersCount(): number {
+    return this.wallets.size;
+  }
+
   public exportWalletData(userId: string): string | null {
     const wallet = this.wallets.get(userId);
     if (!wallet) return null;
@@ -286,6 +327,11 @@ export default class PiCoinManager {
       const walletData = JSON.parse(data) as PiWallet;
       if (walletData.userId !== userId) return false;
 
+      // Convert timestamp strings back to Date objects
+      walletData.transactions.forEach(transaction => {
+        transaction.timestamp = new Date(transaction.timestamp);
+      });
+
       this.wallets.set(userId, walletData);
       this.saveToStorage();
       return true;
@@ -294,13 +340,18 @@ export default class PiCoinManager {
       return false;
     }
   }
+
+  // Utility method to reset wallet (for testing)
+  public resetWallet(userId: string): boolean {
+    if (this.wallets.has(userId)) {
+      this.wallets.delete(userId);
+      this.saveToStorage();
+      return true;
+    }
+    return false;
+  }
 }
 
 // Create and export default instance
 const piCoinManagerInstance = PiCoinManager.getInstance();
-
-// Export the class for direct instantiation if needed
-export { PiCoinManager as PiCoinManagerClass };
-
-// Single default export
 export default piCoinManagerInstance;
