@@ -11,6 +11,8 @@ import { useOfflineStatus } from "@hooks/useOfflineStatus";
 import { useMobile } from "@hooks/useMobile";
 import UnifiedSoccerHub from '@components/UnifiedSoccerHub';
 import SearchDirectory from '@/components/SearchDirectory';
+import UserFriendlyFeatures from "./components/UserFriendlyFeatures";
+import FootballFormations from "./components/FootballFormations";
 
 // Enhanced Loading Components for better UX
 const SkeletonLoader = ({ height = "h-32" }: { height?: string }) => (
@@ -26,7 +28,6 @@ const ComponentLoader = ({ children }: { children: React.ReactNode }) => (
 // Lazy load heavy components with better error boundaries
 const InteractiveTools = lazy(() => import("@components/InteractiveTools").catch(() => ({ default: () => <div>Tools unavailable</div> })));
 const CommunityVoting = lazy(() => import("@components/CommunityVoting").catch(() => ({ default: () => <div>Voting unavailable</div> })));
-const UserFriendlyFeatures = lazy(() => import("@components/UserFriendlyFeatures").catch(() => ({ default: () => <div>Features unavailable</div> })));
 const Forum = lazy(() => import("@components/Forum").catch(() => ({ default: () => <div>Forum unavailable</div> })));
 const PiCoinWallet = lazy(() => import("@components/PiCoinWallet").catch(() => ({ default: () => <div>Wallet unavailable</div> })));
 const PiCoinStore = lazy(() => import("@components/PiCoinStore").catch(() => ({ default: () => <div>Store unavailable</div> })));
@@ -365,12 +366,20 @@ export default function Home() {
           <Suspense fallback={<ComponentLoader><SkeletonLoader height="h-32" /></ComponentLoader>}>
             <ContentPersonalization
               currentUser={currentUser}
-              onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}pdated:', prefs)}
+              onPreferencesUpdate={(prefs) => console.log('Preferences updated:', prefs)}
             />
           </Suspense>
 
           <LatestNews />
           <UnifiedSoccerHub />
+
+          {/* Football Formations Component */}
+          <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-8">
+            <h2 className="text-2xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+              ⚽ Football Formations
+            </h2>
+            <FootballFormations />
+          </div>
 
           {/* AI Analysis Section */}
           <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-8">
@@ -457,7 +466,7 @@ export default function Home() {
                   >
                     <PredictionsTable predictions={predictions} />
                   </ProtectedContent>
-                  
+
                   <Suspense fallback={<SkeletonLoader />}>
                     <InteractiveTools predictions={predictions} />
                   </Suspense>
