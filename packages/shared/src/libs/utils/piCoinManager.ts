@@ -301,10 +301,12 @@ const piCoinManagerInstance = PiCoinManager.getInstance();
 
 // Export the class for direct instantiation if needed
 export { PiCoinManager as PiCoinManagerClass };
-export default piCoinManagerInstance;
 
 // Export types for use in other components
 export type { MatchData, AIAnalysisResult };
+
+// Single default export
+export default piCoinManagerInstance;
 
 // Default export for compatibility
 export default {

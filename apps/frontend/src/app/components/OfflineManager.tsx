@@ -50,4 +50,14 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
       savePendingActions(remaining);
 
       if (mergedData) {
-        console.log("✅ Offline actions merged successfully");");
+        console.log("✅ Offline actions merged successfully");
+      }
+    } catch (error) {
+      console.error("❌ Failed to sync offline actions:", error);
+    }
+  };
+
+  return null; // This component doesn't render anything
+};
+
+export default OfflineManager;
