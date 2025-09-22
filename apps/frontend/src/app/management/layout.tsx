@@ -1,10 +1,10 @@
-import ManagementNav from "@components/ManagementNav";
+import ManagementSidebar from "@components/ManagementSidebar";
 
 export default function ManagementLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <ManagementNav />
-      <main className="p-6">{children}</main>
+    <div className="flex">
+      <ManagementSidebar />
+      <main className="flex-1 p-6">{children}</main>
     </div>
   );
 }
