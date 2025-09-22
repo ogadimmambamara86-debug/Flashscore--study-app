@@ -66,4 +66,4 @@ const MissionBriefing = () => {
         fontSize: "2rem",
         fontWeight: "bold",
         marginTop: "0.25rem",
-        transform: fade ? "translateY(
+        transform: fade ? "translateY(-10px)" : "translateY(0px)",
