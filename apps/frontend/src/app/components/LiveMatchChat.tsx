@@ -1,8 +1,8 @@
 
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { ClientStorage } from '../utils/clientStorage';
-import UserManager, { User } from '../utils/userManager';
+import { ClientStorage } from '@shared/clientStorage';
+import UserManager, { User } from '@shared/userManager';
 
 interface ChatMessage {
   id: string;
