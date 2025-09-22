@@ -302,8 +302,5 @@ const piCoinManagerInstance = PiCoinManager.getInstance();
 // Export the class for direct instantiation if needed
 export { PiCoinManager as PiCoinManagerClass };
 
-// Export types for use in other components
-export type { PiTransaction, PiWallet };
-
 // Single default export
 export default piCoinManagerInstance;

@@ -53,6 +53,14 @@ const OfflineManager: React.FC<OfflineManagerProps> = ({ children }) => {
         console.log("✅ Offline actions merged successfully");
       }
     } catch (error) {
+      console.error("❌ Error syncing offline data:", error);
+    }
+  }, [pendingActions]);
+
+  return null;
+};");
+      }
+    } catch (error) {
       console.error("❌ Failed to sync offline actions:", error);
     }
   };

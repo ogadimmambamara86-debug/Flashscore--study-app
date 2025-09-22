@@ -2,7 +2,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useMobile } from '@hooks/useMobile';
-import { navItems } from '@config/navItems';
+import { navItems } from '../config/navItems';
 
 const MobileNav: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -90,7 +90,6 @@ export default function ModulesGrid() {
           { label: "Away Team", value: match.away },
           { label: "Prediction", value: match.prediction || "TBD" },
         ],
-        ],
       }));
 
       setModules(mappedModules);

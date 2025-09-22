@@ -8,7 +8,7 @@ import BackgroundParticles from "@components/BackgroundParticles";
 import OfflineManager from "@components/OfflineManager";
 import MobileNav from "@components/MobileNav";
 import SidebarNav from "@components/SidebarNav";
-import { navItems } from "@config/navItems";
+import { navItems } from "./config/navItems";
 
 import NextAuthSessionProvider from "./providers/SessionProvider";
 import ProductionErrorBoundary from "./components/ProductionErrorBoundary";
