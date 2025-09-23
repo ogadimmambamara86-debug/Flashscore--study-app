@@ -7,37 +7,18 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@components/*": [
-        "src/app/components/*"
-      ],
-      "@hooks/*": [
-        "src/app/hooks/*"
-      ],
-      "@controllers/*": [
-        "src/app/controllers/*"
-      ],
-      "@api/*": [
-        "src/app/api/*"
-      ],
-      "@services/*": [
-        "src/app/services/*"
-      ],
-      "@styles/*": [
-        "src/app/styles/*"
-      ],
-      "@config/*": [
-        "src/app/config/*"
-      ],
-      "@shared/types": [
-        "../../packages/shared/src/libs/types/*"
-      ],
-      "@shared/utils": [
-        "../../packages/shared/src/libs/utils/*"
-      ],
-      "@shared/models": [
-        "../../packages/shared/src/libs/models/*"
-      ]
-    },
+  "@components/*": ["src/app/components/*"],
+  "@hooks/*": ["src/app/hooks/*"],
+  "@controllers/*": ["src/app/controllers/*"],
+  "@api/*": ["src/app/api/*"],
+  "@services/*": ["src/app/services/*"],
+  "@styles/*": ["src/app/styles/*"],
+  "@config/*": ["src/app/config/*"],
+
+  "@shared/types/*": ["../../packages/shared/src/libs/types/*"],
+  "@shared/utils/*": ["../../packages/shared/src/libs/utils/*"],
+  "@shared/models/*": ["../../packages/shared/src/libs/models/*"]
+}
     "plugins": [
       {
         "name": "next"
