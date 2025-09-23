@@ -3,7 +3,7 @@ run = "cd apps/frontend && npm run dev"
 
 [nix]
 channel = "stable-25_05"
-packages = ["miktex"]
+packages = ["miktex", "nix-output-monitor"]
 
 [deployment]
 run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start"]
