@@ -1,101 +1,114 @@
 // services/statAreaService.ts
-import { EnhancedMatch } from './match'; // adjust path if needed
+import fetch from 'node-fetch';
+import cheerio from 'cheerio';
 
-interface CacheEntry<T> {
-  value: T;
-  expiry: number;
+export interface StatAreaPrediction {
+  matchId: string;
+  homeTeam: string;
+  awayTeam: string;
+  prediction: string;
+  confidence: number;
+  league: string;
+  odds: number;
+  date: string;
+  status: 'active' | 'completed' | 'upcoming';
+  categories: string[];
 }
 
-export class EnhancedSportsService {
-  private config: any;
+export class StatAreaService {
+  private baseUrl = 'https://www.statarea.com';
+  private userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
-  // Caches with TTL
-  private statsCache: Map<string, CacheEntry<any>> = new Map();
-  private eventsCache: Map<string, CacheEntry<any>> = new Map();
-  private newsCache: Map<string, CacheEntry<any>> = new Map();
-  private socialCache: Map<string, CacheEntry<any>> = new Map();
+  async fetchAllPredictions(): Promise<StatAreaPrediction[]> {
+    const endpoints = [
+      '/predictions/today',
+      '/predictions/tomorrow',
+      '/soccer-predictions',
+      '/football-predictions',
+      '/predictions/1x2',
+      '/predictions/over-under',
+      '/predictions/both-teams-to-score'
+    ];
 
-  private readonly CACHE_TTL_MS = 30 * 1000; // 30 seconds
+    const allPredictions: StatAreaPrediction[] = [];
 
-  constructor(config: any) {
-    this.config = config;
-  }
-
-  // --- Helper: fetch with timeout ---
-  private async fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
-    let timeout: NodeJS.Timeout;
-    const timer = new Promise<null>((resolve) => {
-      timeout = setTimeout(() => resolve(null), timeoutMs);
-    });
-    const result = await Promise.race([promise, timer]);
-    clearTimeout(timeout!);
-    return result as T | null;
-  }
-
-  // --- Cached getter with TTL ---
-  private async getCached<T>(
-    cache: Map<string, CacheEntry<T>>,
-    key: string,
-    fetcher: () => Promise<T>
-  ): Promise<T> {
-    const now = Date.now();
-    const cached = cache.get(key);
-    if (cached && cached.expiry > now) return cached.value;
-
-    const value = await fetcher();
-    cache.set(key, { value, expiry: now + this.CACHE_TTL_MS });
-    return value;
-  }
-
-  // --- Main method ---
-  async fetchLiveMatchesWithStats(): Promise<EnhancedMatch[]> {
-    try {
-      const [basicResult, statsResult, socialResult] = await Promise.allSettled([
-        this.fetchWithTimeout(this.fetchBasicMatches(), 5000),
-        this.fetchWithTimeout(this.fetchDetailedStats(), 5000),
-        this.fetchWithTimeout(this.fetchSocialData(), 5000),
-      ]);
-
-      if (basicResult.status !== 'fulfilled' || !basicResult.value) {
-        return this.getFallbackMatches();
+    for (const endpoint of endpoints) {
+      try {
+        const predictions = await this.fetchPredictionsFromEndpoint(endpoint);
+        allPredictions.push(...predictions);
+        await this.delay(1000);
+      } catch (error) {
+        console.warn(`Failed to fetch from ${endpoint}:`, error);
       }
+    }
 
-      const detailedStats = statsResult.status === 'fulfilled' && statsResult.value ? statsResult.value : {};
-      const socialData = socialResult.status === 'fulfilled' && socialResult.value ? socialResult.value : {};
+    return this.removeDuplicates(allPredictions);
+  }
 
-      const matches = await Promise.all(
-        basicResult.value.map(async (match: any) => {
-          const [statistics, events, social, news] = await Promise.all([
-            this.getCached(this.statsCache, match.id, () => this.getMatchStats(match.id, detailedStats)),
-            this.getCached(this.eventsCache, match.id, () => this.fetchMatchEvents(match.id)),
-            this.getCached(this.socialCache, match.id, () => this.getSocialDataAsync(match.id, socialData)),
-            this.getCached(this.newsCache, match.id, () => this.fetchMatchNews(match.id)),
-          ]);
+  private async fetchPredictionsFromEndpoint(endpoint: string): Promise<StatAreaPrediction[]> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-          return {
-            ...match,
-            statistics,
-            events,
-            socialData: social,
-            news,
-          } as EnhancedMatch;
-        })
-      );
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': this.userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        },
+        signal: controller.signal
+      });
 
-      return matches;
-    } catch (err) {
-      console.error('Error fetching enhanced matches:', err);
-      return this.getFallbackMatches();
+      clearTimeout(timeoutId);
+
+      if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+
+      const html = await response.text();
+      return this.parseStatAreaHTML(html);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
   }
 
-  // --- Placeholders ---
-  async fetchBasicMatches(): Promise<any[]> { return []; }
-  async fetchDetailedStats(): Promise<any> { return {}; }
-  async fetchMatchEvents(matchId: string): Promise<any> { return {}; }
-  async fetchMatchNews(matchId: string): Promise<any> { return {}; }
-  async getMatchStats(matchId: string, detailedStats: any): Promise<any> { return detailedStats[matchId] || {}; }
-  async getSocialDataAsync(matchId: string, socialData: any): Promise<any> { return socialData[matchId] || {}; }
-  async fetchSocialData(): Promise<any> { return {}; }
-  async getFallbackMatches(): Promise<EnhancedMatch[]> { return []; }
+  private parseStatAreaHTML(html: string): StatAreaPrediction[] {
+    const $ = cheerio.load(html);
+    const predictions: StatAreaPrediction[] = [];
+    $('.prediction-row, .match-row, .tip-row').each((i, el) => {
+      const $el = $(el);
+      const homeTeam = $el.find('.home-team, .team-home').text().trim();
+      const awayTeam = $el.find('.away-team, .team-away').text().trim();
+      const predictionText = $el.find('.tip, .prediction').text().trim();
+      if (!homeTeam || !awayTeam || !predictionText) return;
+      predictions.push({
+        matchId: `${homeTeam}_vs_${awayTeam}_${Date.now()}`,
+        homeTeam,
+        awayTeam,
+        prediction: predictionText,
+        confidence: 75,
+        league: 'Unknown',
+        odds: 0,
+        date: new Date().toISOString(),
+        status: 'active',
+        categories: []
+      });
+    });
+    return predictions;
+  }
+
+  private removeDuplicates(predictions: StatAreaPrediction[]): StatAreaPrediction[] {
+    const seen = new Set();
+    return predictions.filter(pred => {
+      const key = `${pred.matchId}_${pred.prediction}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }
+
+export const statAreaService = new StatAreaService();
