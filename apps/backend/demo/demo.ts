@@ -1,3 +1,4 @@
+// demo/demo.ts
 import { EnhancedSportsService } from '../services/enhancedSportsService';
 import { statAreaService } from '../services/statAreaService';
 
@@ -15,26 +16,34 @@ async function main() {
 
   console.log('\n=== Fetching All StatArea Predictions ===');
   try {
-    const allPredictions = await statService.fetchAllPredictions();
-    // demo/demo.ts
-import { statService } from '../services/mock-stat-service';
-
-async function main() {
-  try {
-    console.log('=== Fetching Live Matches ===');
-    // This will now use mock data instead of real API calls
+    // Instead of the problematic fetchAllPredictions, let's fetch individual endpoints
+    const todayPredictions = await statService.fetchPredictionsFromEndpoint('/predictions/today');
+    console.log('Today predictions:', todayPredictions);
     
-    console.log('=== Fetching All StatArea Predictions ===');
-    const predictions = await statService.fetchAllPredictions();
-    console.log('All predictions loaded:', predictions);
+    const tomorrowPredictions = await statService.fetchPredictionsFromEndpoint('/predictions/tomorrow');
+    console.log('Tomorrow predictions:', tomorrowPredictions);
     
-    console.log('=== High Confidence Predictions ===');
-    const highConfidence = await statService.getHighConfidencePredictions();
-    console.log('High confidence predictions:', highConfidence);
+    const soccerPredictions = await statService.fetchPredictionsFromEndpoint('/soccer-predictions');
+    console.log('Soccer predictions:', soccerPredictions);
     
-  } catch (error) {
-    console.error('Demo error:', error);
+    const footballPredictions = await statService.fetchPredictionsFromEndpoint('/football-predictions');
+    console.log('Football predictions:', footballPredictions);
+    
+    const x1x2Predictions = await statService.fetchPredictionsFromEndpoint('/predictions/1x2');
+    console.log('1X2 predictions:', x1x2Predictions);
+    
+    const overUnderPredictions = await statService.fetchPredictionsFromEndpoint('/predictions/over-under');
+    console.log('Over/Under predictions:', overUnderPredictions);
+    
+    const bttsPredictions = await statService.fetchPredictionsFromEndpoint('/predictions/both-teams-to-score');
+    console.log('BTTS predictions:', bttsPredictions);
+    
+  } catch (err) {
+    console.error('Error fetching predictions:', err);
   }
+
+  // Removed the problematic getHighConfidencePredictions section (lines 26-40)
+  // This was causing: TypeError: statService.getHighConfidencePredictions is not a function
 }
 
-main();
+main().catch(console.error);
