@@ -1,39 +1,49 @@
 // aiAnalysis.test.ts
 import { analyzeMatch, AIAnalysisResult } from './aiAnalysis';
 
-const sampleMatchData = {
-  homeTeam: 'Team A',
-  awayTeam: 'Team B',
-  homeForm: ['W', 'D', 'L', 'W', 'W'],
-  awayForm: ['L', 'L', 'D', 'W', 'L'],
-  headToHead: ['H', 'A', 'H', 'D', 'H'],
-  homeStats: { goalsScored: 10, goalsConceded: 5, cleanSheets: 3, yellowCards: 5, redCards: 0 },
-  awayStats: { goalsScored: 7, goalsConceded: 8, cleanSheets: 2, yellowCards: 6, redCards: 1 },
-  odds: { home: 1.8, draw: 3.2, away: 4.5 },
+// aiAnalysis.test.ts and other test files
+const matchData: MatchData = {
+  homeTeam: "Team A",
+  awayTeam: "Team B",
+  homeForm: ["W", "L", "W"],
+  awayForm: ["L", "L", "D"],
+  headToHead: ["W", "L", "W"],
+  homeStats: {
+    goalsScored: 2,
+    goalsConceded: 1,
+    cleanSheets: 5,
+    yellowCards: 10,
+    redCards: 1,
+    avgPossession: 55, // Add this
+    shotsPerGame: 15   // Add this
+  },
+  awayStats: {
+    goalsScored: 1,
+    goalsConceded: 2,
+    cleanSheets: 3,
+    yellowCards: 8,
+    redCards: 0,
+    avgPossession: 45, // Add this
+    shotsPerGame: 10   // Add this
+  },
+  odds: {
+    homeWin: 1.5,
+    draw: 3.5,
+    awayWin: 6.0
+  }
 };
 
-describe('analyzeMatch (TypeScript)', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  it('returns mocked AI API response when API succeeds', async () => {
-    const mockAIResult: AIAnalysisResult = {
-      prediction: 'home',
-      confidence: 75,
-      reasoning: 'Mocked AI reasoning',
-      strategy: 'AI prediction strategy',
-      riskLevel: 'low',
-      alternativeBets: ['Both teams to score'],
-    };
-
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockAIResult),
-      } as any)
-    );
-
+const mockAnalysis: AIAnalysisResult = {
+  prediction: "home",
+  confidence: 85,
+  reasoning: "Home team is strong",
+  strategy: "Bet on home win",
+  riskLevel: "low",
+  alternativeBets: ["over 2.5 goals", "both teams to score"],
+  keyFactors: ["Home advantage", "Recent form"], // Add this
+  timestamp: new Date(), // Add this
+  analysisId: "analysis-123" // Add this
+};
     const result = await analyzeMatch(sampleMatchData);
 
     expect(result).toEqual(mockAIResult);
