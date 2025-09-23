@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
-import * as cheerio from 'cheerio';
-
+private parseTable($: cheerio.CheerioAPI, table: cheerio.AnyNode): any {
+  // Implementation using cheerio.AnyNode instead of cheerio.Element
+}
 interface StatAreaPrediction {
   matchId: string;
   homeTeam: string;
