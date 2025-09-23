@@ -16,18 +16,25 @@ async function main() {
   console.log('\n=== Fetching All StatArea Predictions ===');
   try {
     const allPredictions = await statService.fetchAllPredictions();
-    console.log(allPredictions);
-  } catch (err) {
-    console.error('Error fetching StatArea predictions:', err);
-  }
+    // demo/demo.ts
+import { statService } from '../services/mock-stat-service';
 
-  console.log('\n=== High Confidence Predictions ===');
+async function main() {
   try {
-    const highConf = await statService.getHighConfidencePredictions(80);
-    console.log(highConf);
-  } catch (err) {
-    console.error('Error fetching high confidence predictions:', err);
+    console.log('=== Fetching Live Matches ===');
+    // This will now use mock data instead of real API calls
+    
+    console.log('=== Fetching All StatArea Predictions ===');
+    const predictions = await statService.fetchAllPredictions();
+    console.log('All predictions loaded:', predictions);
+    
+    console.log('=== High Confidence Predictions ===');
+    const highConfidence = await statService.getHighConfidencePredictions();
+    console.log('High confidence predictions:', highConfidence);
+    
+  } catch (error) {
+    console.error('Demo error:', error);
   }
 }
 
-main().catch(console.error);
+main();
