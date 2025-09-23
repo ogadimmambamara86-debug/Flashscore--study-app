@@ -1,33 +1,34 @@
-export interface EnhancedMatch extends MatchData {
-  id: string;
-  homeTeam: string;
-  awayTeam: string;
+import { MatchData } from './match';
 
-  matchDate?: Date;
-  date?: Date;
-  competition?: string;
-  league?: string;
-
-  status?: 'scheduled' | 'live' | 'completed';
-  additionalStats?: Record<string, any>;
+export interface AIAnalysisResult {
+  prediction: "home" | "draw" | "away";
+  confidence: number;
+  reasoning: string;
+  strategy: string;
+  riskLevel: "low" | "medium" | "high";
+  expectedScore?: string;
+  keyFactors: string[];
+  alternativeBets?: string[];
+  timestamp: Date;
+  analysisId: string;
 }
 
-/**
- * Get the effective match date safely
- */
-export function getMatchDate(match: EnhancedMatch): Date | undefined {
-  // Use matchDate if available; fallback to date
-  return match.matchDate ?? match.date;
+export interface AnalysisCache {
+  [key: string]: {
+    result: AIAnalysisResult;
+    timestamp: number;
+    expiresAt: number;
+  };
 }
 
-// Example usage:
-const match: EnhancedMatch = {
-  id: '1',
-  homeTeam: 'Team A',
-  awayTeam: 'Team B',
-  date: new Date('2025-09-23'),
-  status: 'scheduled'
-};
+export interface AnalysisRequest {
+  matchData: MatchData;
+  useCache?: boolean;
+}
 
-const effectiveDate = getMatchDate(match);
-console.log('Match date:', effectiveDate);
+export interface AnalysisResponse {
+  success: boolean;
+  data?: AIAnalysisResult;
+  error?: string;
+  cached?: boolean;
+}
