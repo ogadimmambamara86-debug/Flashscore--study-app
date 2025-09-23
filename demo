@@ -1,0 +1,77 @@
+// demo/demo.ts
+import { EnhancedSportsService } from '../services/enhancedSportsService';
+import { statAreaService } from '../services/statAreaService';
+import { MatchData } from '../types/match';
+
+// Mock data
+const MOCK_MATCHES: MatchData[] = [
+  {
+    homeTeam: 'Team A',
+    awayTeam: 'Team B',
+    homeForm: ['W', 'D', 'L'],
+    awayForm: ['L', 'W', 'D'],
+    headToHead: ['W', 'L', 'D'],
+    homeStats: { goalsScored: 5, goalsConceded: 3, cleanSheets: 1, yellowCards: 2, redCards: 0, avgPossession: 55, shotsPerGame: 10 },
+    awayStats: { goalsScored: 4, goalsConceded: 4, cleanSheets: 0, yellowCards: 1, redCards: 0, avgPossession: 48, shotsPerGame: 9 },
+    odds: { home: 2.1, draw: 3.2, away: 3.5 },
+    venue: 'home',
+    importance: 'medium',
+  },
+  {
+    homeTeam: 'Team C',
+    awayTeam: 'Team D',
+    homeForm: ['L', 'L', 'W'],
+    awayForm: ['W', 'D', 'D'],
+    headToHead: ['D', 'W', 'L'],
+    homeStats: { goalsScored: 3, goalsConceded: 2, cleanSheets: 1, yellowCards: 0, redCards: 0, avgPossession: 50, shotsPerGame: 8 },
+    awayStats: { goalsScored: 2, goalsConceded: 3, cleanSheets: 0, yellowCards: 2, redCards: 1, avgPossession: 52, shotsPerGame: 7 },
+    odds: { home: 1.9, draw: 3.0, away: 4.0 },
+    venue: 'neutral',
+    importance: 'high',
+  },
+];
+
+// Utility delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Extend EnhancedSportsService to log cache hits
+class LoggingEnhancedSportsService extends EnhancedSportsService {
+  async fetchLiveMatchesWithStats(): Promise<any[]> {
+    const cacheHits: string[] = [];
+    const originalGetCached = this['getCached'].bind(this);
+
+    this['getCached'] = async (cache: Map<string, any>, key: string, fetcher: any) => {
+      if (cache.has(key)) cacheHits.push(key);
+      return originalGetCached(cache, key, fetcher);
+    };
+
+    const result = await super.fetchLiveMatchesWithStats();
+    console.log('Cache hits for this fetch:', cacheHits.length ? cacheHits : 'None');
+    return result;
+  }
+}
+
+async function main() {
+  const sportsService = new LoggingEnhancedSportsService({});
+  sportsService.fetchBasicMatches = async () => MOCK_MATCHES;
+
+  console.log('=== First fetch (populate cache) ===');
+  let start = Date.now();
+  await sportsService.fetchLiveMatchesWithStats();
+  console.log(`Time taken: ${Date.now() - start}ms`);
+
+  console.log('\n=== Second fetch (should hit cache) ===');
+  start = Date.now();
+  await sportsService.fetchLiveMatchesWithStats();
+  console.log(`Time taken: ${Date.now() - start}ms`);
+
+  console.log('\nFetching StatArea predictions (first 3 results)...');
+  const predictions = await statAreaService.fetchAllPredictions();
+  console.log(predictions.slice(0, 3));
+
+  console.log('\nHigh-confidence predictions (>=80%, first 3)...');
+  const highConf = await statAreaService.getHighConfidencePredictions(80);
+  console.log(highConf.slice(0, 3));
+}
+
+main().catch(console.error);
