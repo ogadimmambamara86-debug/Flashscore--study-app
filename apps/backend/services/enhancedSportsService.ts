@@ -1,3 +1,6 @@
+// services/enhancedSportsService.ts
+import { EnhancedMatch, MatchData, TeamStats } from '../types/match';
+
 interface CacheEntry<T> {
   value: T;
   expiry: number;
@@ -12,7 +15,7 @@ export class EnhancedSportsService {
   private newsCache: Map<string, CacheEntry<any>> = new Map();
   private socialCache: Map<string, CacheEntry<any>> = new Map();
 
-  private CACHE_TTL_MS = 30 * 1000; // 30 seconds
+  private readonly CACHE_TTL_MS = 30 * 1000; // 30 seconds
 
   constructor(config: any) {
     this.config = config;
@@ -37,9 +40,8 @@ export class EnhancedSportsService {
   ): Promise<T> {
     const now = Date.now();
     const cached = cache.get(key);
-    if (cached && cached.expiry > now) {
-      return cached.value;
-    }
+    if (cached && cached.expiry > now) return cached.value;
+
     const value = await fetcher();
     cache.set(key, { value, expiry: now + this.CACHE_TTL_MS });
     return value;
@@ -48,30 +50,26 @@ export class EnhancedSportsService {
   // --- Main method ---
   async fetchLiveMatchesWithStats(): Promise<EnhancedMatch[]> {
     try {
-      const [basicMatchesResult, detailedStatsResult, socialDataResult] = await Promise.allSettled([
+      const [basicResult, statsResult, socialResult] = await Promise.allSettled([
         this.fetchWithTimeout(this.fetchBasicMatches(), 5000),
         this.fetchWithTimeout(this.fetchDetailedStats(), 5000),
-        this.fetchWithTimeout(this.fetchSocialData(), 5000)
+        this.fetchWithTimeout(this.fetchSocialData(), 5000),
       ]);
 
-      if (basicMatchesResult.status !== 'fulfilled' || !basicMatchesResult.value) {
+      if (basicResult.status !== 'fulfilled' || !basicResult.value) {
         return this.getFallbackMatches();
       }
 
-      const detailedStats = detailedStatsResult.status === 'fulfilled' && detailedStatsResult.value
-        ? detailedStatsResult.value
-        : {};
-      const socialData = socialDataResult.status === 'fulfilled' && socialDataResult.value
-        ? socialDataResult.value
-        : {};
+      const detailedStats = statsResult.status === 'fulfilled' && statsResult.value ? statsResult.value : {};
+      const socialData = socialResult.status === 'fulfilled' && socialResult.value ? socialResult.value : {};
 
       const matches = await Promise.all(
-        basicMatchesResult.value.map(async (match: any) => {
+        basicResult.value.map(async (match: any) => {
           const [statistics, events, social, news] = await Promise.all([
             this.getCached(this.statsCache, match.id, () => this.getMatchStats(match.id, detailedStats)),
             this.getCached(this.eventsCache, match.id, () => this.fetchMatchEvents(match.id)),
             this.getCached(this.socialCache, match.id, () => this.getSocialDataAsync(match.id, socialData)),
-            this.getCached(this.newsCache, match.id, () => this.fetchMatchNews(match.id))
+            this.getCached(this.newsCache, match.id, () => this.fetchMatchNews(match.id)),
           ]);
 
           return {
@@ -79,21 +77,21 @@ export class EnhancedSportsService {
             statistics,
             events,
             socialData: social,
-            news
+            news,
           } as EnhancedMatch;
         })
       );
 
       return matches;
-    } catch (error) {
-      console.error('Error fetching enhanced matches:', error);
+    } catch (err) {
+      console.error('Error fetching enhanced matches:', err);
       return this.getFallbackMatches();
     }
   }
 
   // --- Placeholders ---
-  async fetchBasicMatches(): Promise<any[]> { return []; }
-  async fetchDetailedStats(): Promise<any> { return {}; }
+  async fetchBasicMatches(): Promise<MatchData[]> { return []; }
+  async fetchDetailedStats(): Promise<Record<string, any>> { return {}; }
   async fetchMatchEvents(matchId: string): Promise<any> { return {}; }
   async fetchMatchNews(matchId: string): Promise<any> { return {}; }
   async getMatchStats(matchId: string, detailedStats: any): Promise<any> { return detailedStats[matchId] || {}; }
