@@ -1,67 +1,66 @@
-// aiAnalysis.test.ts
 import { analyzeMatch, AIAnalysisResult } from './aiAnalysis';
 
-// aiAnalysis.test.ts and other test files
-const matchData: MatchData = {
+const matchData = {
   homeTeam: "Team A",
   awayTeam: "Team B",
   homeForm: ["W", "L", "W"],
   awayForm: ["L", "L", "D"],
   headToHead: ["W", "L", "W"],
-  homeStats: {
-    goalsScored: 2,
-    goalsConceded: 1,
-    cleanSheets: 5,
-    yellowCards: 10,
-    redCards: 1,
-    avgPossession: 55, // Add this
-    shotsPerGame: 15   // Add this
-  },
-  awayStats: {
-    goalsScored: 1,
-    goalsConceded: 2,
-    cleanSheets: 3,
-    yellowCards: 8,
-    redCards: 0,
-    avgPossession: 45, // Add this
-    shotsPerGame: 10   // Add this
-  },
-  odds: {
-    homeWin: 1.5,
-    draw: 3.5,
-    awayWin: 6.0
-  }
+  homeStats: { goalsScored: 2, goalsConceded: 1, cleanSheets: 5, yellowCards: 10, redCards: 1, avgPossession: 55, shotsPerGame: 15 },
+  awayStats: { goalsScored: 1, goalsConceded: 2, cleanSheets: 3, yellowCards: 8, redCards: 0, avgPossession: 45, shotsPerGame: 10 },
+  odds: { homeWin: 1.5, draw: 3.5, awayWin: 6.0 }
 };
 
-const mockAnalysis: AIAnalysisResult = {
-  prediction: "home",
-  confidence: 85,
-  reasoning: "Home team is strong",
-  strategy: "Bet on home win",
-  riskLevel: "low",
-  alternativeBets: ["over 2.5 goals", "both teams to score"],
-  keyFactors: ["Home advantage", "Recent form"], // Add this
-  timestamp: new Date(), // Add this
-  analysisId: "analysis-123" // Add this
+// ------------------ Helper ------------------
+const mockFetchAI = (mockResponse: Partial<AIAnalysisResult>) => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({
+        ...mockResponse,
+        timestamp: new Date(),
+        analysisId: "analysis-123"
+      })
+    } as Response)
+  );
 };
-    const result = await analyzeMatch(sampleMatchData);
 
-    expect(result).toEqual(mockAIResult);
+// ------------------ Tests ------------------
+describe('analyzeMatch', () => {
+  afterEach(() => jest.resetAllMocks());
+
+  // Test multiple prediction scenarios dynamically
+  it.each([
+    ["home", "Home team is strong"],
+    ["draw", "Evenly matched teams"],
+    ["away", "Away team favored"]
+  ])('returns correct AI analysis for %s prediction', async (prediction, reasoning) => {
+    mockFetchAI({ prediction, reasoning, strategy: `Bet on ${prediction}`, confidence: 80, riskLevel: "medium", alternativeBets: ["over 2.5 goals"] });
+
+    const result = await analyzeMatch(matchData);
+    const { timestamp, ...rest } = result;
+
+    expect(rest.prediction).toBe(prediction);
+    expect(rest.reasoning).toBe(reasoning);
+    expect(rest.strategy).toContain(prediction);
+    expect(rest.alternativeBets).toContain("over 2.5 goals");
+    expect(timestamp).toBeInstanceOf(Date);
   });
 
+  // Test fallback behavior if API fails
   it('returns fallback analysis if AI API fails', async () => {
-    process.env.NEXT_PUBLIC_AI_API_ENDPOINT = 'http://invalid-endpoint';
-    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Network error')));
 
-    const result = await analyzeMatch(sampleMatchData);
+    const result = await analyzeMatch(matchData);
 
     expect(result).toHaveProperty('prediction');
     expect(result.strategy).toContain("5(1's) Strategy");
     expect(result.alternativeBets).toContain('Over 2.5 goals');
   });
 
+  // Test invalid match data
   it('throws error for invalid match data', async () => {
-    await expect(analyzeMatch({ ...sampleMatchData, homeTeam: '' })).rejects.toThrow(
+    await expect(analyzeMatch({ ...matchData, homeTeam: '' })).rejects.toThrow(
       'Invalid match data: missing team information'
     );
   });
