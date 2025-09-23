@@ -23,17 +23,10 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
   useEffect(() => {
     if (!enabled) return;
 
-    // Listen for custom alert events
     const handleAlert = (event: CustomEvent<AlertMessage>) => {
-      const newAlert = {
-        ...event.detail,
-        id: Date.now().toString(),
-        timestamp: Date.now()
-      };
-      
+      const newAlert = { ...event.detail, id: Date.now().toString(), timestamp: Date.now() };
       setAlerts(prev => [...prev, newAlert]);
-      
-      // Auto-remove non-persistent alerts after 5 seconds
+
       if (!newAlert.persistent) {
         setTimeout(() => {
           setAlerts(prev => prev.filter(alert => alert.id !== newAlert.id));
@@ -42,41 +35,27 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
     };
 
     window.addEventListener('floatingAlert', handleAlert as EventListener);
-    
     return () => {
       window.removeEventListener('floatingAlert', handleAlert as EventListener);
     };
   }, [enabled]);
 
-  // Touch and mouse event handlers for better mobile support
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
-    setDragOffset({
-      x: clientX - position.x,
-      y: clientY - position.y
-    });
+    setDragOffset({ x: clientX - position.x, y: clientY - position.y });
   };
 
   const handleMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
-    
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
-    setPosition({
-      x: clientX - dragOffset.x,
-      y: clientY - dragOffset.y
-    });
+    setPosition({ x: clientX - dragOffset.x, y: clientY - dragOffset.y });
   };
 
-  const handleEnd = () => {
-    setIsDragging(false);
-  };
+  const handleEnd = () => setIsDragging(false);
 
   useEffect(() => {
     if (isDragging) {
@@ -84,7 +63,6 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
       document.addEventListener('mouseup', handleEnd);
       document.addEventListener('touchmove', handleMove, { passive: false });
       document.addEventListener('touchend', handleEnd);
-      
       return () => {
         document.removeEventListener('mousemove', handleMove);
         document.removeEventListener('mouseup', handleEnd);
@@ -94,9 +72,7 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
     }
   }, [isDragging, dragOffset]);
 
-  const removeAlert = (id: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== id));
-  };
+  const removeAlert = (id: string) => setAlerts(prev => prev.filter(alert => alert.id !== id));
 
   const getAlertColor = (type: string) => {
     switch (type) {
@@ -119,20 +95,10 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
   if (!enabled) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        left: position.x,
-        top: position.y,
-        zIndex: 10000,
-        maxWidth: '350px',
-        userSelect: 'none'
-      }}
-    >
-      {/* Control Panel */}
+    <div style={{ position: 'fixed', left: position.x, top: position.y, zIndex: 10000, maxWidth: '350px', userSelect: 'none' }}>
       <div
         style={{
-          background: 'rgba(0, 0, 0, 0.8)',
+          background: 'rgba(0,0,0,0.8)',
           color: 'white',
           padding: '12px 16px',
           borderRadius: '12px 12px 0 0',
@@ -150,163 +116,35 @@ const FloatingAlert: React.FC<FloatingAlertProps> = React.memo(({ enabled, onTog
       >
         <span>🔔 Alerts ({alerts.length})</span>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => setAlerts([])}
-            style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
-              color: 'white',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem'
-            }}
-            title="Clear all alerts"
-          >
-            Clear
-          </button>
-          <button
-            onClick={() => onToggle(false)}
-            style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
-              color: 'white',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem'
-            }}
-            title="Disable floating alerts"
-          >
-            ✕
-          </button>
+          <button onClick={() => setAlerts([])} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }} title="Clear all alerts">Clear</button>
+          <button onClick={() => onToggle(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }} title="Disable floating alerts">✕</button>
         </div>
       </div>
 
-      {/* Alerts Container */}
-      <div
-        style={{
-          maxHeight: '400px',
-          overflowY: 'auto',
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '0 0 8px 8px',
-          border: '1px solid rgba(255, 255, 255, 0.3)'
-        }}
-      >
+      <div style={{ maxHeight: '400px', overflowY: 'auto', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.3)' }}>
         {alerts.length === 0 ? (
-          <div
-            style={{
-              padding: '20px',
-              textAlign: 'center',
-              color: '#666',
-              fontSize: '0.9rem'
-            }}
+          <div style={{ padding: '20px', textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>No alerts yet</div>
+        ) : alerts.map(alert => (
+          <div key={alert.id} style={{ padding: '12px', borderBottom: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}
+            onClick={() => removeAlert(alert.id)}
           >
-            No alerts yet
-          </div>
-        ) : (
-          alerts.map((alert) => (
-            <div
-              key={alert.id}
-              style={{
-                padding: '12px',
-                borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px',
-                animation: 'slideIn 0.3s ease-out',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease'
-              }}
-              onClick={() => removeAlert(alert.id)}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                removeAlert(alert.id);
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-              title="Tap to dismiss"
-            >
-              <span style={{ fontSize: '1.2rem' }}>
-                {getAlertIcon(alert.type)}
-              </span>
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    color: '#333',
-                    fontSize: '0.9rem',
-                    lineHeight: '1.4',
-                    marginBottom: '4px'
-                  }}
-                >
-                  {alert.message}
-                </div>
-                <div
-                  style={{
-                    color: '#666',
-                    fontSize: '0.8rem'
-                  }}
-                >
-                  {new Date(alert.timestamp).toLocaleTimeString()}
-                </div>
-              </div>
-              <button
-                onClick={() => removeAlert(alert.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#999',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  padding: '0',
-                  lineHeight: '1'
-                }}
-                title="Remove alert"
-              >
-                ✕
-              </button>
+            <span style={{ fontSize: '1.2rem' }}>{getAlertIcon(alert.type)}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: '#333', fontSize: '0.9rem', lineHeight: '1.4', marginBottom: '4px' }}>{alert.message}</div>
+              <div style={{ color: '#666', fontSize: '0.8rem' }}>{new Date(alert.timestamp).toLocaleTimeString()}</div>
             </div>
-          ))
-        )}
+            <button onClick={() => removeAlert(alert.id)} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '1rem', padding: 0, lineHeight: 1 }}>✕</button>
+          </div>
+        ))}
       </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-      `}</style>
     </div>
   );
-}
+});
 
-// Utility function to trigger floating alerts
-export const triggerFloatingAlert = (
-  message: string,
-  type: 'info' | 'success' | 'warning' | 'error' = 'info',
-  persistent: boolean = false
-) => {
-  // Implementation here
-  console.log(`Alert: ${message} (${type})`);
-}
-) => {
-  const event = new CustomEvent('floatingAlert', {
-    detail: { message, type, persistent }
-  });
+// Utility function
+export const triggerFloatingAlert = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', persistent: boolean = false) => {
+  const event = new CustomEvent('floatingAlert', { detail: { message, type, persistent } });
   window.dispatchEvent(event);
 };
-
-});
 
 export default FloatingAlert;
