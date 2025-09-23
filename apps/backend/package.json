@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "tsc && echo 'Backend build complete'",
+    "build": "tsc --skipLibCheck",
     "start": "node dist/server.ts",
     "dev:with-env": "cp .env.example .env && tsx server.ts",
     "type-check": "tsc --noEmit"
