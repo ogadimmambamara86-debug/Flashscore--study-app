@@ -56,6 +56,6 @@
       "@shared/models/*": ["../../../packages/shared/src/libs/models/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["**/*"],
   "exclude": ["node_modules", "dist"]
 }
