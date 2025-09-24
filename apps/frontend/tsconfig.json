@@ -1,36 +1,31 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "allowJs": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src/app",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "paths": {
-      "@components/*": ["src/app/components/*"],
-      "@hooks/*": ["src/app/hooks/*"],
-      "@controllers/*": ["src/app/controllers/*"],
-      "@api/*": ["src/app/api/*"],
-      "@services/*": ["src/app/services/*"],
-      "@styles/*": ["src/app/styles/*"],
-      "@config/*": ["src/app/config/*"],
-
-      "@shared/types/*": ["../../packages/shared/src/libs/types/*"],
-      "@shared/utils/*": ["../../packages/shared/src/libs/utils/*"],
-      "@shared/models/*": ["../../packages/shared/src/libs/models/*"]
-    },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+      "@components/*": ["components/*"],
+      "@hooks/*": ["hooks/*"],
+      "@controllers/*": ["controllers/*"],
+      "@api/*": ["api/*"],
+      "@services/*": ["services/*"],
+      "@styles/*": ["styles/*"],
+      "@config/*": ["config/*"],
+      "@shared/types/*": ["../../../../packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["../../../../packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["../../../../packages/shared/src/libs/models/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "src/**/*",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
