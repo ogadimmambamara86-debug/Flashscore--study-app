@@ -182,6 +182,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "cd apps/frontend && rm -rf node_modules .next && npm install && npm run dev"
 
+[[workflows.workflow]]
+name = "Test Backend API"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm install && npm run dev"
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
