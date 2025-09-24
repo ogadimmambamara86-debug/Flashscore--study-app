@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMatches, createMatch } from "../controllers/matchController";
+import { getMatches, createMatch } from "@bakcontrollers/matchController";
 
 const router = Router();
 
