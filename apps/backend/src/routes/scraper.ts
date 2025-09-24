@@ -5,7 +5,7 @@ import {
   scrapeBetTodayPredictions,
   saveScrapedMatches,
   getUpcomingMatches
-} from "../services/scraperServices";
+} from "@bakservices/scraperServices";
 
 export async function scraperRoutes(server: FastifyInstance) {
   // Manual scrape odds only
