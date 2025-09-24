@@ -17,8 +17,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "https://flashstudy-ri0g.onrender.com/api/:path*",
+        source: "/api/backend/:path*",
+        destination: "http://0.0.0.0:4000/api/:path*",
       },
     ];
   },
