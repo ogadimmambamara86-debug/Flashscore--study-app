@@ -1,3 +1,4 @@
+// apps/backend/src/models/Match.ts
 import { Schema, model, Document } from "mongoose";
 
 export interface IMatch extends Document {
@@ -5,25 +6,24 @@ export interface IMatch extends Document {
   awayTeam: string;
   date: Date;
   competition: string;
-  odds: {
-    home: number;
-    draw: number;
-    away: number;
-  };
-  result?: "home" | "draw" | "away";
+  score?: string;
+  status: "scheduled" | "live" | "completed";
 }
 
-const MatchSchema = new Schema<IMatch>({
-  homeTeam: { type: String, required: true },
-  awayTeam: { type: String, required: true },
-  date: { type: Date, required: true },
-  competition: { type: String, required: true },
-  odds: {
-    home: { type: Number, required: true },
-    draw: { type: Number, required: true },
-    away: { type: Number, required: true },
+const matchSchema = new Schema<IMatch>(
+  {
+    homeTeam: { type: String, required: true },
+    awayTeam: { type: String, required: true },
+    date: { type: Date, required: true },
+    competition: { type: String, required: true },
+    score: { type: String },
+    status: {
+      type: String,
+      enum: ["scheduled", "live", "completed"],
+      default: "scheduled",
+    },
   },
-  result: { type: String, enum: ["home", "draw", "away"], default: null },
-});
+  { timestamps: true }
+);
 
-export const MatchModel = model<IMatch>("Match", MatchSchema);
+export const Match = model<IMatch>("Match", matchSchema);
