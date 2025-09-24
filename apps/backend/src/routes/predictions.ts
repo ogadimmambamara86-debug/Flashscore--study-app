@@ -1,22 +1,28 @@
+// apps/backend/src/routes/predictions.ts
 import { FastifyInstance } from "fastify";
-import { runPrediction } from "../services/predictionService";
+import { predictMatch } from "../services/predictionService";
 
 export async function predictionRoutes(server: FastifyInstance) {
-  server.get("/api/predictions", async () => {
-    return { message: "Send POST /api/predictions with match features" };
-  });
-
-  server.post("/api/predictions", async (req, reply) => {
-    const { features } = req.body as { features: number[] };
-    if (!features || !Array.isArray(features))
-      return reply.status(400).send({ error: "Invalid features array" });
-
+  server.get("/predictions", async (request, reply) => {
     try {
-      const prediction = await runPrediction(features);
-      return { prediction }; // array of probabilities [home_win, draw, away_win]
-    } catch (err) {
-      console.error(err);
-      return reply.status(500).send({ error: "Prediction failed" });
+      // Example: take query params
+      const { homeTeam, awayTeam } = request.query as {
+        homeTeam: string;
+        awayTeam: string;
+      };
+
+      if (!homeTeam || !awayTeam) {
+        return reply.status(400).send({ error: "Missing team names" });
+      }
+
+      const result = await predictMatch(homeTeam, awayTeam);
+
+      return { success: true, data: result };
+    } catch (err: any) {
+      return reply.status(500).send({
+        success: false,
+        error: err.message || "Prediction error",
+      });
     }
   });
 }
