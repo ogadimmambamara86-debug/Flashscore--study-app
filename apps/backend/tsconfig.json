@@ -14,12 +14,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "paths": {
-      "@bcomponents/*": ["components/*"],
       "@btypes/*": ["types/*"],
+ "@bmodels/*": ["types/*"],
       "@bcontrollers/*": ["controllers/*"],
       "@broutes/*": ["routes/*"],
       "@bservices/*": ["services/*"],
-      "@bstyles/*": ["styles/*"],
       "@bconfig/*": ["config/*"],
       "@shared/types/*": ["../../../packages/shared/src/libs/types/*"],
       "@shared/utils/*": ["../../../packages/shared/src/libs/utils/*"],
