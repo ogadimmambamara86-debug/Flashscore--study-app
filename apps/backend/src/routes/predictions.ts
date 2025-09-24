@@ -1,38 +1,22 @@
 import { FastifyInstance } from "fastify";
-import { PredictionModel } from "../models/Prediction";
-import { MatchModel } from "../models/Match";
+import { runPrediction } from "../services/predictionService";
 
 export async function predictionRoutes(server: FastifyInstance) {
-  // GET all predictions
-  server.get("/api/predictions", async (request, reply) => {
-    try {
-      const predictions = await PredictionModel.find().populate("matchId");
-      return predictions;
-    } catch (err) {
-      reply.status(500).send({ error: "Failed to fetch predictions" });
-    }
+  server.get("/api/predictions", async () => {
+    return { message: "Send POST /api/predictions with match features" };
   });
 
-  // POST a new prediction (mock AI for now)
-  server.post("/api/predictions", async (request, reply) => {
+  server.post("/api/predictions", async (req, reply) => {
+    const { features } = req.body as { features: number[] };
+    if (!features || !Array.isArray(features))
+      return reply.status(400).send({ error: "Invalid features array" });
+
     try {
-      const { matchId } = request.body;
-
-      // Fetch the match
-      const match = await MatchModel.findById(matchId);
-      if (!match) return reply.status(404).send({ error: "Match not found" });
-
-      // Mock AI: random prediction
-      const outcomes: Array<"home" | "draw" | "away"> = ["home", "draw", "away"];
-      const predictedOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-      const confidence = parseFloat((Math.random() * (0.9 - 0.5) + 0.5).toFixed(2)); // 50%-90%
-
-      const prediction = new PredictionModel({ matchId, predictedOutcome, confidence });
-      await prediction.save();
-
-      return prediction;
+      const prediction = await runPrediction(features);
+      return { prediction }; // array of probabilities [home_win, draw, away_win]
     } catch (err) {
-      reply.status(400).send({ error: "Failed to create prediction" });
+      console.error(err);
+      return reply.status(500).send({ error: "Prediction failed" });
     }
   });
 }
