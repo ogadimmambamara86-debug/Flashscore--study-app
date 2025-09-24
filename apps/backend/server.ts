@@ -1,13 +1,10 @@
-// ----------------- Load Environment First -----------------
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-import dotenv from "dotenv";
-
-// Fix __dirname in ES Modules - REMOVE THE DUPLICATES!
+// Fix __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,49 +13,22 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "development";
 }
 
-// Load appropriate environment file
-const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
-const envPath = path.join(__dirname, envFile);
-
 // Load environment variables
-dotenv.config({ path: envPath });
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env";
+dotenv.config({ path: path.join(__dirname, envFile) });
+
 console.log(`🛠 Loading environment from ${envFile}`);
-console.log(`🛠 Environment file path: ${envPath}`);
-
-// Check if file exists
-import { existsSync } from 'fs';
-if (existsSync(envPath)) {
-  console.log(`✅ Environment file found`);
-} else {
-  console.log(`⚠️ Environment file not found at ${envPath}`);
-}
-
-// Debugging logs
 console.log("🔎 NODE_ENV:", process.env.NODE_ENV);
-console.log(
-  "🔎 MONGODB_URI:",
-  process.env.MONGODB_URI ? "✅ Loaded" : "❌ Not Loaded"
-);
-console.log(
-  "🔎 DATABASE_URL:",
-  process.env.DATABASE_URL ? "✅ Loaded" : "❌ Not Loaded"
-);
-
-// ----------------- Imports After Env -----------------
-import express, { Request, Response, NextFunction } from "express";
-import cors from "cors";
-import { connectDatabase, disconnectDatabase } from "./config/database";
 
 // ----------------- App Setup -----------------
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 4000;
 
-// ----------------- CORS Setup (Best of Both) -----------------
+// ----------------- CORS Setup -----------------
 const corsOptions: cors.CorsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? [process.env.FRONTEND_URL || "https://flashscore-study-app.vercel.app"]
-      : ["http://localhost:3000"],
+  origin: process.env.NODE_ENV === "production"
+    ? [process.env.FRONTEND_URL || "https://flashscore-study-app.vercel.app"]
+    : ["http://0.0.0.0:3000", "http://localhost:3000", "http://0.0.0.0:5000"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -67,44 +37,52 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// ----------------- Import Routes -----------------
-import configRoutes from "./routes/config";
-
-// ----------------- Routes -----------------
-app.use("/api/config", configRoutes);
-
-app.get("/health", (req: Request, res: Response) => {
+// ----------------- API Routes -----------------
+app.get("/api/health", (req: Request, res: Response) => {
   res.json({
-    status: "ok",
+    status: "healthy",
+    service: "MagajiCo Backend API",
     uptime: process.uptime(),
     env: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/api/predictions", (req: Request, res: Response) => {
+  res.json({
+    status: "success",
+    data: [
+      { match: "Team A vs Team B", prediction: "Team A Win", confidence: 85 },
+      { match: "Team C vs Team D", prediction: "Draw", confidence: 72 }
+    ]
   });
 });
 
 app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "API all set champion 🏆 🚀" });
+  res.json({
+    message: "🏆 MagajiCo Backend API - FastAPI Style with Express",
+    version: "1.0.0",
+    endpoints: ["/api/health", "/api/predictions"]
+  });
 });
 
 // ----------------- Error Handler -----------------
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error("❌ Server error:", err.stack);
-  res.status(500).json({ error: "Bad Belle Ma Village people!" });
+  console.error("❌ Server error:", err.message);
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // ----------------- Start Server -----------------
-const server = app.listen(PORT, async () => {
-  await connectDatabase();
-  console.log(
-    `✅ Server running on port ${PORT} in ${process.env.NODE_ENV} mode`
-  );
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Backend API running on http://0.0.0.0:${PORT}`);
+  console.log(`🌐 Health check: http://0.0.0.0:${PORT}/api/health`);
 });
 
 // ----------------- Graceful Shutdown -----------------
-const shutdown = async (signal: string) => {
+const shutdown = (signal: string) => {
   console.log(`🛑 Received ${signal}. Shutting down...`);
-  server.close(async () => {
-    await disconnectDatabase();
-    console.log("🏆 Shutdown complete. Goodbye!");
+  server.close(() => {
+    console.log("🏆 Backend shutdown complete");
     process.exit(0);
   });
 };
@@ -112,12 +90,3 @@ const shutdown = async (signal: string) => {
 ["SIGINT", "SIGTERM"].forEach((signal) =>
   process.on(signal, () => shutdown(signal))
 );
-
-process.on("uncaughtException", (err) => {
-  console.error(`💥 Uncaught Exception:`, err);
-  process.exit(1);
-});
-
-process.on("unhandledRejection", (reason) => {
-  console.error(`💥 Unhandled Rejection:`, reason);
-});

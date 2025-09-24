@@ -22,6 +22,11 @@ const nextConfig = {
       },
     ];
   },
+  
+  server: {
+    port: 5000,
+    hostname: '0.0.0.0'
+  },
 
   webpack: (config) => {
     // Chunk optimization

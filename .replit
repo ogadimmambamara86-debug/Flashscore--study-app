@@ -10,7 +10,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Frontend Debug Mode"
+runButton = "Full Stack Working"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -204,6 +204,32 @@ args = "node health-check.js"
 name = "Frontend Debug Mode"
 author = 46296136
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm install --legacy-peer-deps && npm run dev"
+
+[[workflows.workflow]]
+name = "Full Stack Working"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm install && npm run start"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && npm install --legacy-peer-deps && npm run dev"
+
+[[workflows.workflow]]
+name = "Full Stack Working"
+author = 46296136
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/backend && npm install && npm run start"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
