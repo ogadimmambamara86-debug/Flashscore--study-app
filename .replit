@@ -191,6 +191,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "cd apps/backend && npm install && npm run dev"
 
+[[workflows.workflow]]
+name = "Health Check"
+author = 46296136
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node health-check.js"
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
