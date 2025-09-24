@@ -17,10 +17,31 @@
     "isolatedModules": true,
     "jsx": "preserve",
 
-    // 👇 baseUrl points to src for root-level imports
-    "baseUrl": "src",
+    // 👇 baseUrl at root
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      // --- Frontend ---
+      "@components/*": ["apps/frontend/src/app/components/*"],
+      "@hooks/*": ["apps/frontend/src/app/hooks/*"],
+      "@controllers/*": ["apps/frontend/src/app/controllers/*"],
+      "@api/*": ["apps/frontend/src/app/api/*"],
+      "@services/*": ["apps/frontend/src/app/services/*"],
+      "@styles/*": ["apps/frontend/src/app/styles/*"],
+      "@config/*": ["apps/frontend/src/app/config/*"],
+
+      // --- Backend ---
+      "@bakcomponents/*": ["apps/backend/src/components/*"],
+      "@baktypes/*": ["apps/backend/src/types/*"],
+      "@bakcontrollers/*": ["apps/backend/src/controllers/*"],
+      "@bakroutes/*": ["apps/backend/src/routes/*"],
+      "@services/*": ["apps/backend/src/services/*"],
+      "@styles/*": ["apps/backend/src/styles/*"],
+      "@config/*": ["apps/backend/src/config/*"],
+
+      // --- Shared ---
+      "@shared/types/*": ["packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["packages/shared/src/libs/models/*"]
     }
   },
   "ts-node": {
@@ -36,6 +57,6 @@
   "references": [
     { "path": "apps/frontend" },
     { "path": "apps/backend" },
-    { "path": "packages" }
+    { "path": "packages/shared" }
   ]
 }
