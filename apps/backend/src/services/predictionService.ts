@@ -1,23 +1,33 @@
-import { exec } from "child_process";
-import path from "path";
+// apps/backend/src/services/predictionService.ts
+import { spawn } from "child_process";
 
-const MODEL_SCRIPT = path.resolve(__dirname, "../models/predictionModel.py");
-
-/**
- * Run Python prediction script
- * @param features array of numbers representing match features
- */
-export const runPrediction = (features: number[]): Promise<number[]> => {
+// This function calls a Python script (PyTorch model)
+export async function predictMatch(homeTeam: string, awayTeam: string) {
   return new Promise((resolve, reject) => {
-    const pyCommand = `python3 ${MODEL_SCRIPT} ${features.join(",")}`;
-    exec(pyCommand, (error, stdout, stderr) => {
-      if (error) return reject(error);
-      try {
-        const result = JSON.parse(stdout); // model returns JSON array of probabilities
-        resolve(result);
-      } catch (err) {
-        reject(err);
+    const py = spawn("python3", ["./ml/predict.py", homeTeam, awayTeam]);
+
+    let data = "";
+    let error = "";
+
+    py.stdout.on("data", (chunk) => {
+      data += chunk.toString();
+    });
+
+    py.stderr.on("data", (chunk) => {
+      error += chunk.toString();
+    });
+
+    py.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`Python process failed: ${error}`));
+      } else {
+        try {
+          const parsed = JSON.parse(data);
+          resolve(parsed);
+        } catch (err) {
+          reject(new Error("Failed to parse AI response"));
+        }
       }
     });
   });
-};
+}
