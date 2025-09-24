@@ -1,0 +1,13 @@
+import { Request, Response } from 'express';
+import { Match } from '../types/match';
+
+const getMatches = (_req: Request, res: Response) => {
+  const demoMatches: Match[] = [
+    { home: 'Team A', away: 'Team B', date: new Date() },
+    { home: 'Team C', away: 'Team D', date: new Date() }
+  ];
+
+  res.json({ matches: demoMatches });
+};
+
+export default { getMatches };
