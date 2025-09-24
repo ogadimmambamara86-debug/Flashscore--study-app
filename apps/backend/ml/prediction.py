@@ -1,8 +1,11 @@
 # backend/ml/prediction.py
+from fastapi import FastAPI
 import random
 
-def make_prediction(team_a: str, team_b: str) -> dict:
-    # Example dummy logic (replace with real ML model later)
+app = FastAPI(title="ML Prediction API")
+
+@app.get("/predict")
+def predict(team_a: str, team_b: str):
     result = random.choice([team_a, team_b, "Draw"])
     return {
         "team_a": team_a,
