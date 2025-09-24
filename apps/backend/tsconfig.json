@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": "./src",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -20,9 +21,39 @@
       "@bakservices/*": ["services/*"],
       "@bakstyles/*": ["styles/*"],
       "@bakconfig/*": ["config/*"],
-      "@shared/types/*": ["../../packages/shared/src/libs/types/*"],
-      "@shared/utils/*": ["../../packages/shared/src/libs/utils/*"],
-      "@shared/models/*": ["../../packages/shared/src/libs/models/*"]
+      "@shared/types/*": ["../../../packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["../../../packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["../../../packages/shared/src/libs/models/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@bakcomponents/*": ["components/*"],
+      "@baktypes/*": ["types/*"],
+      "@bakcontrollers/*": ["controllers/*"],
+      "@bakroutes/*": ["routes/*"],
+      "@bakservices/*": ["services/*"],
+      "@bakstyles/*": ["styles/*"],
+      "@bakconfig/*": ["config/*"],
+      "@shared/types/*": ["../../../packages/shared/src/libs/types/*"],
+      "@shared/utils/*": ["../../../packages/shared/src/libs/utils/*"],
+      "@shared/models/*": ["../../../packages/shared/src/libs/models/*"]
     }
   },
   "include": ["src/**/*"],
