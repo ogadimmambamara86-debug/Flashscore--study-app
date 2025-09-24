@@ -53,10 +53,12 @@
     "**/*.tsx"
   ],
   "exclude": ["node_modules", "dist", ".next"],
+  {
   "files": [],
   "references": [
+    { "path": "apps/backend/src" },
+    { "path": "apps/backend/ml" },
     { "path": "apps/frontend" },
-    { "path": "apps/backend" },
     { "path": "packages/shared" }
   ]
 }
