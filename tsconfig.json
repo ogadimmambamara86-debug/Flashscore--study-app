@@ -35,7 +35,14 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/**/*"
+    {
+  "files": [],
+  "references": [
+    { "path": "apps/frontend" },
+    { "path": "apps/backend" },
+    { "path": "packages" }
+  ]
+}
   ],
   "exclude": [
     "node_modules",
