@@ -1,13 +1,23 @@
-import { Request, Response } from 'express';
-import { Match } from '../types/match';
+import { Request, Response } from "express";
+import { MatchModel } from "../models/Match";
 
-const getMatches = (_req: Request, res: Response) => {
-  const demoMatches: Match[] = [
-    { home: 'Team A', away: 'Team B', date: new Date() },
-    { home: 'Team C', away: 'Team D', date: new Date() }
-  ];
-
-  res.json({ matches: demoMatches });
+// GET all matches
+export const getMatches = async (req: Request, res: Response) => {
+  try {
+    const matches = await MatchModel.find().sort({ date: -1 });
+    res.json(matches);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch matches" });
+  }
 };
 
-export default { getMatches };
+// POST new match
+export const createMatch = async (req: Request, res: Response) => {
+  try {
+    const match = new MatchModel(req.body);
+    await match.save();
+    res.status(201).json(match);
+  } catch (err) {
+    res.status(400).json({ error: "Failed to create match" });
+  }
+};
