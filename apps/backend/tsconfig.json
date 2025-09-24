@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@bcomponents/*": ["components/*"],
-      "@bktypes/*": ["types/*"],
+      "@btypes/*": ["types/*"],
       "@bcontrollers/*": ["controllers/*"],
       "@broutes/*": ["routes/*"],
       "@bservices/*": ["services/*"],
