@@ -18,14 +18,9 @@ const nextConfig = {
     return [
       {
         source: "/api/backend/:path*",
-        destination: "http://0.0.0.0:4000/api/:path*",
+        destination: "http://localhost:8000/api/:path*",
       },
     ];
-  },
-  
-  server: {
-    port: 5000,
-    hostname: '0.0.0.0'
   },
 
   webpack: (config) => {

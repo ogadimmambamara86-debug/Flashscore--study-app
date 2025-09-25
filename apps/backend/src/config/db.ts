@@ -13,7 +13,11 @@ export const connectDB = async () => {
     console.log(`✅ MongoDB connected: ${mongoose.connection.name}`);
   } catch (err) {
     console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
+    console.log("⚠️  Running without database connection for development");
+    // Don't exit in development, continue without DB
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
   }
 };
 

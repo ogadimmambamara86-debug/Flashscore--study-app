@@ -12,10 +12,10 @@ const server = Fastify();
 
 // Configure CORS properly for Replit environment
 const allowedOrigins = [
-  process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : null,
+  process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : undefined,
   'http://localhost:5000',
   'http://0.0.0.0:5000'
-].filter(Boolean);
+].filter((origin): origin is string => typeof origin === 'string');
 
 server.register(cors, { 
   origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
@@ -31,7 +31,7 @@ server.register(scraperRoutes); // <-- register scraper API
 const start = async () => {
   await connectDB();
   server.listen({ 
-    port: Number(process.env.PORT) || 4000,
+    port: Number(process.env.PORT) || 8000,
     host: 'localhost'  // Backend should use localhost, not 0.0.0.0
   }, (err, address) => {
     if (err) throw err;

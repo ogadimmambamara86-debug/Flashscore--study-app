@@ -10,7 +10,7 @@ run = ["sh", "-c", "cd apps/backend && npm start & cd apps/frontend && npm start
 build = ["sh", "-c", "cd apps/frontend && npm install && npm run build"]
 
 [workflows]
-runButton = "Full Stack Working"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Start Sports API"
@@ -104,13 +104,13 @@ args = "Backend"
 name = "Frontend"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev:frontend"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/frontend && pnpm run dev"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Backend"
@@ -121,7 +121,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev:backend"
+args = "cd apps/backend && pnpm run dev"
 waitForPort = 8000
 
 [[workflows.workflow]]
