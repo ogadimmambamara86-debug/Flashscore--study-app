@@ -40,7 +40,7 @@ export default function iOSInterface({
   };
 
   return (
-    <div className="ios-interface"
+    <div
         data-show-status-bar={showStatusBar}
         data-enable-haptic-feedback={enableHapticFeedback}
       >

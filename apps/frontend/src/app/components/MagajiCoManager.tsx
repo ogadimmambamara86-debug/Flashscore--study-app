@@ -73,10 +73,12 @@ export default function MagajiCoManager() {
           <div className="bg-blue-600/20 p-3 rounded-lg">
             <div className="font-semibold text-blue-300">Market Opportunities</div>
             <div className="text-2xl font-bold">{strategicInsights.totalOpportunities}</div>
+            <div className="text-xs text-blue-200">5(1) Filter: {strategicInsights.filter5Score}%</div>
           </div>
           <div className="bg-purple-600/20 p-3 rounded-lg">
-            <div className="font-semibold text-purple-300">Innovation Index</div>
-            <div className="text-2xl font-bold">{strategicInsights.innovationIndex}%</div>
+            <div className="font-semibold text-purple-300">Meta Intelligence</div>
+            <div className="text-2xl font-bold">{strategicInsights.metaIntelligence}%</div>
+            <div className="text-xs text-purple-200">Zuckerberg: {strategicInsights.zuckerbergStrategy}</div>
           </div>
         </div>
       )}
@@ -96,7 +98,11 @@ export default function MagajiCoManager() {
       </div>
       
       <div className="mt-4 text-xs text-slate-400">
-        Strategic Intelligence: Musk Innovation • Gates Market Positioning • Bezos Long-term • Ma Risk Management
+        Strategic Intelligence: Musk Innovation • Gates Market Positioning • Bezos Long-term • Ma Risk Management • Zuckerberg Meta Strategy
+      </div>
+      
+      <div className="mt-2 text-xs text-blue-400">
+        🌐 MagajiCo 5(1) Filter: 5 Quality Checks → 1 Strategic Decision | Meta Intelligence Active
       </div>
       
       <FloatingAlert enabled={true} onToggle={() => {}} />
