@@ -47,7 +47,6 @@ export async function scraperRoutes(server: FastifyInstance) {
     try {
       const result = await saveScrapedMatches();
       return { 
-        success: true, 
         message: "Scraping completed and saved to database",
         ...result
       };

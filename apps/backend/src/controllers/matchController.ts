@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { MatchModel } from "../models/Match";
+import { Match } from "../models/Match";
 
 // GET all matches
 export const getMatches = async (req: Request, res: Response) => {
   try {
-    const matches = await MatchModel.find().sort({ date: -1 });
+    const matches = await Match.find().sort({ date: -1 });
     res.json(matches);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch matches" });
@@ -14,7 +14,7 @@ export const getMatches = async (req: Request, res: Response) => {
 // POST new match
 export const createMatch = async (req: Request, res: Response) => {
   try {
-    const match = new MatchModel(req.body);
+    const match = new Match(req.body);
     await match.save();
     res.status(201).json(match);
   } catch (err) {
