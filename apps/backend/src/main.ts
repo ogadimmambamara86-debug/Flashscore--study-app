@@ -7,6 +7,7 @@ import { healthRoutes } from "./routes/health";
 import { matchRoutes } from "./routes/matches";
 import { predictionRoutes } from "./routes/predictions";
 import { scraperRoutes } from "./routes/scraper"; // <-- move import here
+import { mlRoutes } from "./routes/ml";
 
 const server = Fastify();
 
@@ -23,10 +24,11 @@ server.register(cors, {
 });
 
 // Register routes
-server.register(healthRoutes);
-server.register(matchRoutes);
-server.register(predictionRoutes);
-server.register(scraperRoutes); // <-- register scraper API
+server.register(healthRoutes, { prefix: "/api" });
+server.register(matchRoutes, { prefix: "/api" });
+server.register(predictionRoutes, { prefix: "/api" });
+server.register(scraperRoutes, { prefix: "/api" }); // <-- register scraper API
+server.register(mlRoutes, { prefix: "/api/ml" });
 
 const start = async () => {
   await connectDB();

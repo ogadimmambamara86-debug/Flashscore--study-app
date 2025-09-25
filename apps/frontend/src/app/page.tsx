@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import MagajiCoManager from "./components/MagajiCoManager";
 
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState("checking...");
@@ -46,6 +47,8 @@ export default function HomePage() {
       <footer className="text-center mt-10 opacity-70">
         <p>🏆 Powered by MagajiCo Technology | Next.js + Fastify</p>
       </footer>
+      
+      <MagajiCoManager />
     </div>
   );
 }

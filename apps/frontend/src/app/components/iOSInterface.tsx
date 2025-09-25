@@ -8,10 +8,10 @@ interface iOSInterfaceProps {
   enableHapticFeedback?: boolean;
 }
 
-export default function iOSInterface({ 
-  children, 
+export default function iOSInterface({
+  children,
   showStatusBar = true,
-  enableHapticFeedback = true 
+  enableHapticFeedback = true
 }: iOSInterfaceProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(85);
@@ -32,18 +32,18 @@ export default function iOSInterface({
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     });
   };
 
   return (
-    <div className="ios-interface"
-        data-show-status-bar={showStatusBar}
-        data-enable-haptic-feedback={enableHapticFeedback}
-      >
+    <div
+      data-show-status-bar={showStatusBar}
+      data-enable-haptic-feedback={enableHapticFeedback}
+    >
       {showStatusBar && (
         <div className="ios-status-bar">
           <div className="ios-status-left">
@@ -62,7 +62,7 @@ export default function iOSInterface({
           <div className="ios-status-right">
             <div className="ios-signal">
               {[...Array(4)].map((_, i) => (
-                <div 
+                <div
                   key={i}
                   className={`ios-signal-bar ${i < signalStrength ? 'active' : ''}`}
                   style={{ height: `${(i + 1) * 3}px` }}
@@ -72,14 +72,14 @@ export default function iOSInterface({
 
             <div className="ios-wifi">
               <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor">
-                <path d="M7.5 11L2.5 6C4.5 4 5.5 3.5 7.5 3.5S10.5 4 12.5 6L7.5 11Z"/>
+                <path d="M7.5 11L2.5 6C4.5 4 5.5 3.5 7.5 3.5S10.5 4 12.5 6L7.5 11Z" />
               </svg>
             </div>
 
             <div className="ios-battery">
               <div className="ios-battery-body">
-                <div 
-                  className="ios-battery-level" 
+                <div
+                  className="ios-battery-level"
                   style={{ width: `${batteryLevel}%` }}
                 />
               </div>
@@ -96,6 +96,14 @@ export default function iOSInterface({
       </div>
 
       <style jsx>{`
+        :root {
+          --ios-label: #fff;
+          --ios-tertiary-label: rgba(235, 235, 245, 0.6);
+          --ios-system-background: #000;
+          --ios-green: #34c759;
+          --ios-red: #ff3b30;
+        }
+
         .ios-interface {
           min-height: 100vh;
           background: var(--ios-system-background);
@@ -234,6 +242,14 @@ export default function iOSInterface({
 
         /* Dark Mode Support */
         @media (prefers-color-scheme: dark) {
+          :root {
+            --ios-label: #fff;
+            --ios-tertiary-label: rgba(235, 235, 245, 0.6);
+            --ios-system-background: #000;
+            --ios-green: #34c759;
+            --ios-red: #ff3b30;
+          }
+
           .ios-dynamic-island {
             background: #1c1c1e;
             border-color: #2c2c2e;
