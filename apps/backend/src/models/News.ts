@@ -1,4 +1,3 @@
-
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface INewsAuthor {
@@ -15,7 +14,7 @@ export interface INews extends Document {
   title: string;
   preview: string;
   fullContent: string;
-  author: INewsAuthor;
+  author: INewsAuthor | string;
   collaborationType?: 'prediction' | 'analysis' | 'community' | 'update';
   createdAt: Date;
   updatedAt: Date;
@@ -50,10 +49,9 @@ const NewsSchema: Schema = new Schema({
     type: Schema.Types.Mixed,
     required: true,
     default: 'Admin',
-    // Support both string (legacy) and object (new) formats
     validate: {
       validator: function(value: any) {
-        return typeof value === 'string' || 
+        return typeof value === 'string' ||
                (typeof value === 'object' && value.name && value.icon);
       },
       message: 'Author must be either a string or an object with name and icon'
@@ -84,38 +82,8 @@ const NewsSchema: Schema = new Schema({
   timestamps: true
 });
 
-// Create indexes for better performance
 NewsSchema.index({ createdAt: -1 });
 NewsSchema.index({ isActive: 1 });
 NewsSchema.index({ tags: 1 });
-
-export default mongoose.model<INews>('News', NewsSchema);
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface INews extends Document {
-  id: number;
-  title: string;
-  preview: string;
-  fullContent: string;
-  author: string;
-  tags: string[];
-  createdAt: Date;
-  viewCount: number;
-  isActive: boolean;
-  imageUrl?: string;
-}
-
-const NewsSchema: Schema = new Schema({
-  id: { type: Number, required: true, unique: true },
-  title: { type: String, required: true },
-  preview: { type: String, required: true },
-  fullContent: { type: String, required: true },
-  author: { type: String, required: true },
-  tags: [{ type: String }],
-  createdAt: { type: Date, default: Date.now },
-  viewCount: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true },
-  imageUrl: { type: String }
-});
 
 export default mongoose.model<INews>('News', NewsSchema);

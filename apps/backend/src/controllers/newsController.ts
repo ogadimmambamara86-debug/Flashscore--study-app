@@ -40,7 +40,7 @@ export class NewsController {
       });
     } catch (error) {
       console.error('Error fetching news:', error);
-      res.code(500).send({
+      res.status(500).send({
         success: false,
         message: 'Failed to fetch news',
         error: error instanceof Error ? error.message : 'Unknown error'

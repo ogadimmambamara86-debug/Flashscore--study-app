@@ -16,6 +16,7 @@ const server = Fastify();
 // Configure CORS properly for production
 const allowedOrigins = [
   'https://flashscore-study-app.vercel.app',
+  'https://302a3520-1a25-488e-b2d3-26ceed56ba96-00-4e1xep2o5f5l.kirk.replit.dev',
   process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : undefined,
   'http://localhost:5000',
   'http://0.0.0.0:5000',
@@ -24,7 +25,7 @@ const allowedOrigins = [
 ].filter((origin): origin is string => typeof origin === 'string');
 
 server.register(cors, { 
-  origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
+  origin: true,
   credentials: true 
 });
 
