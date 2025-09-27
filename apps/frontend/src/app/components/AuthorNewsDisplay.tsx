@@ -3,12 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import { NewsItem, NewsAuthor } from '../services/newsService';
 
+// Assuming ContentPaywall component is available and imported from './ContentPaywall'
+// For the purpose of this example, let's assume it exists and has the props mentioned in the changes.
+// If ContentPaywall is not defined elsewhere, it would need to be implemented or imported.
+// Example of a placeholder for ContentPaywall if not provided:
+const ContentPaywall = ({ contentType, title, preview, onUpgrade, onRegister }: any) => (
+  <div className="mt-6 p-6 bg-gray-700 rounded-lg border border-gray-600 text-white">
+    <h4 className="text-lg font-bold mb-2">Exclusive Content</h4>
+    <p className="text-sm text-gray-300 mb-4">{preview}</p>
+    <div className="flex gap-3">
+      <button
+        onClick={onUpgrade}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
+      >
+        Upgrade to Member
+      </button>
+      <button
+        onClick={onRegister}
+        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors text-sm"
+      >
+        Register
+      </button>
+    </div>
+  </div>
+);
+
+
 interface AuthorNewsDisplayProps {
   news: NewsItem[];
   className?: string;
 }
 
-const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className = '' }) => {
+const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news: newsData, className = '' }) => {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState<boolean>(false);
@@ -17,7 +43,8 @@ const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className =
     // Check if user is logged in
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
     const userData = localStorage.getItem('currentUser');
-    setIsLoggedIn(adminLoggedIn === 'true' || !!userData);
+    const memberAccess = localStorage.getItem('memberAccess'); // Check for member access
+    setIsLoggedIn(adminLoggedIn === 'true' || !!userData || memberAccess === 'true');
   }, []);
 
   const handleReadMore = (newsId: number) => {
@@ -51,7 +78,7 @@ const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className =
       'community': { icon: '🏆', color: 'bg-purple-600', text: 'Community' },
       'update': { icon: '📰', color: 'bg-gray-600', text: 'Update' }
     };
-    
+
     const badge = badges[type as keyof typeof badges] || badges.update;
     return (
       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${badge.color} text-white`}>
@@ -94,10 +121,47 @@ const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className =
       )}
 
       {/* News Items */}
-      {news.map((item) => {
+      {newsData.map((item) => {
         const author = formatAuthor(item.author);
         const isExpanded = expandedItems.includes(item.id);
-        
+        const isMemberContent = item.collaborationType === 'prediction' || item.collaborationType === 'analysis'; // Example logic for member content
+
+        const renderContent = () => {
+          if (isLoggedIn || !isMemberContent) { // If logged in OR it's not member-exclusive content
+            return (
+              <div className="prose prose-invert max-w-none">
+                <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                  {item.fullContent}
+                </p>
+              </div>
+            );
+          } else { // Not logged in and it is member-exclusive content
+            return (
+              <>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-gray-300 leading-relaxed">
+                    {item.preview}
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <ContentPaywall
+                    contentType="premium_analysis"
+                    title={`Continue Reading: ${item.title}`}
+                    preview="This article contains exclusive insights and detailed analysis available to members only."
+                    onUpgrade={() => {
+                      localStorage.setItem('memberAccess', 'true');
+                      window.location.reload();
+                    }}
+                    onRegister={() => {
+                      alert('Registration flow would be triggered here');
+                    }}
+                  />
+                </div>
+              </>
+            );
+          }
+        };
+
         return (
           <article key={item.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             {/* Author Header */}
@@ -123,20 +187,9 @@ const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className =
 
             {/* News Content */}
             <h2 className="text-xl font-bold text-white mb-3">{item.title}</h2>
-            
+
             <div className="text-gray-300">
-              <p className="mb-4">{item.preview}</p>
-              
-              {/* Full Content (Members Only) */}
-              {isExpanded && isLoggedIn && (
-                <div className="bg-gray-900 p-4 rounded-lg border-l-4 border-blue-500">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-blue-400">👑</span>
-                    <span className="text-blue-400 text-sm font-medium">Member Content</span>
-                  </div>
-                  <p className="text-gray-200 leading-relaxed">{item.fullContent}</p>
-                </div>
-              )}
+              {renderContent()}
             </div>
 
             {/* Action Buttons */}
@@ -151,24 +204,42 @@ const AuthorNewsDisplay: React.FC<AuthorNewsDisplayProps> = ({ news, className =
                   </span>
                 ))}
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <span className="text-gray-400 text-sm flex items-center gap-1">
                   <span>👁️</span>
                   {item.viewCount} views
                 </span>
-                
-                <button
-                  onClick={() => handleReadMore(item.id)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    isLoggedIn
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
-                  }`}
-                >
-                  {isExpanded ? 'Show Less' : isLoggedIn ? 'Read More' : 'Login to Read More'}
-                  {!isLoggedIn && <span className="ml-1">🔒</span>}
-                </button>
+
+                {/* Only show "Read More" if it's not already expanded or if it's member content that needs login */}
+                {(!isExpanded || isMemberContent) && (
+                  <button
+                    onClick={() => {
+                      if (isMemberContent && !isLoggedIn) {
+                        setShowLoginPrompt(true);
+                      } else {
+                        handleReadMore(item.id);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      isLoggedIn || !isMemberContent
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
+                    }`}
+                  >
+                    {isExpanded ? 'Show Less' : isLoggedIn || !isMemberContent ? 'Read More' : 'Login to Read More'}
+                    {(!isLoggedIn && isMemberContent) && <span className="ml-1">🔒</span>}
+                  </button>
+                )}
+                {/* If expanded and not member content, show "Show Less" */}
+                {isExpanded && !isMemberContent && (
+                   <button
+                    onClick={() => handleReadMore(item.id)}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
+                  >
+                    Show Less
+                  </button>
+                )}
               </div>
             </div>
           </article>

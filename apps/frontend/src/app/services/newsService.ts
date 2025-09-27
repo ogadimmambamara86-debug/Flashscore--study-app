@@ -22,6 +22,70 @@ export interface NewsItem {
   tags: string[];
   imageUrl?: string;
   viewCount: number;
+  isPreview?: boolean;
+  memberAccess?: {
+    required: boolean;
+    message: string;
+  };
+}
+
+export interface NewsResponse {
+  success: boolean;
+  data: NewsItem[];
+  count: number;
+  accessLevel: 'guest' | 'member';
+  memberBenefits?: {
+    message: string;
+    features: string[];
+  };
+}
+
+export class NewsService {
+  private static getAuthHeaders() {
+    // In a real app, get this from session/localStorage
+    const isLoggedIn = localStorage.getItem('memberAccess') === 'true';
+    return isLoggedIn ? { 'Authorization': 'Bearer member' } : {};
+  }
+
+  static async getAllNews(): Promise<NewsResponse> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/news`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      throw error;
+    }
+  }
+
+  static async getNewsById(id: number): Promise<{ success: boolean; data: NewsItem; accessLevel: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/news/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching news item:', error);
+      throw error;
+    }
+  }
 }
 
 export class NewsService {

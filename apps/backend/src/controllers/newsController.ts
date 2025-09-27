@@ -10,10 +10,34 @@ export class NewsController {
         .sort({ createdAt: -1 })
         .limit(20);
       
+      // Check user access level
+      const authHeader = req.headers.authorization;
+      const authQuery = (req.query as any)?.auth;
+      const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
+      
+      let responseData;
+      
+      if (isValidAuth) {
+        // Member access - return full content
+        responseData = news;
+      } else {
+        // Guest access - return preview only
+        responseData = news.map(item => ({
+          ...item.toObject(),
+          fullContent: item.preview + '... [Member access required]',
+          isPreview: true
+        }));
+      }
+      
       res.json({
         success: true,
-        data: news,
-        count: news.length
+        data: responseData,
+        count: responseData.length,
+        accessLevel: isValidAuth ? 'member' : 'guest',
+        memberBenefits: isValidAuth ? null : {
+          message: 'Upgrade to member access for full articles, exclusive analysis, and premium features.',
+          features: ['Full article content', 'Exclusive analysis', 'Premium predictions', 'Ad-free experience']
+        }
       });
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -39,12 +63,35 @@ export class NewsController {
         return;
       }
 
-      // Increment view count
-      await News.findByIdAndUpdate(news._id, { $inc: { viewCount: 1 } });
+      // Check user access level
+      const authHeader = req.headers.authorization;
+      const authQuery = (req.query as any)?.auth;
+      const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
+      
+      let responseData;
+      
+      if (isValidAuth) {
+        // Member access - return full content
+        responseData = news;
+        // Increment view count for members
+        await News.findByIdAndUpdate(news._id, { $inc: { viewCount: 1 } });
+      } else {
+        // Guest access - return limited content
+        responseData = {
+          ...news.toObject(),
+          fullContent: news.preview + '... [Member access required for full content]',
+          isPreview: true,
+          memberAccess: {
+            required: true,
+            message: 'Upgrade to member access to read the full article and unlock premium content.'
+          }
+        };
+      }
       
       res.json({
         success: true,
-        data: news
+        data: responseData,
+        accessLevel: isValidAuth ? 'member' : 'guest'
       });
     } catch (error) {
       console.error('Error fetching news by ID:', error);
