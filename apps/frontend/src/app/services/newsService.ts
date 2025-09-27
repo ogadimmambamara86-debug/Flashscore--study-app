@@ -1,4 +1,3 @@
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface NewsAuthor {
@@ -41,7 +40,7 @@ export class NewsService {
       const memberAccess = localStorage.getItem('memberAccess') === 'true';
       const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
       const userData = localStorage.getItem('currentUser');
-      
+
       if (memberAccess || adminLoggedIn || userData) {
         return { 'Authorization': 'Bearer member' };
       }
