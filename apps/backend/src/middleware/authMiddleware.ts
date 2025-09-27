@@ -5,36 +5,34 @@ export const authMiddleware = {
   // Check if user has permission to read full content
   requireMemberAccess: async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      // In a real application, you would check JWT tokens, session cookies, etc.
-      // For now, we'll check for a simple auth header or query parameter
       const authHeader = request.headers.authorization;
-      const authQuery = (request.query as any)?.auth;
-      
-      if (!authHeader && !authQuery) {
+
+      // For development, allow requests with Bearer token or skip auth
+      if (process.env.NODE_ENV === 'development') {
+        return; // Skip auth in development
+      }
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return reply.code(401).send({
           success: false,
-          message: 'Member access required. Please log in to view full content.',
-          guestAccess: true
+          message: 'Member access required'
         });
       }
-      
-      // Simple validation - in production, verify JWT tokens properly
-      const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
-      
-      if (!isValidAuth) {
-        return reply.code(403).send({
-          success: false,
-          message: 'Invalid credentials. Member access required.',
-          guestAccess: true
-        });
+
+      // In production, implement proper token validation here
+      const token = authHeader.substring(7);
+      if (token === 'member' || token === 'admin') {
+        return; // Valid token
       }
-      
-      // User is authenticated, continue to route handler
+
+      return reply.code(401).send({
+        success: false,
+        message: 'Invalid access token'
+      });
     } catch (error) {
       return reply.code(500).send({
         success: false,
-        message: 'Authentication error',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Authentication error'
       });
     }
   },
@@ -43,7 +41,7 @@ export const authMiddleware = {
   isGuest: (request: FastifyRequest): boolean => {
     const authHeader = request.headers.authorization;
     const authQuery = (request.query as any)?.auth;
-    
+
     return !authHeader && !authQuery;
   },
 
@@ -51,9 +49,9 @@ export const authMiddleware = {
   getUserType: (request: FastifyRequest): 'guest' | 'member' => {
     const authHeader = request.headers.authorization;
     const authQuery = (request.query as any)?.auth;
-    
+
     const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
-    
+
     return isValidAuth ? 'member' : 'guest';
   }
 };

@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import News, { INews } from '../models/News';
 
@@ -9,14 +8,14 @@ export class NewsController {
       const news = await News.find({ isActive: true })
         .sort({ createdAt: -1 })
         .limit(20);
-      
+
       // Check user access level
       const authHeader = req.headers.authorization;
       const authQuery = (req.query as any)?.auth;
       const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
-      
+
       let responseData;
-      
+
       if (isValidAuth) {
         // Member access - return full content
         responseData = news;
@@ -28,7 +27,7 @@ export class NewsController {
           isPreview: true
         }));
       }
-      
+
       res.json({
         success: true,
         data: responseData,
@@ -54,7 +53,7 @@ export class NewsController {
     try {
       const { id } = req.params;
       const news = await News.findOne({ id: parseInt(id), isActive: true });
-      
+
       if (!news) {
         res.status(404).json({
           success: false,
@@ -67,9 +66,9 @@ export class NewsController {
       const authHeader = req.headers.authorization;
       const authQuery = (req.query as any)?.auth;
       const isValidAuth = authHeader?.includes('Bearer member') || authQuery === 'member';
-      
+
       let responseData;
-      
+
       if (isValidAuth) {
         // Member access - return full content
         responseData = news;
@@ -87,7 +86,7 @@ export class NewsController {
           }
         };
       }
-      
+
       res.json({
         success: true,
         data: responseData,
@@ -107,11 +106,11 @@ export class NewsController {
   static async createNews(req: Request, res: Response): Promise<void> {
     try {
       const { title, preview, fullContent, author, tags, imageUrl } = req.body;
-      
+
       // Get the next ID
       const lastNews = await News.findOne().sort({ id: -1 });
       const nextId = lastNews ? lastNews.id + 1 : 1;
-      
+
       const news = new News({
         id: nextId,
         title,
@@ -121,9 +120,9 @@ export class NewsController {
         tags: tags || [],
         imageUrl
       });
-      
+
       const savedNews = await news.save();
-      
+
       res.status(201).json({
         success: true,
         data: savedNews,
@@ -144,13 +143,13 @@ export class NewsController {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      
+
       const news = await News.findOneAndUpdate(
         { id: parseInt(id) },
         updateData,
         { new: true, runValidators: true }
       );
-      
+
       if (!news) {
         res.status(404).json({
           success: false,
@@ -158,7 +157,7 @@ export class NewsController {
         });
         return;
       }
-      
+
       res.json({
         success: true,
         data: news,
@@ -178,13 +177,13 @@ export class NewsController {
   static async deleteNews(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      
+
       const news = await News.findOneAndUpdate(
         { id: parseInt(id) },
         { isActive: false },
         { new: true }
       );
-      
+
       if (!news) {
         res.status(404).json({
           success: false,
@@ -192,7 +191,7 @@ export class NewsController {
         });
         return;
       }
-      
+
       res.json({
         success: true,
         message: 'News deleted successfully'

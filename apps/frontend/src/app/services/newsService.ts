@@ -6,8 +6,8 @@ export interface NewsAuthor {
   name: string;
   icon: string;
   bio?: string;
-  expertise: string[];
-  collaborationCount: number;
+  expertise?: string[];
+  collaborationCount?: number;
 }
 
 export interface NewsItem {
@@ -15,36 +15,38 @@ export interface NewsItem {
   title: string;
   preview: string;
   fullContent: string;
-  author: NewsAuthor;
+  author: string | NewsAuthor;
   collaborationType?: 'prediction' | 'analysis' | 'community' | 'update';
-  createdAt: string;
-  updatedAt: string;
   tags: string[];
-  imageUrl?: string;
+  createdAt: string;
   viewCount: number;
-  isPreview?: boolean;
-  memberAccess?: {
-    required: boolean;
-    message: string;
-  };
+  isActive?: boolean;
 }
 
 export interface NewsResponse {
   success: boolean;
   data: NewsItem[];
-  count: number;
-  accessLevel: 'guest' | 'member';
-  memberBenefits?: {
-    message: string;
-    features: string[];
+  message?: string;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
   };
 }
 
 export class NewsService {
   private static getAuthHeaders() {
-    // In a real app, get this from session/localStorage
-    const isLoggedIn = localStorage.getItem('memberAccess') === 'true';
-    return isLoggedIn ? { 'Authorization': 'Bearer member' } : {};
+    // Check for member access or admin login
+    if (typeof window !== 'undefined') {
+      const memberAccess = localStorage.getItem('memberAccess') === 'true';
+      const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+      const userData = localStorage.getItem('currentUser');
+      
+      if (memberAccess || adminLoggedIn || userData) {
+        return { 'Authorization': 'Bearer member' };
+      }
+    }
+    return {};
   }
 
   static async getAllNews(): Promise<NewsResponse> {
@@ -53,117 +55,143 @@ export class NewsService {
         headers: {
           'Content-Type': 'application/json',
           ...this.getAuthHeaders()
-        }
+        },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      return await response.json();
+
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching news:', error);
-      // Return fallback data if API fails
+      // Return fallback data
       return {
-        success: true,
-        data: [
-          {
-            id: 1,
-            title: "Welcome to Sports Central",
-            preview: "Your premier destination for sports news and predictions...",
-            fullContent: "Welcome to Sports Central, your premier destination for sports news, expert predictions, and community discussions. Stay updated with the latest happenings in the world of sports.",
-            author: {
-              id: 'sports_central',
-              name: 'Sports Central Team',
-              icon: '🏆',
-              bio: 'Official Sports Central editorial team',
-              expertise: ['sports', 'news', 'predictions'],
-              collaborationCount: 1
-            },
-            collaborationType: 'update',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            tags: ["welcome", "sports"],
-            viewCount: 0
-          }
-        ],
-        count: 1,
-        accessLevel: 'guest'
+        success: false,
+        data: this.getFallbackNews(),
+        message: 'Using fallback news data'
       };
     }
   }
 
-  static async getNewsById(id: number): Promise<{ success: boolean; data: NewsItem; accessLevel: string }> {
+  static async getNewsByAuthor(authorId: string): Promise<NewsResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/news/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/news/author/${authorId}`, {
         headers: {
           'Content-Type': 'application/json',
           ...this.getAuthHeaders()
-        }
+        },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      return await response.json();
+
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error('Error fetching news item:', error);
-      throw error;
+      console.error('Error fetching news by author:', error);
+      return {
+        success: false,
+        data: [],
+        message: 'Failed to fetch author news'
+      };
     }
   }
 
-  static async createNews(newsData: Omit<NewsItem, 'id' | 'createdAt' | 'updatedAt' | 'viewCount'>): Promise<NewsItem> {
-    const response = await fetch(`${API_BASE_URL}/api/news`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders()
-      },
-      body: JSON.stringify(newsData),
-    });
+  static async createNews(newsData: {
+    title: string;
+    preview: string;
+    fullContent: string;
+    authorId?: string;
+    collaborationType?: 'prediction' | 'analysis' | 'community' | 'update';
+    tags?: string[];
+  }): Promise<NewsItem | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/news`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders()
+        },
+        body: JSON.stringify(newsData),
+      });
 
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
-    } else {
-      throw new Error(data.message || 'Failed to create news');
-    }
-  }
-
-  static async updateNews(id: number, newsData: Partial<NewsItem>): Promise<NewsItem> {
-    const response = await fetch(`${API_BASE_URL}/api/news/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders()
-      },
-      body: JSON.stringify(newsData),
-    });
-
-    const data = await response.json();
-    
-    if (data.success) {
-      return data.data;
-    } else {
-      throw new Error(data.message || 'Failed to update news');
-    }
-  }
-
-  static async deleteNews(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/news/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders()
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
 
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to delete news');
+      const data = await response.json();
+      return data.success ? data.data : null;
+    } catch (error) {
+      console.error('Error creating news:', error);
+      return null;
     }
+  }
+
+  static async deleteNews(newsId: number): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/news/${newsId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders()
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('Error deleting news:', error);
+      return false;
+    }
+  }
+
+  private static getFallbackNews(): NewsItem[] {
+    return [
+      {
+        id: 1,
+        title: "Mara's Latest Prediction Analysis",
+        preview: "Our expert Mara shares insights on upcoming matches...",
+        fullContent: "Detailed analysis of upcoming football matches with statistical predictions and team performance metrics.",
+        author: {
+          id: 'mara',
+          name: 'Mara',
+          icon: '⚡',
+          bio: 'Sports analytics expert',
+          expertise: ['analytics', 'predictions'],
+          collaborationCount: 15
+        },
+        collaborationType: 'prediction',
+        tags: ['prediction', 'analysis'],
+        createdAt: new Date().toISOString(),
+        viewCount: 245,
+        isActive: true
+      },
+      {
+        id: 2,
+        title: "Community Milestone Reached!",
+        preview: "We've hit another major milestone in our sports community...",
+        fullContent: "Thanks to all our members, we've reached 1000 successful predictions this month!",
+        author: {
+          id: 'community',
+          name: 'Community Team',
+          icon: '🏆',
+          bio: 'Community management',
+          expertise: ['community'],
+          collaborationCount: 50
+        },
+        collaborationType: 'community',
+        tags: ['milestone', 'community'],
+        createdAt: new Date().toISOString(),
+        viewCount: 189,
+        isActive: true
+      }
+    ];
   }
 }
