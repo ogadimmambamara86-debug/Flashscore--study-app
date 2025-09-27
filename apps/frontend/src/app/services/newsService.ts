@@ -1,5 +1,5 @@
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface NewsAuthor {
   id: string;
@@ -63,7 +63,33 @@ export class NewsService {
       return await response.json();
     } catch (error) {
       console.error('Error fetching news:', error);
-      throw error;
+      // Return fallback data if API fails
+      return {
+        success: true,
+        data: [
+          {
+            id: 1,
+            title: "Welcome to Sports Central",
+            preview: "Your premier destination for sports news and predictions...",
+            fullContent: "Welcome to Sports Central, your premier destination for sports news, expert predictions, and community discussions. Stay updated with the latest happenings in the world of sports.",
+            author: {
+              id: 'sports_central',
+              name: 'Sports Central Team',
+              icon: '🏆',
+              bio: 'Official Sports Central editorial team',
+              expertise: ['sports', 'news', 'predictions'],
+              collaborationCount: 1
+            },
+            collaborationType: 'update',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            tags: ["welcome", "sports"],
+            viewCount: 0
+          }
+        ],
+        count: 1,
+        accessLevel: 'guest'
+      };
     }
   }
 
@@ -86,51 +112,13 @@ export class NewsService {
       throw error;
     }
   }
-}
-
-export class NewsService {
-  static async getAllNews(): Promise<NewsItem[]> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/news`);
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data;
-      } else {
-        throw new Error(data.message || 'Failed to fetch news');
-      }
-    } catch (error) {
-      console.error('Error fetching news:', error);
-      // Return fallback data if API fails
-      return [
-        {
-          id: 1,
-          title: "Welcome to Sports Central",
-          preview: "Your premier destination for sports news and predictions...",
-          fullContent: "Welcome to Sports Central, your premier destination for sports news, expert predictions, and community discussions. Stay updated with the latest happenings in the world of sports.",
-          author: {
-            id: 'sports_central',
-            name: 'Sports Central Team',
-            icon: '🏆',
-            bio: 'Official Sports Central editorial team',
-            expertise: ['sports', 'news', 'predictions'],
-            collaborationCount: 1
-          },
-          collaborationType: 'update',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          tags: ["welcome", "sports"],
-          viewCount: 0
-        }
-      ];
-    }
-  }
 
   static async createNews(newsData: Omit<NewsItem, 'id' | 'createdAt' | 'updatedAt' | 'viewCount'>): Promise<NewsItem> {
     const response = await fetch(`${API_BASE_URL}/api/news`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders()
       },
       body: JSON.stringify(newsData),
     });
@@ -149,6 +137,7 @@ export class NewsService {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders()
       },
       body: JSON.stringify(newsData),
     });
@@ -165,6 +154,10 @@ export class NewsService {
   static async deleteNews(id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/news/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders()
+      }
     });
 
     const data = await response.json();

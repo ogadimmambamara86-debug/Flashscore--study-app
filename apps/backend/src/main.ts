@@ -9,6 +9,7 @@ import { predictionRoutes } from "./routes/predictions";
 import { scraperRoutes } from "./routes/scraper"; // <-- move import here
 import { mlRoutes } from "./routes/ml";
 import { newsAuthorRoutes } from "./routes/newsAuthors";
+import { newsRoutes } from "./routes/news";
 
 const server = Fastify();
 
@@ -16,7 +17,9 @@ const server = Fastify();
 const allowedOrigins = [
   process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : undefined,
   'http://localhost:5000',
-  'http://0.0.0.0:5000'
+  'http://0.0.0.0:5000',
+  'http://localhost:3000',
+  'http://0.0.0.0:3000'
 ].filter((origin): origin is string => typeof origin === 'string');
 
 server.register(cors, { 
@@ -31,12 +34,13 @@ server.register(predictionRoutes, { prefix: "/api" });
 server.register(scraperRoutes, { prefix: "/api" }); // <-- register scraper API
 server.register(mlRoutes, { prefix: "/api/ml" });
 server.register(newsAuthorRoutes, { prefix: "/api" });
+server.register(newsRoutes, { prefix: "/api" });
 
 const start = async () => {
   await connectDB();
   server.listen({ 
     port: Number(process.env.PORT) || 8000,
-    host: 'localhost'  // Use localhost for backend as per Replit guidelines
+    host: '0.0.0.0'  // Use 0.0.0.0 for accessibility
   }, (err, address) => {
     if (err) throw err;
     console.log(`🚀 Server running at ${address}`);
