@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
-import News, { INews } from '../models/News';
+import { FastifyRequest, FastifyReply } from 'fastify';
+import News from '../models/News';
 
 export class NewsController {
   // Get all active news
-  static async getAllNews(req: Request, res: Response): Promise<void> {
+  static async getAllNews(req: FastifyRequest, res: FastifyReply): Promise<void> {
     try {
       const news = await News.find({ isActive: true })
         .sort({ createdAt: -1 })
@@ -28,7 +28,7 @@ export class NewsController {
         }));
       }
 
-      res.json({
+      res.send({
         success: true,
         data: responseData,
         count: responseData.length,
@@ -40,7 +40,7 @@ export class NewsController {
       });
     } catch (error) {
       console.error('Error fetching news:', error);
-      res.status(500).json({
+      res.code(500).send({
         success: false,
         message: 'Failed to fetch news',
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -49,7 +49,7 @@ export class NewsController {
   }
 
   // Get single news item
-  static async getNewsById(req: Request, res: Response): Promise<void> {
+  static async getNewsById(req: FastifyRequest, res: FastifyReply): Promise<void> {
     try {
       const { id } = req.params;
       const news = await News.findOne({ id: parseInt(id), isActive: true });
@@ -103,7 +103,7 @@ export class NewsController {
   }
 
   // Create new news item
-  static async createNews(req: Request, res: Response): Promise<void> {
+  static async createNews(req: FastifyRequest, res: FastifyReply): Promise<void> {
     try {
       const { title, preview, fullContent, author, tags, imageUrl } = req.body;
 
@@ -139,7 +139,7 @@ export class NewsController {
   }
 
   // Update news item
-  static async updateNews(req: Request, res: Response): Promise<void> {
+  static async updateNews(req: FastifyRequest, res: FastifyReply): Promise<void> {
     try {
       const { id } = req.params;
       const updateData = req.body;
@@ -174,7 +174,7 @@ export class NewsController {
   }
 
   // Delete news item (soft delete)
-  static async deleteNews(req: Request, res: Response): Promise<void> {
+  static async deleteNews(req: FastifyRequest, res: FastifyReply): Promise<void> {
     try {
       const { id } = req.params;
 

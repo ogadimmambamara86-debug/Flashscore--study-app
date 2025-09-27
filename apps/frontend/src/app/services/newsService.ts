@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://flashscore-study-app.vercel.app' 
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
 
 export interface NewsAuthor {
   id: string;
@@ -35,7 +37,6 @@ export interface NewsResponse {
 
 export class NewsService {
   private static getAuthHeaders() {
-    // Check for member access or admin login
     if (typeof window !== 'undefined') {
       const memberAccess = localStorage.getItem('memberAccess') === 'true';
       const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';

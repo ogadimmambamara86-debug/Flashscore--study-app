@@ -90,3 +90,32 @@ NewsSchema.index({ isActive: 1 });
 NewsSchema.index({ tags: 1 });
 
 export default mongoose.model<INews>('News', NewsSchema);
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface INews extends Document {
+  id: number;
+  title: string;
+  preview: string;
+  fullContent: string;
+  author: string;
+  tags: string[];
+  createdAt: Date;
+  viewCount: number;
+  isActive: boolean;
+  imageUrl?: string;
+}
+
+const NewsSchema: Schema = new Schema({
+  id: { type: Number, required: true, unique: true },
+  title: { type: String, required: true },
+  preview: { type: String, required: true },
+  fullContent: { type: String, required: true },
+  author: { type: String, required: true },
+  tags: [{ type: String }],
+  createdAt: { type: Date, default: Date.now },
+  viewCount: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
+  imageUrl: { type: String }
+});
+
+export default mongoose.model<INews>('News', NewsSchema);

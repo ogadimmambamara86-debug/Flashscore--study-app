@@ -13,8 +13,9 @@ import { newsRoutes } from "./routes/news";
 
 const server = Fastify();
 
-// Configure CORS properly for Replit environment
+// Configure CORS properly for production
 const allowedOrigins = [
+  'https://flashscore-study-app.vercel.app',
   process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : undefined,
   'http://localhost:5000',
   'http://0.0.0.0:5000',

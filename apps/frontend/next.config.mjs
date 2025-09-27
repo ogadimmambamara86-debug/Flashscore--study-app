@@ -23,10 +23,13 @@ const nextConfig = {
   },
 
   async rewrites() {
+    const isDev = process.env.NODE_ENV === 'development';
     return [
       {
         source: "/api/backend/:path*",
-        destination: "http://localhost:8000/api/:path*",
+        destination: isDev 
+          ? "http://localhost:8000/api/:path*"
+          : "/api/:path*",
       },
     ];
   },
