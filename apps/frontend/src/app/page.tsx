@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MagajiCoManager from "./components/MagajiCoManager";
+import NewsAuthorManager from "./components/NewsAuthorManager";
 
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState("checking...");
@@ -41,6 +42,11 @@ export default function HomePage() {
         <div className="bg-white/10 backdrop-blur rounded-lg p-6 md:col-span-2">
           <h2 className="text-xl font-bold mb-4">Welcome to MagajiCo</h2>
           <p>This is a smart football predictions platform. The application is now running successfully with both frontend and backend services connected.</p>
+        </div>
+
+        {/* News Authors Management Section */}
+        <div className="md:col-span-2">
+          <NewsAuthorManager />
         </div>
       </div>
 

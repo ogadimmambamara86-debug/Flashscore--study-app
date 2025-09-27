@@ -8,6 +8,7 @@ import { matchRoutes } from "./routes/matches";
 import { predictionRoutes } from "./routes/predictions";
 import { scraperRoutes } from "./routes/scraper"; // <-- move import here
 import { mlRoutes } from "./routes/ml";
+import { newsAuthorRoutes } from "./routes/newsAuthors";
 
 const server = Fastify();
 
@@ -29,6 +30,7 @@ server.register(matchRoutes, { prefix: "/api" });
 server.register(predictionRoutes, { prefix: "/api" });
 server.register(scraperRoutes, { prefix: "/api" }); // <-- register scraper API
 server.register(mlRoutes, { prefix: "/api/ml" });
+server.register(newsAuthorRoutes, { prefix: "/api" });
 
 const start = async () => {
   await connectDB();

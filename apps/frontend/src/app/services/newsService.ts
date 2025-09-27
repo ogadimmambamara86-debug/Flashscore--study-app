@@ -1,12 +1,22 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+export interface NewsAuthor {
+  id: string;
+  name: string;
+  icon: string;
+  bio?: string;
+  expertise: string[];
+  collaborationCount: number;
+}
+
 export interface NewsItem {
   id: number;
   title: string;
   preview: string;
   fullContent: string;
-  author: string;
+  author: NewsAuthor;
+  collaborationType?: 'prediction' | 'analysis' | 'community' | 'update';
   createdAt: string;
   updatedAt: string;
   tags: string[];
@@ -34,7 +44,15 @@ export class NewsService {
           title: "Welcome to Sports Central",
           preview: "Your premier destination for sports news and predictions...",
           fullContent: "Welcome to Sports Central, your premier destination for sports news, expert predictions, and community discussions. Stay updated with the latest happenings in the world of sports.",
-          author: "Sports Central Team",
+          author: {
+            id: 'sports_central',
+            name: 'Sports Central Team',
+            icon: '🏆',
+            bio: 'Official Sports Central editorial team',
+            expertise: ['sports', 'news', 'predictions'],
+            collaborationCount: 1
+          },
+          collaborationType: 'update',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           tags: ["welcome", "sports"],

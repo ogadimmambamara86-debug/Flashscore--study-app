@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ClientStorage } from '../utils/clientStorage';
-
-// Define the structure for a news item
-interface NewsItem {
-  id: number;
-  title: string;
-  preview: string;
-  fullContent: string;
-}
+import { NewsItem, NewsAuthor } from '../services/newsService';
 
 const LatestNews: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
