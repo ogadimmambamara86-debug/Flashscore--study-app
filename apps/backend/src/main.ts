@@ -34,7 +34,7 @@ const start = async () => {
   await connectDB();
   server.listen({ 
     port: Number(process.env.PORT) || 8000,
-    host: '0.0.0.0'  // Use 0.0.0.0 for Replit environment
+    host: 'localhost'  // Use localhost for backend as per Replit guidelines
   }, (err, address) => {
     if (err) throw err;
     console.log(`🚀 Server running at ${address}`);

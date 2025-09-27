@@ -9,6 +9,14 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   compress: true,
+  
+  // Allow origins for Replit environment
+  allowedDevOrigins: [
+    '*.repl.co',
+    '*.replit.dev',
+    'localhost',
+    '127.0.0.1'
+  ],
 
   images: {
     formats: ["image/webp", "image/avif"],
