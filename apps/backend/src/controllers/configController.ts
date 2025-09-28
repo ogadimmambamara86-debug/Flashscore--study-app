@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 
 export class ConfigController {
@@ -6,12 +5,10 @@ export class ConfigController {
   static getConfig = (req: Request, res: Response) => {
     try {
       const config = {
-        nodeEnv: process.env.NODE_ENV,
-        frontendUrl: process.env.FRONTEND_URL,
-        // Don't expose sensitive data like database URLs or API keys
-        hasDatabase: !!(process.env.MONGODB_URI || process.env.DATABASE_URL),
-        hasAdminCredentials: !!(process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD),
-        hasSportsApi: !!process.env.SPORTS_API_KEY,
+        nodeEnv: process.env.NODE_ENV || "unknown",
+        frontendUrl: process.env.FRONTEND_URL || "not set",
+        hasDatabase: (process.env.MONGODB_URI || process.env.DATABASE_URL) ? "🟢" : "🔴",
+        hasSportsApi: process.env.SPORTS_API_KEY ? "⚽🟢" : "⚽🔴",
       };
 
       res.json({
@@ -28,16 +25,16 @@ export class ConfigController {
     }
   };
 
-  // Health check with environment status
+  // Health check with emoji
   static healthCheck = (req: Request, res: Response) => {
     const health = {
-      status: 'healthy',
+      status: '✅ healthy',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
-      secrets: {
-        database: !!(process.env.MONGODB_URI || process.env.DATABASE_URL),
-        admin: !!(process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD),
-        sportsApi: !!process.env.SPORTS_API_KEY,
+      environment: process.env.NODE_ENV || "unknown",
+      checks: {
+        database: (process.env.MONGODB_URI || process.env.DATABASE_URL) ? "🟢" : "🔴",
+        admin: (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) ? "👤🟢" : "👤🔴",
+        sportsApi: process.env.SPORTS_API_KEY ? "⚽🟢" : "⚽🔴",
       }
     };
 
