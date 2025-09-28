@@ -45,8 +45,7 @@ class MagajicoDatabase {
         console.error("🚨 Production environment requires database connection!");
         process.exit(1);
       } else {
-        console.log("⚠️  Development mode: Running without database connection");
-        console.log("📝 To connect, set MONGODB_URI in your .env file");
+        console.log("Mongo URI loaded:", process.env.MONGODB_URI ? "✅ Yes" : "❌ No");
       }
     }
   }
