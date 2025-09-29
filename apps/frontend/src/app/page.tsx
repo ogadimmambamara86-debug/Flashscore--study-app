@@ -5,14 +5,35 @@ import MagajiCoManager from "./components/MagajiCoManager";
 import NewsAuthorManager from "./components/NewsAuthorManager";
 
 export default function HomePage() {
+  const [loadingPredictions, setLoadingPredictions] = useState(true);
+  const [error, setError] = useState(false);
   const [backendStatus, setBackendStatus] = useState("checking...");
+  const [devMode, setDevMode] = useState(false);
 
   useEffect(() => {
-    // Test backend health endpoint
     fetch("/api/backend/health")
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(() => setBackendStatus("✅ Connected"))
-      .catch(() => setBackendStatus("❌ Disconnected"));
+      .then(res => (res.ok ? res.json() : Promise.reject()))
+      .then(() => {
+        setLoadingPredictions(false);
+        setError(false);
+        setBackendStatus("✅ Connected");
+      })
+      .catch(() => {
+        setLoadingPredictions(false);
+        setError(true);
+        setBackendStatus("❌ Disconnected");
+      });
+  }, []);
+
+  // 🔑 Secret keyboard shortcut: Shift + D
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key.toLowerCase() === "d") {
+        setDevMode(prev => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -23,25 +44,47 @@ export default function HomePage() {
       </header>
 
       <div className="max-w-6xl mx-auto grid gap-5 grid-cols-1 md:grid-cols-2">
-        <div className="bg-white/10 backdrop-blur rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4">System Status</h2>
-          <p>Backend: {backendStatus}</p>
-          <p>Frontend: ✅ Running</p>
-        </div>
-
+        {/* Quick Actions */}
         <div className="bg-white/10 backdrop-blur rounded-lg p-6">
           <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
           <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded mr-2">
             View Predictions
           </button>
-          <button className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
-            Test Backend
-          </button>
+
+          {/* Dev Mode button only in dev */}
+          {process.env.NODE_ENV === "development" && (
+            <button
+              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
+              onClick={() => setDevMode(!devMode)}
+            >
+              {devMode ? "Hide Dev Mode" : "Dev Mode"}
+            </button>
+          )}
         </div>
 
+        {/* Welcome + Dynamic Messages */}
         <div className="bg-white/10 backdrop-blur rounded-lg p-6 md:col-span-2">
           <h2 className="text-xl font-bold mb-4">Welcome to MagajiCo</h2>
-          <p>This is a smart football predictions platform. The application is now running successfully with both frontend and backend services connected.</p>
+          {loadingPredictions && <p>⏳ Loading predictions, please wait...</p>}
+          {!loadingPredictions && !error && (
+            <p>
+              ✅ Predictions are ready! Explore matches and smart insights powered by MagajiCo.
+            </p>
+          )}
+          {!loadingPredictions && error && (
+            <p className="text-red-400">
+              ❌ Oops! We couldn’t fetch predictions right now. Please try again later.
+            </p>
+          )}
+
+          {/* 🔧 Developer-only system info */}
+          {devMode && (
+            <div className="mt-4 text-sm opacity-80">
+              <p>🔧 Backend Status: {backendStatus}</p>
+              <p>🔧 Frontend Status: ✅ Running</p>
+              <p>🔧 Mode: {process.env.NODE_ENV}</p>
+            </div>
+          )}
         </div>
 
         {/* News Authors Management Section */}
@@ -53,7 +96,7 @@ export default function HomePage() {
       <footer className="text-center mt-10 opacity-70">
         <p>🏆 Powered by MagajiCo Technology | Next.js + Fastify</p>
       </footer>
-      
+
       <MagajiCoManager />
     </div>
   );
