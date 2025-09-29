@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 interface iOSInterfaceProps {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ interface iOSInterfaceProps {
 export default function iOSInterface({
   children,
   showstatusbar = true,
-  enableHapticFeedback = true,
+  enableHapticFeedback = true
 }: iOSInterfaceProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(85);
@@ -26,16 +26,16 @@ export default function iOSInterface({
   }, []);
 
   const handleHapticFeedback = () => {
-    if (enableHapticFeedback && "vibrate" in navigator) {
+    if (enableHapticFeedback && 'vibrate' in navigator) {
       navigator.vibrate(10);
     }
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: false,
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: false
     });
   };
 
@@ -69,10 +69,7 @@ export default function iOSInterface({
           </div>
         </div>
       )}
-      <div
-        className="w-full h-full overflow-auto"
-        onClick={handleHapticFeedback}
-      >
+      <div className="w-full h-full overflow-auto" onClick={handleHapticFeedback}>
         {children}
       </div>
     </div>
