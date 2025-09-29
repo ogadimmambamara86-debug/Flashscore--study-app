@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 
 interface iOSInterfaceProps {
   children: React.ReactNode;
-  showStatusBar?: boolean;
+  showstatusbar?: boolean;
   enableHapticFeedback?: boolean;
 }
 
 export default function iOSInterface({
   children,
-  showStatusBar = true,
+  showstatusbar = true,
   enableHapticFeedback = true
 }: iOSInterfaceProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
