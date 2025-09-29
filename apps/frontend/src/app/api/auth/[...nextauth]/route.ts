@@ -1,4 +1,3 @@
-
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import FacebookProvider from 'next-auth/providers/facebook'
@@ -8,8 +7,33 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter'
 import { MongoClient } from 'mongodb'
 import bcrypt from 'bcryptjs'
 
-const client = new MongoClient(process.env.MONGODB_URI!)
-const clientPromise = client.connect()
+// Validate MongoDB URI exists
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please add your MONGODB_URI to environment variables')
+}
+
+const uri = process.env.MONGODB_URI
+const options = {}
+
+let client: MongoClient
+let clientPromise: Promise<MongoClient>
+
+// Use a global variable in development to preserve the connection across hot reloads
+if (process.env.NODE_ENV === 'development') {
+  let globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>
+  }
+
+  if (!globalWithMongo._mongoClientPromise) {
+    client = new MongoClient(uri, options)
+    globalWithMongo._mongoClientPromise = client.connect()
+  }
+  clientPromise = globalWithMongo._mongoClientPromise
+} else {
+  // In production, create a new client for each request
+  client = new MongoClient(uri, options)
+  clientPromise = client.connect()
+}
 
 const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -45,7 +69,8 @@ const authOptions = {
           return null
         }
 
-        const db = client.db()
+        const mongoClient = await clientPromise
+        const db = mongoClient.db()
         const user = await db.collection('users').findOne({
           email: credentials.email
         })
@@ -55,7 +80,7 @@ const authOptions = {
         }
 
         return {
-          id: user._id,
+          id: user._id.toString(),
           email: user.email,
           name: user.name,
           image: user.image
@@ -79,15 +104,16 @@ const authOptions = {
       return token
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id as string
         session.user.provider = token.provider as string
       }
       return session
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       try {
-        const db = client.db()
+        const mongoClient = await clientPromise
+        const db = mongoClient.db()
         
         // Check if user already exists
         const existingUser = await db.collection('users').findOne({
