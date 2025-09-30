@@ -235,6 +235,19 @@ args = "cd apps/backend && npm install && npm run start"
 task = "shell.exec"
 args = "cd apps/frontend && npm install --legacy-peer-deps && npm run dev"
 
+[[workflows.workflow]]
+name = "Production Deployment"
+author = 47857249
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "chmod +x start-production.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./start-production.sh"
+
 [[ports]]
 localPort = 3000
 externalPort = 3000

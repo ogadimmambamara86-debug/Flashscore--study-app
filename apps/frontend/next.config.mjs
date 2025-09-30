@@ -15,10 +15,14 @@ const nextConfig = {
   },
 
   async rewrites() {
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_BACKEND_URL || 'https://your-backend-name.replit.app'
+      : 'http://localhost:8000';
+      
     return [
       {
         source: "/api/backend/:path*",
-        destination: "http://localhost:8000/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },
