@@ -15,7 +15,7 @@ import ProductionErrorBoundary from "./components/ProductionErrorBoundary";
 import PrivacyNotice from "./components/PrivacyNotice";
 import MobileInstallPrompter from "./components/MobileInstallPrompter";
 import PWAServiceWorker from "./components/PWAServiceWorker";
-import iOSInterface from "./components/iOSInterface";
+// import iOSInterface from "./components/iOSInterface"; // Removed due to DOM prop warnings
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -57,7 +57,7 @@ export default function RootLayout({
       <body className="relative flex sports">
         <NextAuthSessionProvider>
           <ProductionErrorBoundary>
-            <iOSInterface showStatusBar={true} enableHapticFeedback={true}>
+            {/* iOS interface removed to fix DOM prop warnings */}
               <React.Suspense fallback={null}>
                 <BackgroundParticles />
               </React.Suspense>
@@ -81,7 +81,6 @@ export default function RootLayout({
 
               <MobileInstallPrompter />
               <PWAServiceWorker />
-            </iOSInterface>
           </ProductionErrorBoundary>
         </NextAuthSessionProvider>
         <PrivacyNotice />

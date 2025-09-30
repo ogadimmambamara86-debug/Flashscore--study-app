@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
 
-interface iOSInterfaceProps {
+interface IOSInterfaceProps {
   children: React.ReactNode;
   showStatusBar?: boolean;
   enableHapticFeedback?: boolean;
 }
 
-export default function iOSInterface({
+export default function IOSInterface({
   children,
   showStatusBar = true,
   enableHapticFeedback = true
-}: iOSInterfaceProps) {
+}: IOSInterfaceProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(85);
   const [signalStrength, setSignalStrength] = useState(4);
@@ -273,4 +273,4 @@ export default function iOSInterface({
   );
 }
 
-export { iOSInterface };
+export { IOSInterface };
