@@ -1,8 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import MagajiCoManager from "./components/MagajiCoManager";
+import PredictionsPreview from './components/PredictionsPreview';
+import PredictionPreview from './components/PredictionPreview';
+import PreviewManager from './components/PreviewManager';
 
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState("checking...");
@@ -11,7 +13,7 @@ export default function HomePage() {
   useEffect(() => {
     // Smooth loading animation
     setTimeout(() => setIsLoaded(true), 100);
-    
+
     // Test backend health endpoint
     fetch("/api/backend/health")
       .then(res => res.ok ? res.json() : Promise.reject())
@@ -120,7 +122,7 @@ export default function HomePage() {
               <h2 className="text-2xl font-bold">Welcome to MagajiCo</h2>
             </div>
             <p className="text-lg text-gray-300 leading-relaxed">
-              Experience the future of sports predictions with our advanced AI-powered platform. 
+              Experience the future of sports predictions with our advanced AI-powered platform.
               Get real-time predictions, earn Pi coins, and join a community of passionate sports enthusiasts.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -135,6 +137,12 @@ export default function HomePage() {
               </span>
             </div>
           </div>
+
+          {/* New Preview Components */}
+          <PreviewManager />
+          <PredictionPreview />
+          <PredictionsPreview />
+
         </div>
 
         {/* Enhanced Footer */}
@@ -145,7 +153,7 @@ export default function HomePage() {
             </p>
           </div>
         </footer>
-        
+
         <MagajiCoManager />
       </div>
     </div>
