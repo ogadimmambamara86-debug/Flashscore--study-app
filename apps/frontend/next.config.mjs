@@ -15,6 +15,7 @@ const nextConfig = {
   },
 
   async rewrites() {
+    // For Vercel deployment, use Replit backend
     const backendUrl = process.env.NODE_ENV === 'production' 
       ? process.env.NEXT_PUBLIC_BACKEND_URL || 'https://your-backend-name.replit.app'
       : 'http://localhost:8000';
@@ -26,6 +27,9 @@ const nextConfig = {
       },
     ];
   },
+
+  // Vercel-specific configurations
+  output: process.env.VERCEL ? 'standalone' : undefined,
 
   webpack: (config) => {
     // Chunk optimization
